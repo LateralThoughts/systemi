@@ -1,0 +1,34 @@
+This is Fac-Stemi
+=====================================
+
+
+Goal is simple : generate factures using LT's templates from structured data.
+
+Example :
+
+Request
+-------
+
+POST : 
+Content-type : application/json
+Body : {
+	"client" : {
+		"name" : "VIDAL",
+		"address" : "27 rue camille desmoulins"
+	},
+	"invoice" : [{
+		"days" : 25,
+		"daily_rate" : 450,
+		"tax_rate" : 19.6 // defaults to 19.6
+	}, { ... }]
+}
+
+Response
+--------
+
+201 CREATED 
+Content-type: application/json
+Body : {
+	"id" : "LT-255",
+	"published" : true // published in google drive directory
+}
