@@ -4,6 +4,7 @@
 
 # Home page
 GET     /                           controllers.Application.index
+GET     /twice                           controllers.Application.twice
 POST    /invoice                    controllers.Application.createInvoice
 
 # Map static resources from the /public folder to the /assets URL path

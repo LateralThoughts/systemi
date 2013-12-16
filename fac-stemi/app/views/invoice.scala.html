@@ -1,0 +1,125 @@
+@(message: String, number: String, client: domain.ClientDefinition, items : List[domain.InvoiceLine])
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/bootstrap.min.css")"/>
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/pdf.css")"/>
+  </head>
+  <body>
+    <div class="container">
+        <div class="row">
+            <div class="invoice_header col-xs-3">
+                <p class="company">
+                    <img class="logo" src="@routes.Assets.at("images/logo.png")"/>
+                    <span class="name">Lateral Thoughts SAS</span><br/>
+                    <span class="address">37, rue des Mathurins<br/> 75008 Paris</span>
+                </p>
+                <span class="invoice_number">Facture n°@number</span>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-7"><!----></div>
+            <div class="col-xs-4 invoice_client ">
+                <span class="name">@client.name</span> <br/>
+                <span class="address">@client.address</span> <br/>
+                <span class="postal_code">@client.postalCode</span> <span class="city">@client.city</span>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="invoice_subject col-xs-12">
+                Objet : @message
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+                <table class="table invoice_lines">
+                    <thead>
+                        <tr>
+                            <td>Désignation</td>
+                            <td>Prix Unitaire</td>
+                            <td>Quantité</td>
+                            <td>Montant (EUR)</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for(line <- items) {
+                        <tr>
+                            <td>@line.description</td>
+                            <td>@line.days</td>
+                            <td>@line.dailyRate</td>
+                            <td>@{line.dailyRate * line.days}</td>
+                        </tr>
+                        }
+
+                        <tr class="end">
+                            <td colspan="3">Total HT</td>
+                            <td>@Application.computeTotalHT(items)</td>
+                        </tr>
+
+                        <tr class="tva end">
+                            <td colspan="3">TVA 19.6%</td>
+                            <td>@Application.computeTva(items)</td>
+                        </tr>
+                        <tr class="end"><td colspan="4"></td></tr>
+                        <tr class="total end">
+                            <td colspan="3">Total TTC </td>
+                            <td>@Application.computeTotal(items)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row pay_info">
+            <div class="col-xs-12">A régler par virement bancaire :</div>
+            <div class="col-xs-2"><!----></div>
+            <div class="col-xs-6">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <td>Code banque</td>
+                            <td>Code guichet</td>
+                            <td>N° de Compte</td>
+                            <td>Clé RIB</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="4">30056 00949 09490124011 06</td>
+                        </tr>
+                        <tr>
+                            <td>IBAN N°</td>
+                            <td colspan="3">FR76 3005 6009 4909 4901 2401 106</td>
+                        </tr>
+                        <tr>
+                            <td>Code BIC</td>
+                            <td colspan="3">CCFRFRPP</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-xs-1"><!----></div>
+        </div>
+        <div class="row delay"><span class="disclaimer">En conformité de l’article L441-6 du Code du commerce :</span>
+            <ul>
+                <li> La facture est payable sous 30 jours.</li>
+                <li> Tout réglement effectué après expiration du délai donnera lieu, à titre de pénalité de retard, à l’application d’un
+intérêt égal à celui appliqué par la Banque Centrale Européenne à son opération de refinancement la plus récente, majoré de 10 points de pourcentage, ainsi qu’à une indemnité forfaitaire pour frais de recouvrement d’un montant de 40 Euros.</li>
+                <li> Les pénalités de retard sont exigibles sans qu’un rappel soit nécessaire.</li>
+            </ul>
+        </div>
+        <div class="row footer">
+            Lateral Thoughts au capital de 30 000 € – 37, rue des Mathurins - 75008 Paris Telephone : +33(0)6 87 05 60 19 – E-mail : contact(at)lateral-thoughts.com<br/>
+RCS Paris – SIRET 538 042 649 00011 – Code APE 6202A – Numéro TVA : FR 41 538 042 649 <br/>Déclaration d’activité pour la formation enregistrée sous le numéro 11 75 49039 75 auprès du préfet de région d’Ile de France.
+        </div>
+    </div>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>
+  </body>
+</html>

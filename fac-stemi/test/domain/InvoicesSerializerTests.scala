@@ -10,14 +10,17 @@ class InvoiceRequestSerializerTest extends FunSuite with ShouldMatchers with Inv
 		val data = """{
 			"client" : {
 				"name" : "VIDAL",
-				"address" : "27 rue camille desmoulins"
+				"address" : "27 rue camille desmoulins",
+				"postalCode" : "",
+				"city": ""
 			},
 			"invoice" : [{
+				"description" : "blabla",
 				"days" : 25.0,
 				"dailyRate" : 450,
-		                "taxRate": 19.6
+		        "taxRate": 19.6
 			}]}"""
-		val invoice = InvoiceRequest(ClientDefinition("VIDAL", "27 rue camille desmoulins"), List(InvoiceLine(25.0, 450.0)))
+		val invoice = InvoiceRequest(ClientDefinition("VIDAL", "27 rue camille desmoulins"), List(InvoiceLine("blabla", 25.0, 450.0)))
 		Json.parse(data).validate(invoiceReads).get should be (invoice)
 	}
 }
