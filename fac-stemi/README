@@ -12,9 +12,13 @@ Request
 POST : 
 Content-type : application/json
 Body : {
+	"title" : "Facture de novembre",
+	"invoiceNumber": "VT055",
 	"client" : {
 		"name" : "VIDAL",
-		"address" : "27 rue camille desmoulins"
+		"address" : "27 rue camille desmoulins",
+		"postalCode" : 94550,
+		"city": "Chevilly-Larue"
 	},
 	"invoice" : [{
 		"days" : 25,

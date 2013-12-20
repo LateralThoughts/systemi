@@ -9,6 +9,8 @@ object ApplicationBuild extends Build {
    val appDependencies = Seq(
       "org.xhtmlrenderer" % "flying-saucer-pdf" % "9.0.4",
       "net.sf.jtidy" % "jtidy" % "r938",
+      "com.google.apis" % "google-api-services-drive" % "v2-rev109-1.16.0-rc",
+      "com.google.http-client" % "google-http-client-jackson2" % "1.17.0-rc",
       "org.scalatest" %% "scalatest" % "1.9.1" % "test"
    )
 

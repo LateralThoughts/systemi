@@ -4,7 +4,7 @@ case class ClientDefinition(name: String, address: String, postalCode : String =
 
 case class InvoiceLine(description: String, days: Double, dailyRate: Double, taxRate: Double = 19.6)
 
-case class InvoiceRequest(client: ClientDefinition, invoice: List[InvoiceLine])
+case class InvoiceRequest(title: String, invoiceNumber : String, client: ClientDefinition, invoice: List[InvoiceLine])
 
 import play.api.libs.json._
 

@@ -1,7 +1,46 @@
-@(message: String)
+@main("Invoice") {
+	<div data-ng-controller="BasicInvoiceController" class="row">
+		<form action="/api/invoice" method="POST" role="form">
+		  <div class="form-group">
+		    <label for="title">Titre de la facture</label>
+		    <input type="text" class="form-control" name="title" id="title" placeholder="Entrer un titre">
+		  </div>
 
-@main("Welcome to Play") {
+		  <div class="form-group">
+		    <label for="number">Numéro de facture</label>
+		    <input type="text" class="form-control" name="invoiceNumber" id="number" placeholder="Numéro de facture">
+		  </div>
 
-    @play20.welcome(message)
+		  <div class="form-group">
+		    <label for="clientName">Nom du client</label>
+		    <input type="text" class="form-control" name="clientName" id="clientName" placeholder="Nom du client">
+		  </div>
 
+		  <div class="form-group">
+		    <label for="clientAddress">Adresse du client</label>
+		    <input type="text" class="form-control" name="clientAddress" id="clientAddress" placeholder="Adresse du client">
+		  </div>
+
+		  <div class="form-group">
+		    <label for="clientCity">Ville du client</label>
+		    <input type="text" class="form-control" name="clientCity" id="clientCity" placeholder="Ville du client">
+		  </div>
+
+		  <div class="form-group">
+		    <label for="clientPostalcode">Code postal du client</label>
+		    <input type="text" class="form-control" name="clientPostalCode" id="clientPostalcode" placeholder="Code postal du client">
+		  </div>
+
+		  <table class="table form-group">
+		  	<tr>
+		  		<td><input type="text" name="invoiceDescription" placeholder="Description"></td>
+		  		<td><input type="text" name="invoiceDays" placeholder="Nombre de jours"></td>
+		  		<td><input type="text" name="invoiceDailyRate" placeholder="TJM"></td>
+		  		<td><input type="text" name="invoiceTaxRate" placeholder="TVA" value="19.6"></td>
+		  	</tr>
+		  </table>
+
+		  <button type="submit" class="btn btn-default">Générer la facture</button>
+		</form>
+    </div>
 }
