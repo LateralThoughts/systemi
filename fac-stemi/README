@@ -31,8 +31,5 @@ Response
 --------
 
 201 CREATED 
-Content-type: application/json
-Body : {
-	"id" : "LT-255",
-	"published" : true // published in google drive directory
-}
+Content-type: application/pdf
+Body : the generated binary pdf document

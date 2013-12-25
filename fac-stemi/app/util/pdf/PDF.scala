@@ -35,7 +35,7 @@ import com.lowagie.text.pdf.BaseFont;
 
 object PDF {
 
-        private def PLAY_DEFAULT_URL = "http://localhost:9000";
+        private def PLAY_DEFAULT_URL = "http://invoice.lateral-thoughts.com";
 
         class MyUserAgent(outputDevice : ITextOutputDevice) extends ITextUserAgent(outputDevice) {
 
