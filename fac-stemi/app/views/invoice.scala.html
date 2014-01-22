@@ -61,7 +61,7 @@
                         </tr>
 
                         <tr class="tva end">
-                            <td colspan="3">TVA 19.6%</td>
+                            <td colspan="3">TVA @for(line <- items) { @line.taxRate% }</td>
                             <td>@Application.computeTva(items)</td>
                         </tr>
                         <tr class="end"><td colspan="4"></td></tr>

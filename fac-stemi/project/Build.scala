@@ -1,5 +1,6 @@
 import sbt._
 import Keys._
+import play.Project._
 
 object ApplicationBuild extends Build {
 
@@ -14,8 +15,26 @@ object ApplicationBuild extends Build {
       "org.scalatest" %% "scalatest" % "1.9.1" % "test"
    )
 
+   val appSettings = Seq(
+         // Optional
+         // Disable jar for this project (useless)
+         publishArtifact in (Compile, packageBin) := false,
 
-   val main = play.Project(appName, appVersion, appDependencies).settings(
-      
+         // Disable scaladoc generation for this project (useless)
+         publishArtifact in (Compile, packageDoc) := false,
+
+         // Disable source jar for this project (useless)
+         publishArtifact in (Compile, packageSrc) := false
+
+         // Where to 'publish'
+         //publishTo := Some(Resolver.file("file", file(Path.userHome.absolutePath + "/.ivy2/publish"))),
+   )
+
+   val main = play.Project(
+      appName,
+      appVersion,
+      appDependencies,
+      settings = Defaults.defaultSettings ++ playScalaSettings ++ appSettings).settings(
+
    )
 }
