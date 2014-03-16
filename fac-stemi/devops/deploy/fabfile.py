@@ -17,7 +17,7 @@ def deploy(artifact):
         # unzip l'artefact
         run('unzip %s' % TEMP_DEPLOY_PATH)
         # re-set les droits
-        run('chmod -R systemi .')
+        run('chown -R systemi .')
 
     # restart service supervisord
     run('supervisorctl start invoice_play')
