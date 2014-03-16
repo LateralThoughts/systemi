@@ -15,7 +15,7 @@ def deploy(artifact):
         run('tar -cf /tmp/old.invoice.lateral-thoughts.com.tar *')
         run('rm -rf *')
         # unzip l'artefact
-        run('unzip %s' % TEMP_DEPLOY_PATH)
+        run('tar -xvf %s' % TEMP_DEPLOY_PATH)
         # re-set les droits
         run('chown -R systemi .')
 
