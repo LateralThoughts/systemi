@@ -74,8 +74,9 @@ object Application extends Controller
     val client = invoiceRequest.client
     val title = invoiceRequest.title
     val id = invoiceRequest.invoiceNumber
+    val delay = invoiceRequest.paymentDelay
     val invoiceLines = invoiceRequest.invoice
 
-    Ok(views.html.invoice(title, id, client, invoiceLines))
+    Ok(views.html.invoice(title, id, delay, client, invoiceLines))
   }
 }

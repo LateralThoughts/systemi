@@ -25,11 +25,9 @@ trait InvoiceSerializer {
     val dailyRates = body.get("invoiceDailyRate").get
     val rates = body.get("invoiceTaxRate").get
 
-    val lines : List[InvoiceLine] = (
-      for {
+    val lines = (for {
         (((description, day), dailyRate), rate) <- descriptions zip days zip dailyRates zip rates
-      } yield InvoiceLine(description, day.toDouble, dailyRate.toDouble, rate.toDouble)
-      ).toList
+      } yield InvoiceLine(description, day.toDouble, dailyRate.toDouble, rate.toDouble)).toList
 
     val invoiceRequest = InvoiceRequest(
       body.get("title").get.headOption.get,
@@ -47,9 +45,10 @@ trait InvoiceSerializer {
     val client = invoiceRequest.client
     val title = invoiceRequest.title
     val id = invoiceRequest.invoiceNumber
+    val delay = invoiceRequest.paymentDelay
     val invoiceLines = invoiceRequest.invoice
 
-    PDF.toBytes(invoice.render(title, id, client, invoiceLines))
+    PDF.toBytes(invoice.render(title, id, delay, client, invoiceLines))
   }
 }
 

@@ -1,4 +1,4 @@
-@(message: String, number: String, client: domain.ClientDefinition, items : List[domain.InvoiceLine])
+@(message: String, number: String, paymentDelay: Int, client: domain.ClientDefinition, items : List[domain.InvoiceLine])
 <!DOCTYPE html>
 <html>
   <head>
@@ -106,7 +106,7 @@
         </div>
         <div class="row delay"><span class="disclaimer">En conformité de l’article L441-6 du Code du commerce :</span>
             <ul>
-                <li> La facture est payable sous 30 jours.</li>
+                <li> La facture est payable sous @paymentDelay jours.</li>
                 <li> Tout réglement effectué après expiration du délai donnera lieu, à titre de pénalité de retard, à l’application d’un
 intérêt égal à celui appliqué par la Banque Centrale Européenne à son opération de refinancement la plus récente, majoré de 10 points de pourcentage, ainsi qu’à une indemnité forfaitaire pour frais de recouvrement d’un montant de 40 Euros.</li>
                 <li> Les pénalités de retard sont exigibles sans qu’un rappel soit nécessaire.</li>
