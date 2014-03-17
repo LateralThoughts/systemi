@@ -5,48 +5,94 @@ import views.html._
 import play.api._
 import play.api.mvc._
 import domain._
-import util.DrivePersistence
 import play.api.libs.json._
+import scala.concurrent.Future
+import play.api.libs.oauth._  
+import play.api.libs.ws._
 import oauth._
+import play.api.Logger
 
-object Application extends Controller with InvoiceSerializer with InvoiceLinesAnalyzer with DrivePersistence{
+object Application extends Controller with InvoiceSerializer with InvoiceLinesAnalyzer {
+  implicit val context = scala.concurrent.ExecutionContext.Implicits.global
+  val log = Logger("invoice@LT")
 
   def index = Action {
-    Ok(views.html.index())
+    implicit request => 
+      Ok(views.html.index(GoogleOAuth.getGoogleAuthUrl))
   }
 
   def auth = Action {
-    implicit request =>
-      println("--------------")
+    implicit request => 
+      val authcode = GoogleOAuth.getAuthCode(request)
 
-      val authcode = GoogleOAuth.getauthcode(request)
-
-      val googletoken = authcode match {
-        case Some(a) => Some(GoogleOAuth.gettoken(a))
+      val token = authcode match {
+        case Some(a) => Some(GoogleOAuth.getAccessToken(a))
         case _ => None
       }
 
-      if (googletoken.isDefined) {
-
-        println("email: " + GoogleOAuth.getuserinfo(googletoken, "email"))
-        println("name: " + GoogleOAuth.getuserinfo(googletoken, "name"))
-        println("given_name: " + GoogleOAuth.getuserinfo(googletoken, "given_name"))
-        println("family_name: " + GoogleOAuth.getuserinfo(googletoken, "family_name"))
+      if (token.isDefined) {
+        Redirect(routes.Application.index)
+          .withSession(
+            "token" -> token.get, "secret" -> authcode.get
+          )
       } else {
-        println("Access denied")
+        Redirect(routes.Application.index)
       }
+  }
 
-      Ok(views.html.results("Testing Google Authentication: Result"))
+  private def upload(token: String, invoice : InvoiceRequest, content : Array[Byte]) {
+    import java.util.Arrays
+    import com.google.api.client.http.ByteArrayContent
+    import com.google.api.services.drive.model._
+    import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
+    import com.google.api.client.http.javanet.NetHttpTransport
+    import com.google.api.client.json.jackson.JacksonFactory
+    import com.google.api.services.drive.Drive
+    
+    val credentials = new GoogleCredential()
+    credentials.setAccessToken(token)  
+
+    val service = new Drive.Builder(new NetHttpTransport, new JacksonFactory, credentials).build()
+    val body = new File()
+    body.setTitle(invoice.title)
+    body.setMimeType("application/pdf")
+    body.setParents(Arrays.asList(new ParentReference().setId("0B7sqFgEnI9EXNEZVcC1KX0xtZlk")));
+
+    val mediaContent = new ByteArrayContent("application/pdf", content)
+    try {
+      service.files().insert(body, mediaContent).execute()
+    } catch {
+      case error :Throwable => log.warn("an error occured while trying to upload invoice to Google Drive : " + error)/* nothing to do it failed, it failed... */
+    }
+  }
+
+  def sessionTokenPair(implicit request: RequestHeader): Option[RequestToken] = {
+    for {
+      token <- request.session.get("token")
+      secret <- request.session.get("secret")
+    } yield {
+      RequestToken(token, secret)
+    }
   }
 
   def showInvoice = Action { implicit request => {
       request.body.asJson match {
         case Some(json) => json.validate(invoiceReads) match {
           case errors:JsError => Ok(errors.toString).as("application/json")
-          case result: JsResult[InvoiceRequest] => Ok(invoiceToPdf(result.get)).as("application/pdf")
+          case result: JsResult[InvoiceRequest] => Ok(invoiceToPdfBytes(result.get)).as("application/pdf")
         }
         case None => request.body.asFormUrlEncoded match {
-          case Some(body) => Ok(invoiceFromForm(body.map({ case(k,v) => (k, v.headOption.get)}))).as("application/pdf")
+          case Some(body) => 
+            val invoiceRequest = invoiceFromForm(body.map({ case(k,v) => (k, v.headOption.get)}))
+            val generatedInvoice = invoiceToPdfBytes(invoiceRequest)
+            sessionTokenPair match {
+              case Some(tokens) => {
+                upload(tokens.token, invoiceRequest, generatedInvoice)
+              }
+              case _ => log.warn("no access token found - the invoice won't be uploaded to Google Drive")
+            }
+            Ok(generatedInvoice).as("application/pdf")
+
           case None => Ok("no go")
         }
       }
@@ -66,7 +112,7 @@ object Application extends Controller with InvoiceSerializer with InvoiceLinesAn
     Ok(views.html.invoice(title, id, client, invoiceLines))
   }
 
-  private def invoiceFromForm(body : Map[String, String]) :Array[Byte]= {
+  private def invoiceFromForm(body : Map[String, String]) = {
     val invoiceRequest = InvoiceRequest(
       body.get("title").get,
       body.get("invoiceNumber").get,
@@ -77,10 +123,10 @@ object Application extends Controller with InvoiceSerializer with InvoiceLinesAn
         body.get("invoiceTaxRate").get.toDouble)
       )
     )
-    invoiceToPdf(invoiceRequest)
+    invoiceRequest
   }
 
-  private def invoiceToPdf(invoiceRequest : InvoiceRequest) :Array[Byte] = {
+  private def invoiceToPdfBytes(invoiceRequest : InvoiceRequest) :Array[Byte] = {
     val client = invoiceRequest.client
     val title = invoiceRequest.title
     val id = invoiceRequest.invoiceNumber

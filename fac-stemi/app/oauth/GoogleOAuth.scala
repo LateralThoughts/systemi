@@ -7,13 +7,13 @@ import scala.util.parsing.json.JSON._
 
 object GoogleOAuth {
 
-  def getauthcode(rq: play.api.mvc.Request[play.api.mvc.AnyContent]): Option[String] = {
+  def getAuthCode(rq: play.api.mvc.Request[play.api.mvc.AnyContent]): Option[String] = {
     val err = rq.queryString.get("error").flatMap(_.headOption)
     val code = rq.queryString.get("code").flatMap(_.headOption)
     return code.asInstanceOf[Option[String]]
   }
 
-  def getgoogauthurl: String = {
+  def getGoogleAuthUrl: String = {
     val getauthurl = current.configuration.getString("googleapi.urlgetauth").getOrElse("")
     val authscope = current.configuration.getString("googleapi.scope").getOrElse("")
     val redirecturi = current.configuration.getString("googleapi.redirect_uri").getOrElse("")
@@ -24,7 +24,7 @@ object GoogleOAuth {
       "&response_type=code&client_id=" + clientid
   }
 
-  def gettoken(authcode: String): String = {
+  def getAccessToken(authcode: String): String = {
     val gettokenurl = current.configuration.getString("googleapi.urlgettoken").getOrElse("")
     val clientid = current.configuration.getString("googleapi.client_id").getOrElse("")
     val clientsecret = current.configuration.getString("googleapi.client_secret").getOrElse("")
