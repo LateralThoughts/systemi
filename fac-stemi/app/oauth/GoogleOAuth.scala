@@ -1,6 +1,5 @@
 package oauth 
 
-import play.api.mvc._
 import play.api.Play._
 import dispatch._
 import scala.util.parsing.json.JSON._
@@ -10,7 +9,7 @@ object GoogleOAuth {
   def getAuthCode(rq: play.api.mvc.Request[play.api.mvc.AnyContent]): Option[String] = {
     val err = rq.queryString.get("error").flatMap(_.headOption)
     val code = rq.queryString.get("code").flatMap(_.headOption)
-    return code.asInstanceOf[Option[String]]
+    code.asInstanceOf[Option[String]]
   }
 
   def getGoogleAuthUrl: String = {
@@ -19,9 +18,7 @@ object GoogleOAuth {
     val redirecturi = current.configuration.getString("googleapi.redirect_uri").getOrElse("")
     val clientid = current.configuration.getString("googleapi.client_id").getOrElse("")
 
-    return getauthurl + "?scope=" + authscope +
-      "&redirect_uri=" + redirecturi +
-      "&response_type=code&client_id=" + clientid
+    s"$getauthurl?scope=$authscope&redirect_uri=$redirecturi&response_type=code&client_id=$clientid"
   }
 
   def getAccessToken(authcode: String): String = {
@@ -40,22 +37,7 @@ object GoogleOAuth {
         }
     })
     http.shutdown
-    return access_token.toString
+    access_token.toString
   }
 
-  def getuserinfo(token: Option[String], userfield: String): String = {
-    val getuserinfourl = current.configuration.getString("googleapi.urlgetuserinfo").getOrElse("")
-    val urlparam = "?access_token=" + token.getOrElse("")
-    val http = new dispatch.Http
-    val ret = http(url(getuserinfourl + urlparam) >- {
-      str =>
-        {
-          val json = parseFull(str).get.asInstanceOf[Map[String, Any]]
-          json(userfield)
-        }
-    })
-    http.shutdown
-
-    return ret.toString
-  }
 }
