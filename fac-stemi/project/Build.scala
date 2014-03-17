@@ -12,6 +12,9 @@ object ApplicationBuild extends Build {
       "net.sf.jtidy" % "jtidy" % "r938",
       "com.google.apis" % "google-api-services-drive" % "v2-rev109-1.16.0-rc",
       "com.google.http-client" % "google-http-client-jackson2" % "1.17.0-rc",
+      "net.databinder" %% "dispatch-http" % "0.8.8",        
+      "jp.t2v" %% "play2-auth"      % "0.11.0",
+      "jp.t2v" %% "play2-auth-test" % "0.11.0" % "test",
       "org.scalatest" %% "scalatest" % "1.9.1" % "test"
    )
 

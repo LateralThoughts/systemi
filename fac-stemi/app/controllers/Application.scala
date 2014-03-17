@@ -7,11 +7,36 @@ import play.api.mvc._
 import domain._
 import util.DrivePersistence
 import play.api.libs.json._
+import oauth._
 
 object Application extends Controller with InvoiceSerializer with InvoiceLinesAnalyzer with DrivePersistence{
 
   def index = Action {
     Ok(views.html.index())
+  }
+
+  def auth = Action {
+    implicit request =>
+      println("--------------")
+
+      val authcode = GoogleOAuth.getauthcode(request)
+
+      val googletoken = authcode match {
+        case Some(a) => Some(GoogleOAuth.gettoken(a))
+        case _ => None
+      }
+
+      if (googletoken.isDefined) {
+
+        println("email: " + GoogleOAuth.getuserinfo(googletoken, "email"))
+        println("name: " + GoogleOAuth.getuserinfo(googletoken, "name"))
+        println("given_name: " + GoogleOAuth.getuserinfo(googletoken, "given_name"))
+        println("family_name: " + GoogleOAuth.getuserinfo(googletoken, "family_name"))
+      } else {
+        println("Access denied")
+      }
+
+      Ok(views.html.results("Testing Google Authentication: Result"))
   }
 
   def showInvoice = Action { implicit request => {

@@ -4,6 +4,7 @@
 
 # Home page
 GET     /                           controllers.Application.index
+GET     /auth                       controllers.Application.auth
 GET     /invoice                    controllers.Application.invoiceHtml
 POST    /api/invoice                controllers.Application.showInvoice
 
