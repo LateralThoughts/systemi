@@ -14,7 +14,7 @@
 		  <input type="text" class="form-control" name="client" id="client" placeholder="Nom de votre client">
 		</div>
 
-		<button type="submit" class="btn btn-success">Soumettre</button>
+		<button type="submit" class="btn btn-success pull-right">Soumettre</button>
 	</form>
 
 	<h6>Ou</h6>
@@ -26,12 +26,28 @@
 	      <span></span> <b class="caret"></b>
 	   </div>
 	</div>
-	
-	<div class="allDaysBlock" class="row">
-		<lt-day-block ng-repeat="day in days" day="day"></lt-day-block>
+	<div class="allDaysBlock">
+		<table class="table">
+			<thead>
+				<tr>
+					<td>Mondi</td>
+					<td>Lardi</td>
+					<td>Credi</td>
+					<td>Ze-dit</td>
+					<td>Friture-Day</td>
+					<td>Sadi</td>
+					<td>Gromanche</td>
+				</tr>	
+			</thead>
+			<tbody>
+				<tr ng-repeat="week in weeks">
+					<td ng-repeat="day in week">
+						<lt-day-block  ng-if="day.day" day="day"></lt-day-block>
+					</td>
+				</tr>
+			</tbody>
+		</table>
 	</div>
-	<div>
-		<button type="button" class="btn btn-success" ng-click="submit()">Soumettre</button>
-	</div>
+	<button type="button" class="btn btn-success pull-right" ng-click="submit()">Soumettre</button>
 </div>
 }

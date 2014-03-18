@@ -11,16 +11,31 @@ facstemi.controller('CraController', function($scope, $modal, $log) {
     $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
     $scope.startDate = start;
     $scope.endDate = end;
-    var days = [];
     // generate blocks 
+    var weeks = [];
+    var currentDayOfWeek = 0;
+    var currentWeek = [];
     moment().range(start, end).by('days', function(day) {
-      days.push({
+      if (currentDayOfWeek == 0) {
+        var count = day.isoWeekday();
+        while (--count != 0 ){
+          currentWeek.push({});
+        }
+      } else {
+        if (day.isoWeekday() <= currentDayOfWeek) {
+          // change week
+          weeks.push(currentWeek);
+          currentWeek = [];
+        }
+      }
+      currentWeek.push({
         'day': day, 
-        'halfUp' : true,
-        'halfDown': true
+        'halfUp' : (day.isoWeekday() != 6 && day.isoWeekday() !=7),
+        'halfDown': (day.isoWeekday() != 6 && day.isoWeekday() !=7)
       });
+      currentDayOfWeek = day.isoWeekday();
     });
-    $scope.days = days;
+    $scope.weeks = weeks;
     $scope.$apply();
   }
 

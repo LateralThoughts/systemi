@@ -1,14 +1,17 @@
-.allDaysBlock {
-	margin: 20px;
+.allDaysBlock table {
+	table-layout: fixed;
+} 
+.allDaysBlock table thead, .allDaysBlock table tbody {
+	text-align: center;
 }
 
 .allDaysBlock div {
-	margin-left: 10px;
+	
 	margin-bottom: 5px;
 }
 
 .allDaysBlock .cra-halfUp-false.cra-halfDown-false {
-	background-color: #73B8FF ;
+	background-color: #90BEE4 ;
 	background-image: none;
 }
 
@@ -17,14 +20,14 @@
 		linear,
 		left top,
 		right bottom,
-		color-stop(0.5, #73B8FF),
-		color-stop(0.5, #007BFF)
+		color-stop(0.5, #90BEE4),
+		color-stop(0.5, #428bca)
 	);
-	background-image: -o-linear-gradient(right bottom, #73B8FF 50%, #007BFF 50%);
-	background-image: -moz-linear-gradient(right bottom, #73B8FF 50%, #007BFF 50%);
-	background-image: -webkit-linear-gradient(right bottom, #73B8FF 50%, #007BFF 50%);
-	background-image: -ms-linear-gradient(right bottom, #73B8FF 50%, #007BFF 50%);
-	background-image: linear-gradient(to right bottom, #73B8FF 50%, #007BFF 50%);
+	background-image: -o-linear-gradient(right bottom, #90BEE4 50%, #428bca 50%);
+	background-image: -moz-linear-gradient(right bottom, #90BEE4 50%, #428bca 50%);
+	background-image: -webkit-linear-gradient(right bottom, #90BEE4 50%, #428bca 50%);
+	background-image: -ms-linear-gradient(right bottom, #90BEE4 50%, #428bca 50%);
+	background-image: linear-gradient(to right bottom, #90BEE4 50%, #428bca 50%);
 }
 
 .allDaysBlock .cra-halfDown-false {
@@ -32,12 +35,16 @@
 		linear,
 		left top,
 		right bottom,
-		color-stop(0.5, #007BFF),
-		color-stop(0.5, #73B8FF)
+		color-stop(0.5, #428bca),
+		color-stop(0.5, #90BEE4)
 	);
-	background-image: -o-linear-gradient(right bottom, #007BFF 50%, #73B8FF 50%);
-	background-image: -moz-linear-gradient(right bottom, #007BFF 50%, #73B8FF 50%);
-	background-image: -webkit-linear-gradient(right bottom, #007BFF 50%, #73B8FF 50%);
-	background-image: -ms-linear-gradient(right bottom, #007BFF 50%, #73B8FF 50%);
-	background-image: linear-gradient(to right bottom, #007BFF 50%, #73B8FF 50%);
+	background-image: -o-linear-gradient(right bottom, #428bca 50%, #90BEE4 50%);
+	background-image: -moz-linear-gradient(right bottom, #428bca 50%, #90BEE4 50%);
+	background-image: -webkit-linear-gradient(right bottom, #428bca 50%, #90BEE4 50%);
+	background-image: -ms-linear-gradient(right bottom, #428bca 50%, #90BEE4 50%);
+	background-image: linear-gradient(to right bottom, #428bca 50%, #90BEE4 50%);
+}
+
+.footer {
+	margin-top: 20px;
 }
