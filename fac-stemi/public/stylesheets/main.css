@@ -88,3 +88,8 @@ body {
 }
 
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+
+
+.popover-title, .popover-content {
+  color: black;
+}

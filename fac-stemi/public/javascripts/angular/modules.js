@@ -1,11 +1,12 @@
 /* global angular */
-var facstemi = angular.module('fac-stemi', []);
+var facstemi = angular.module('fac-stemi', ['ui.bootstrap']);
 
 facstemi.controller('BasicInvoiceController', function BasicInvoiceController($scope, $http) {
   
 });
 
-facstemi.controller('CraController', function($scope) {
+facstemi.controller('CraController', function($scope, $modal, $log) {
+
   $scope.datesSelected = function(start, end, label) {
     $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
     $scope.startDate = start;
@@ -13,7 +14,11 @@ facstemi.controller('CraController', function($scope) {
     var days = [];
     // generate blocks 
     moment().range(start, end).by('days', function(day) {
-      days.push({'day': day, 'state': true});
+      days.push({
+        'day': day, 
+        'halfUp' : true,
+        'halfDown': true
+      });
     });
     $scope.days = days;
     $scope.$apply();

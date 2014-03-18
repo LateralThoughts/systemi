@@ -2,6 +2,23 @@
 
 @main(googleAuthUrl) {
 <div class="row" data-ng-controller="CraController">
+	<h4>Indiquez vos nombres de jours d'activité: </h4>
+	<form class="form">
+		<div class="form-group">
+		  <label for="days">Nombre de jour</label>
+		  <input type="text" class="form-control" name="days" id="days" placeholder="Indiquez le nombre de jours">
+		</div>
+
+		<div class="form-group">
+		  <label for="client">Client</label>
+		  <input type="text" class="form-control" name="client" id="client" placeholder="Nom de votre client">
+		</div>
+
+		<button type="submit" class="btn btn-success">Soumettre</button>
+	</form>
+
+	<h6>Ou</h6>
+	
 	<h4>Sélectionnez vos dates d'activité : </h4>
 	<div class="well" style="overflow: auto">
 	   <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
