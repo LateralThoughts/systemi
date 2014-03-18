@@ -21,6 +21,11 @@ object Application extends Controller
       Ok(views.html.index(GoogleOAuth.getGoogleAuthUrl))
   }
 
+  def cra = Action {
+    implicit request =>
+      Ok(views.html.cra(GoogleOAuth.getGoogleAuthUrl))
+  }
+
   def auth = Action {
     implicit request =>
       val authcode = GoogleOAuth.getAuthCode(request)

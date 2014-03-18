@@ -86,3 +86,5 @@ body {
 .providers li {
   display:inline;
 }
+
+.nav, .pagination, .carousel, .panel-title a { cursor: pointer; }

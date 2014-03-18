@@ -8,10 +8,15 @@
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
         <link rel="stylesheet" href="@routes.Assets.at("stylesheets/bootstrap.min.css")"/>
+        <link rel="stylesheet" href="@routes.Assets.at("stylesheets/daterangepicker-bs3.css")"/>
         <script src="@routes.Assets.at("javascripts/jquery-1.9.0.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/angular.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/angular/modules.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/angular/directives/day-block.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/jquery.fileDownload.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/moment.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/moment-range.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/daterangepicker.js")" type="text/javascript"></script>
         <html>
     </head>
     <body ng-app="fac-stemi">
@@ -19,7 +24,8 @@
     <div class="container">
       <div class="header">
         <ul class="nav nav-pills pull-right">
-          <li class="active"><a href="/">Home</a></li>
+          <li class="active"><a href="@routes.Application.index">Home</a></li>
+          <li><a href="@routes.Application.cra">Cra</a></li>
           <li><a href="@googleAuthUrl">@if(session.get("token")) { Re-new access token } else { Log in } </a></li>
         </ul>
         <h3 class="text-muted">Invoice&#64;LT</h3>

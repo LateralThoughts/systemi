@@ -1,0 +1,20 @@
+@(googleAuthUrl: String)(implicit session: play.api.mvc.Session) 
+
+@main(googleAuthUrl) {
+<div class="row" data-ng-controller="CraController">
+	<h4>Sélectionnez vos dates d'activité : </h4>
+	<div class="well" style="overflow: auto">
+	   <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
+	      <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+	      <span></span> <b class="caret"></b>
+	   </div>
+	</div>
+	
+	<div class="allDaysBlock" class="row">
+		<lt-day-block ng-repeat="day in days" day="day"></lt-day-block>
+	</div>
+	<div>
+		<button type="button" class="btn btn-success" ng-click="submit()">Soumettre</button>
+	</div>
+</div>
+}
