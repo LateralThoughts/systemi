@@ -5,7 +5,7 @@
 
 var ModalInstanceCtrl = function ($scope, $modalInstance, day) {
   $scope.day = day;
-  
+
   $scope.halfUp = function() {
   	day.halfDown = false;
   	day.halfUp = true;
@@ -13,8 +13,8 @@ var ModalInstanceCtrl = function ($scope, $modalInstance, day) {
   }
 
   $scope.halfDown = function() {
-  	day.halfDown = false;
-  	day.halfUp = true;
+  	day.halfDown = true;
+  	day.halfUp = false;
   	$modalInstance.close();
   }
 
