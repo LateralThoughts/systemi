@@ -13,6 +13,7 @@ facstemi.controller('CraController', function($scope, $modal, $log) {
     $scope.endDate = end;
     // generate blocks 
     var weeks = [];
+    var days = [];
     var currentDayOfWeek = 0;
     var currentWeek = [];
     moment().range(start, end).by('days', function(day) {
@@ -28,15 +29,40 @@ facstemi.controller('CraController', function($scope, $modal, $log) {
           currentWeek = [];
         }
       }
-      currentWeek.push({
-        'day': day, 
-        'halfUp' : (day.isoWeekday() != 6 && day.isoWeekday() !=7),
-        'halfDown': (day.isoWeekday() != 6 && day.isoWeekday() !=7)
-      });
+      var currentDay = createDay(day);
+      days.push(currentDay);
+      currentWeek.push(currentDay);
       currentDayOfWeek = day.isoWeekday();
     });
     $scope.weeks = weeks;
+    $scope.days = days;
     $scope.$apply();
+  }
+
+  var createDay = function(date) {
+    return {
+      day : date,
+      halfUp : (date.isoWeekday() != 6 && date.isoWeekday() !=7),
+      halfDown : (date.isoWeekday() != 6 && date.isoWeekday() !=7),
+      state : (date.isoWeekday() != 6 && date.isoWeekday() !=7) ? 0 : 3,
+      toggleNextState: function() {
+        this.state = (this.state + 1) % 4;
+        var newState = this.stateToHalfDay(this.state);
+        this.halfUp = newState.halfUp;
+        this.halfDown = newState.halfDown;
+      },
+      stateToHalfDay: function(state) {
+        if(state === 0) {
+          return { halfUp: true, halfDown: true };
+        } else if(state === 1) {
+          return { halfUp: true, halfDown: false };
+        } else if(state === 2) {
+          return { halfUp: false, halfDown: true };
+        } else if(state === 3) {
+          return { halfUp: false, halfDown: false };
+        }
+      }
+    }
   }
 
   $scope.submit = function() {
