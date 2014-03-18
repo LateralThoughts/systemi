@@ -42,8 +42,9 @@ facstemi
             },
             link: function(scope, element, attrs){
             	scope.toggle = function(day) {
-            		day.state = !day.state;
+            		day.toggleNextState();
             	}
+            	/* deprecated : open modal */
 	           	scope.open = function (day) {
 				    var modalInstance = $modal.open({
 				      templateUrl: '/assets/javascripts/angular/templates/day-block-modal.html',
