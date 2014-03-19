@@ -14,8 +14,9 @@
 		  <input type="text" class="form-control" name="client" id="client" placeholder="Nom de votre client"
                  ng-model="asyncSelected"
                  placeholder="Locations loaded via $http"
-                 typeahead="address for address in getLocation($viewValue) | filter:$viewValue"
-                 typeahead-loading="loadingLocations"/>
+                 typeahead="client.name for client in getLocation($viewValue)"
+                 typeahead-loading="loadingLocations"
+                 typeahead-template-url="/assets/javascripts/angular/templates/client-autocomplete.html"/>
 		</div>
 
 		<button type="submit" class="btn btn-success pull-right">Soumettre</button>

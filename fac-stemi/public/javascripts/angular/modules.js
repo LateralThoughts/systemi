@@ -42,7 +42,7 @@ facstemi.controller('CraController', function($scope, $modal, $log, $http, Clien
           return Client.getAll({ q: val }).$promise.then(function(res) {
             var clients = [];
             angular.forEach(res, function(item){
-                clients.push(item.name);
+                clients.push(item);
             });
             return clients;
           });
