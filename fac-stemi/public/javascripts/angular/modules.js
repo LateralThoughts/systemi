@@ -1,8 +1,30 @@
 /* global angular */
 var facstemi = angular.module('fac-stemi', ['ui.bootstrap']);
 
-facstemi.controller('BasicInvoiceController', function BasicInvoiceController($scope, $http) {
-  
+facstemi.controller('BasicInvoiceController', function BasicInvoiceController($scope) {
+
+    var initTaskLineData = {
+                               'invoiceDescription': '',
+                               'invoiceDays': '',
+                               'invoiceDailyRate': '',
+                               'invoiceTaxRate': '20.0',
+                               'addButtonVisible': true
+                           };
+
+    $scope.tasklines = [
+        initTaskLineData
+    ];
+
+    $scope.addTask = function(){
+        $scope.tasklines[$scope.tasklines.length - 1]['addButtonVisible'] = false;
+        $scope.tasklines.push({
+                                 'invoiceDescription': '',
+                                 'invoiceDays': '',
+                                 'invoiceDailyRate': '',
+                                 'invoiceTaxRate': '20.0',
+                                 'addButtonVisible': true
+                             });
+    }
 });
 
 facstemi.controller('CraController', function($scope, $modal, $log) {

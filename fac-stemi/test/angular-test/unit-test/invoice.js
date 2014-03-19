@@ -3,11 +3,32 @@
 describe("Fac stemi - invoice", function () {
     beforeEach(module('fac-stemi'));
 
-	it('dummy test', function () {
-	    expect(1).toBe(1);
-	});
+    var rootScope, scope, controller;
 
-	it('dummy test 2', function () {
-	    expect(2).toBe(2);
+    // Install requests mock hooker
+    beforeEach(function () {
+        inject(function ($injector) {
+            rootScope = $injector.get('$rootScope');
+            controller = $injector.get('$controller');
+            scope = rootScope.$new();
+
+            var invoiceCtrl = controller('BasicInvoiceController', {
+                $scope: scope
+            });
+            /*if(!rootScope.$$phase) {
+                rootScope.$apply();
+            }*/
+
+        })
+    });
+
+	it('should initialize one task line in scope', function () {
+        expect(scope.tasklines.length).toBe(1);
+        expect('invoiceDescription' in scope.tasklines[0]).toBe(true);
+        expect('invoiceDays' in scope.tasklines[0]).toBe(true);
+        expect('invoiceDailyRate' in scope.tasklines[0]).toBe(true);
+        expect('invoiceTaxRate' in scope.tasklines[0]).toBe(true);
+        expect('addButtonVisible' in scope.tasklines[0]).toBe(true);
+        expect(scope.tasklines[0].invoiceTaxRate).toEqual("20.0");
 	});
 });

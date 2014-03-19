@@ -39,11 +39,12 @@
 		  </div>
 
 		  <table class="table form-group">
-		  	<tr>
-		  		<td><input type="text" name="invoiceDescription" placeholder="Description"></td>
-		  		<td><input type="text" name="invoiceDays" placeholder="Nombre de jours"></td>
-		  		<td><input type="text" name="invoiceDailyRate" placeholder="TJM"></td>
-		  		<td><input type="text" name="invoiceTaxRate" placeholder="TVA" value="20.0"></td>
+		  	<tr ng-repeat="taskline in tasklines">
+		  		<td><input type="text" name="invoiceDescription" placeholder="Description" data-ng-model="taskline.invoiceDescription"></td>
+		  		<td><input type="text" name="invoiceDays" placeholder="Nombre de jours" data-ng-model="taskline.invoiceDays"></td>
+		  		<td><input type="text" name="invoiceDailyRate" placeholder="TJM" data-ng-model="taskline.invoiceDailyRate"></td>
+		  		<td><input type="text" name="invoiceTaxRate" placeholder="TVA" data-ng-model="taskline.invoiceTaxRate"></td>
+                <td ng-show="taskline.addButtonVisible"><input type="button" class="btn btn-primary add-task-btn" value="+" ng-click="addTask()" /></td>
 		  	</tr>
 		  </table>
 
