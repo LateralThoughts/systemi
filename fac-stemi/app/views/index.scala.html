@@ -49,6 +49,11 @@
                         <span class="glyphicon glyphicon-plus"></span>
                     </button>
                 </td>
+                <td ng-show="taskline.deleteButtonVisible">
+                    <button type="button" class="delete-task-btn btn btn-danger btn-sm" ng-click="deleteTask()">
+                        <span class="glyphicon glyphicon-minus"></span>
+                    </button>
+                </td>
 		  	</tr>
 		  </table>
 

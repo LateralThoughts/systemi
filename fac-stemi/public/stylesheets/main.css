@@ -94,7 +94,7 @@ body {
   color: black;
 }
 
-button.add-task-btn{
+button.add-task-btn, button.delete-task-btn{
   height: 26px;
   padding: 4px 10px 6px 10px;
 }

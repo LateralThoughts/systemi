@@ -29,6 +29,9 @@ describe("Fac stemi - invoice", function () {
         expect('invoiceDailyRate' in scope.tasklines[0]).toBe(true);
         expect('invoiceTaxRate' in scope.tasklines[0]).toBe(true);
         expect('addButtonVisible' in scope.tasklines[0]).toBe(true);
+        expect(scope.tasklines[0].addButtonVisible).toEqual(true);
+        expect('deleteButtonVisible' in scope.tasklines[0]).toBe(true);
+        expect(scope.tasklines[0].deleteButtonVisible).toEqual(false);
         expect(scope.tasklines[0].invoiceTaxRate).toEqual("20.0");
 	});
 });

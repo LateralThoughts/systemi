@@ -70,4 +70,23 @@ describe('Invoice page', function() {
             });
         });
     });
+
+    it('test that clicking on delete task button does not display for first line', function() {
+        ptor.findElements(protractor.By.repeater('taskline in tasklines')).then(function(elems) {
+            elems[0].findElement(protractor.By.css('button.delete-task-btn')).then(function(el){
+                expect(el.isDisplayed()).toBe(false);
+            });
+        });
+
+        element(by.css('button.add-task-btn')).click();
+
+        ptor.findElements(protractor.By.repeater('taskline in tasklines')).then(function(elems) {
+            elems[0].findElement(protractor.By.css('button.delete-task-btn')).then(function(el){
+                expect(el.isDisplayed()).toBe(false);
+            });
+            elems[1].findElement(protractor.By.css('button.delete-task-btn')).then(function(el){
+                expect(el.isDisplayed()).toBe(true);
+            });
+        });
+    });
 });

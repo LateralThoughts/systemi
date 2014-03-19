@@ -8,7 +8,8 @@ facstemi.controller('BasicInvoiceController', function BasicInvoiceController($s
                                'invoiceDays': '',
                                'invoiceDailyRate': '',
                                'invoiceTaxRate': '20.0',
-                               'addButtonVisible': true
+                               'addButtonVisible': true,
+                               'deleteButtonVisible': false
                            };
 
     $scope.tasklines = [
@@ -17,13 +18,21 @@ facstemi.controller('BasicInvoiceController', function BasicInvoiceController($s
 
     $scope.addTask = function(){
         $scope.tasklines[$scope.tasklines.length - 1]['addButtonVisible'] = false;
+        $scope.tasklines[$scope.tasklines.length - 1]['deleteButtonVisible'] = false;
         $scope.tasklines.push({
                                  'invoiceDescription': '',
                                  'invoiceDays': '',
                                  'invoiceDailyRate': '',
                                  'invoiceTaxRate': '20.0',
-                                 'addButtonVisible': true
+                                 'addButtonVisible': true,
+                                 'deleteButtonVisible': true
                              });
+    }
+
+    $scope.deleteTask = function(){
+        $scope.tasklines.pop();
+        $scope.tasklines[$scope.tasklines.length - 1]['addButtonVisible'] = true;
+        $scope.tasklines[$scope.tasklines.length - 1]['deleteButtonVisible'] = ($scope.tasklines.length>1);
     }
 });
 
