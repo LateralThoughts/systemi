@@ -36,7 +36,22 @@ facstemi.controller('BasicInvoiceController', function BasicInvoiceController($s
     }
 });
 
-facstemi.controller('CraController', function($scope, $modal, $log) {
+facstemi.controller('CraController', function($scope, $modal, $log, $http) {
+
+ // Any function returning a promise object can be used to load values asynchronously
+  $scope.getLocation = function(val) {
+    return $http.get('/api/clients', {
+      params: {
+        q: val
+      }
+    }).then(function(res){
+      var addresses = [];
+      angular.forEach(res.data, function(item){
+        addresses.push(item.name);
+      });
+      return addresses;
+    });
+  };
 
   $scope.datesSelected = function(start, end, label) {
     $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));

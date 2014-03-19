@@ -6,6 +6,7 @@ import domain._
 import play.api.libs.json._
 import oauth._
 import play.api.Logger
+import search.engine.SimpleSearchEngine
 
 object Application extends Controller
                     with InvoiceSerializer
@@ -15,6 +16,11 @@ object Application extends Controller
   implicit val context = scala.concurrent.ExecutionContext.Implicits.global
 
   private val log = Logger("Application")
+  private val clients = Map(
+          0 -> ClientDefinition("VIDAL", "21 rue camille desmoulins", "92110", "Issy les moulineaux"),
+          1 -> ClientDefinition("Lateral-Thoughts", "37 rue des mathurins", "75009", "Paris")
+  )
+  private val engine = new SimpleSearchEngine(clients)
 
   def index = Action {
     implicit request =>
@@ -24,6 +30,11 @@ object Application extends Controller
   def cra = Action {
     implicit request =>
       Ok(views.html.cra(GoogleOAuth.getGoogleAuthUrl))
+  }
+
+  def search(q: String) = Action {
+    implicit request =>
+      Ok(Json.toJson(engine.search(q)))
   }
 
   def auth = Action {

@@ -19,6 +19,8 @@ trait InvoiceSerializer {
   implicit val invoiceLineReads = Json.reads[InvoiceLine]
   implicit val invoiceReads = Json.reads[InvoiceRequest]
 
+  implicit val invoiceClientWrites = Json.writes[ClientDefinition]
+
   def invoiceFromForm(body : Map[String, Seq[String]]) = {
     val descriptions = body.get("invoiceDescription").get
     val days = body.get("invoiceDays").get

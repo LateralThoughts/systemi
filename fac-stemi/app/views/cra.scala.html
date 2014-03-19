@@ -11,7 +11,11 @@
 
 		<div class="form-group">
 		  <label for="client">Client</label>
-		  <input type="text" class="form-control" name="client" id="client" placeholder="Nom de votre client">
+		  <input type="text" class="form-control" name="client" id="client" placeholder="Nom de votre client"
+                 ng-model="asyncSelected"
+                 placeholder="Locations loaded via $http"
+                 typeahead="address for address in getLocation($viewValue) | filter:$viewValue"
+                 typeahead-loading="loadingLocations"/>
 		</div>
 
 		<button type="submit" class="btn btn-success pull-right">Soumettre</button>
