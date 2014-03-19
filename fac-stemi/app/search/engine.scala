@@ -18,7 +18,7 @@ import org.apache.lucene.analysis.Analyzer.TokenStreamComponents
 import org.apache.lucene.analysis.ngram.{EdgeNGramTokenFilter, EdgeNGramFilterFactory}
 
 
-case class SimpleSearchEngine(clients : Map[Int, ClientDefinition]) extends ClientDefinitionIndexation {
+case class SimpleSearchEngine(clients : collection.mutable.Map[Int, ClientDefinition]) extends ClientDefinitionIndexation {
   val MAX_NUMBER_OF_DOCS = 50
   val directory = new RAMDirectory()
   val luceneVersion = Version.LUCENE_47
@@ -28,9 +28,14 @@ case class SimpleSearchEngine(clients : Map[Int, ClientDefinition]) extends Clie
 
 
   def initWithDocuments() {
-    val config = new IndexWriterConfig(luceneVersion, docAnalyzer)
-    val writer = new IndexWriter(directory, config)
-    clients.foreach( client => writer.addDocument( (createDocFromClient _).tupled(client) ))
+    val writer = openWriter
+    clients.foreach { case (id : Int, client : ClientDefinition) => writeDocument(writer, id, client)}
+    writer.close(true)
+  }
+
+  def addToIndex(id: Int, client : ClientDefinition) {
+    val writer = openWriter
+    writeDocument(writer, id, client)
     writer.close(true)
   }
 
@@ -75,6 +80,14 @@ case class SimpleSearchEngine(clients : Map[Int, ClientDefinition]) extends Clie
    */
   def close { directory.close() }
 
+  private def writeDocument(writer: IndexWriter, id: Int, client: ClientDefinition) {
+    writer.addDocument(createDocFromClient(id, client))
+  }
+
+  private def openWriter = {
+    val config = new IndexWriterConfig(luceneVersion, docAnalyzer)
+    new IndexWriter(directory, config)
+  }
 }
 
 trait ClientDefinitionIndexation {

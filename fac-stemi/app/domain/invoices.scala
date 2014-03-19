@@ -1,6 +1,11 @@
 package domain
 
-case class ClientDefinition(name: String, address: String, postalCode : String = "", city: String = "")
+case class NewClientDefinition(name: String, address: String, postalCode : String = "", city: String = "")
+
+case class ClientDefinition(id: String, name: String, address: String, postalCode : String = "", city: String = "")  {
+
+  def this(id: String, c: NewClientDefinition) = this(id, c.name, c.address, c.postalCode, c.city)
+}
 
 case class InvoiceLine(description: String, days: Double, dailyRate: Double, taxRate: Double = 19.6)
 
@@ -16,6 +21,7 @@ import views.html.invoice
 
 trait InvoiceSerializer {
   implicit val invoiceClientReads = Json.reads[ClientDefinition]
+  implicit val invoiceNewClientReads = Json.reads[NewClientDefinition]
   implicit val invoiceLineReads = Json.reads[InvoiceLine]
   implicit val invoiceReads = Json.reads[InvoiceRequest]
 

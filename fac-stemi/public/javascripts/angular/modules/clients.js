@@ -2,30 +2,21 @@
 facstemi.factory('Client', ['$resource', function($resource){
     var Client = $resource('/api/clients/:clientId', {clientId : '@id'}, {
         query : { method : 'GET', isArray: true },
-        create : { method : 'POST' }
+        create : { method : 'POST' },
+        save : { method : 'PUT' }
     });
 
     return Client
   }]
 );
 
-facstemi.controller('ClientController', function(Client) {
+facstemi.controller('ClientController', function($scope, Client) {
+    $scope.create = function(client) {
+        Client.create(client);
+    }
 
- // Any function returning a promise object can be used to load values asynchronously
-  /*$scope.getLocation = function(val) {
-    return $http.get('/api/clients', {
-      params: {
-        q: val
-      }
-    }).then(function(res){
-      var addresses = [];
-      angular.forEach(res.data, function(item){
-        addresses.push(item.name);
-      });
-      return addresses;
-    });
-  };*/
-
-
+    $scope.save = function(client) {
+        Client.save(client);
+    }
 });
 
