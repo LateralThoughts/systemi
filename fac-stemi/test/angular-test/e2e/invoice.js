@@ -30,11 +30,11 @@ describe('Invoice page', function() {
     });
 
     it('test that add task button is present', function() {
-        expect(ptor.isElementPresent(by.css('input.add-task-btn'))).toBe(true);
+        expect(ptor.isElementPresent(by.css('button.add-task-btn'))).toBe(true);
     });
 
     it('test that clicking on add task button adds a task line and all inputs present', function() {
-        element(by.css('input.add-task-btn')).click();
+        element(by.css('button.add-task-btn')).click();
         ptor.findElements(protractor.By.repeater('taskline in tasklines')).then(function(elems) {
           expect(elems.length).toBe(2);
         });
@@ -54,18 +54,18 @@ describe('Invoice page', function() {
 
     it('test that clicking on add task button remove itself', function() {
         ptor.findElements(protractor.By.repeater('taskline in tasklines')).then(function(elems) {
-            elems[0].findElement(protractor.By.css('input.add-task-btn')).then(function(el){
+            elems[0].findElement(protractor.By.css('button.add-task-btn')).then(function(el){
                 expect(el.isDisplayed()).toBe(true);
             });
         });
 
-        element(by.css('input.add-task-btn')).click();
+        element(by.css('button.add-task-btn')).click();
 
         ptor.findElements(protractor.By.repeater('taskline in tasklines')).then(function(elems) {
-            elems[0].findElement(protractor.By.css('input.add-task-btn')).then(function(el){
+            elems[0].findElement(protractor.By.css('button.add-task-btn')).then(function(el){
                 expect(el.isDisplayed()).toBe(false);
             });
-            elems[1].findElement(protractor.By.css('input.add-task-btn')).then(function(el){
+            elems[1].findElement(protractor.By.css('button.add-task-btn')).then(function(el){
                 expect(el.isDisplayed()).toBe(true);
             });
         });

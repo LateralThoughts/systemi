@@ -44,7 +44,11 @@
 		  		<td><input type="text" name="invoiceDays" placeholder="Nombre de jours" data-ng-model="taskline.invoiceDays"></td>
 		  		<td><input type="text" name="invoiceDailyRate" placeholder="TJM" data-ng-model="taskline.invoiceDailyRate"></td>
 		  		<td><input type="text" name="invoiceTaxRate" placeholder="TVA" data-ng-model="taskline.invoiceTaxRate"></td>
-                <td ng-show="taskline.addButtonVisible"><input type="button" class="btn btn-primary add-task-btn" value="+" ng-click="addTask()" /></td>
+                <td ng-show="taskline.addButtonVisible">
+                    <button type="button" class="add-task-btn btn btn-primary btn-sm" ng-click="addTask()">
+                        <span class="glyphicon glyphicon-plus"></span>
+                    </button>
+                </td>
 		  	</tr>
 		  </table>
 
