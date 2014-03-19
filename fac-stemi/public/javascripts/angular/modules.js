@@ -1,6 +1,3 @@
-/* global angular */
-var facstemi = angular.module('fac-stemi', ['ui.bootstrap']);
-
 facstemi.controller('BasicInvoiceController', function BasicInvoiceController($scope) {
 
     var initTaskLineData = {
@@ -36,21 +33,21 @@ facstemi.controller('BasicInvoiceController', function BasicInvoiceController($s
     }
 });
 
-facstemi.controller('CraController', function($scope, $modal, $log, $http) {
+facstemi.controller('CraController', function($scope, $modal, $log, $http, Client) {
 
  // Any function returning a promise object can be used to load values asynchronously
   $scope.getLocation = function(val) {
-    return $http.get('/api/clients', {
-      params: {
-        q: val
+
+      if (val.length >= 3) {
+          return Client.getAll({ q: val }).$promise.then(function(res) {
+            var clients = [];
+            angular.forEach(res, function(item){
+                clients.push(item.name);
+            });
+            return clients;
+          });
       }
-    }).then(function(res){
-      var addresses = [];
-      angular.forEach(res.data, function(item){
-        addresses.push(item.name);
-      });
-      return addresses;
-    });
+      return [];
   };
 
   $scope.datesSelected = function(start, end, label) {

@@ -5,9 +5,12 @@
 # Home page
 GET     /                           controllers.Application.index
 GET     /cra                        controllers.Application.cra
+GET     /client                     controllers.Application.clientsView
 GET     /auth                       controllers.Application.auth
 GET     /invoice                    controllers.Application.showInvoiceHtml
 POST    /api/invoice                controllers.Application.createAndPushInvoice
+
+# client resources
 GET     /api/clients                controllers.Application.search(q: String)
 
 # Map static resources from the /public folder to the /assets URL path

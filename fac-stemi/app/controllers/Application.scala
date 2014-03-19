@@ -32,6 +32,11 @@ object Application extends Controller
       Ok(views.html.cra(GoogleOAuth.getGoogleAuthUrl))
   }
 
+  def clientsView = Action {
+      implicit request =>
+        Ok(views.html.clients(GoogleOAuth.getGoogleAuthUrl))
+    }
+
   def search(q: String) = Action {
     implicit request =>
       Ok(Json.toJson(engine.search(q)))
