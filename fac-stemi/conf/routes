@@ -13,7 +13,8 @@ POST        /api/invoice         controllers.Application.createAndPushInvoice
 # client resources
 GET         /api/clients         controllers.Client.search(q: String)
 GET         /api/clients         controllers.Client.getAll
-POST         /api/clients         controllers.Client.addClient
+POST        /api/clients         controllers.Client.addClient
+POST        /api/clients/:id     controllers.Client.modifyClient(id: Int)
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file        controllers.Assets.at(path="/public", file)

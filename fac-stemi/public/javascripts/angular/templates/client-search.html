@@ -1,9 +1,8 @@
 <div class="form-group">
     <label for="client">Sélectionner un client</label>
     <input type="text" class="form-control" name="client" id="client" placeholder="Nom de votre client"
-           ng-model="asyncSelected"
+           ng-model="client"
            placeholder="Locations loaded via $http"
-           typeahead="client.name for client in getLocation($viewValue)"
-           typeahead-loading="loadingLocations"
+           typeahead="client as client.name for client in search($viewValue)"
            typeahead-template-url="/assets/javascripts/angular/templates/client-autocomplete.html"/>
 </div>

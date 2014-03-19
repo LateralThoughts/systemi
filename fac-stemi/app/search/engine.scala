@@ -18,7 +18,7 @@ import org.apache.lucene.analysis.Analyzer.TokenStreamComponents
 import org.apache.lucene.analysis.ngram.{EdgeNGramTokenFilter, EdgeNGramFilterFactory}
 
 
-case class SimpleSearchEngine(clients : Map[Int, ClientDefinition]) extends ClientDefinitionIndexation {
+case class SimpleSearchEngine(clients : collection.mutable.Map[Int, ClientDefinition]) extends ClientDefinitionIndexation {
   val MAX_NUMBER_OF_DOCS = 50
   val directory = new RAMDirectory()
   val luceneVersion = Version.LUCENE_47
@@ -28,9 +28,21 @@ case class SimpleSearchEngine(clients : Map[Int, ClientDefinition]) extends Clie
 
 
   def initWithDocuments() {
-    val config = new IndexWriterConfig(luceneVersion, docAnalyzer)
-    val writer = new IndexWriter(directory, config)
-    clients.foreach( client => writer.addDocument( (createDocFromClient _).tupled(client) ))
+    val writer = openWriter
+    clients.foreach { case (id : Int, client : ClientDefinition) => writeDocument(writer, id, client)}
+    writer.close(true)
+  }
+
+  def addToIndex(id: Int, client : ClientDefinition) {
+    val writer = openWriter
+    writeDocument(writer, id, client)
+    writer.close(true)
+  }
+
+  def update(id: Int, client : ClientDefinition) {
+    val writer = openWriter
+    writer.deleteDocuments(new Term("id", id.toString))
+    writeDocument(writer, id, client)
     writer.close(true)
   }
 
@@ -75,6 +87,14 @@ case class SimpleSearchEngine(clients : Map[Int, ClientDefinition]) extends Clie
    */
   def close { directory.close() }
 
+  private def writeDocument(writer: IndexWriter, id: Int, client: ClientDefinition) {
+    writer.addDocument(createDocFromClient(id, client))
+  }
+
+  private def openWriter = {
+    val config = new IndexWriterConfig(luceneVersion, docAnalyzer)
+    new IndexWriter(directory, config)
+  }
 }
 
 trait ClientDefinitionIndexation {
@@ -96,9 +116,17 @@ trait ClientDefinitionIndexation {
     new Field(fieldName, value, textIndexType)
   }
 
+  def createFieldStoredAndIndexed(fieldName: String, value: String) = {
+    val textIndexType = new FieldType()
+    textIndexType.setIndexed(true)
+    textIndexType.setStored(true)
+    textIndexType.setTokenized(false)
+    new Field(fieldName, value, textIndexType)
+  }
+
   protected def createDocFromClient(id: Int, client: ClientDefinition) : Document = {
     val document = new Document()
-    document.add(createFieldStored("id", id.toString))
+    document.add(createFieldStoredAndIndexed("id", id.toString))
     document.add(createFieldStored("name", client.name))
     document.add(createFieldText(client))
     document

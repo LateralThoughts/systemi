@@ -3,36 +3,39 @@
 @main(googleAuthUrl) {
     <div data-ng-controller="ClientController">
         <div class="row">
-            <lt-client-search></lt-client-search>
+            <lt-client-search client="client"></lt-client-search>
         </div>
         <div class="row">
 
             <div class="panel panel-primary">
-                <div class="panel-heading">Création d'un nouveau client</div>
+                <div class="panel-heading" ng-if="client.id">Modification de "{{ client.name }}"</div>
+                <div class="panel-heading" ng-if="!client.id">Création d'un nouveau client</div>
                 <div class="panel-body">
-                    <form action="/api/invoice" method="POST" role="form">
+                    <form ng-submit="create(client)" role="form">
+                        <input type="hidden" ng-model="client.id"/>
 
                         <div class="form-group">
                             <label for="clientName">Nom du client</label>
-                            <input type="text" class="form-control" name="clientName" id="clientName" placeholder="Nom du client">
+                            <input type="text" class="form-control" name="clientName" ng-model="client.name" id="clientName" placeholder="Nom du client">
                         </div>
 
                         <div class="form-group">
                             <label for="clientAddress">Adresse du client</label>
-                            <input type="text" class="form-control" name="clientAddress" id="clientAddress" placeholder="Adresse du client">
+                            <input type="text" class="form-control" name="clientAddress" ng-model="client.address" id="clientAddress" placeholder="Adresse du client">
                         </div>
 
                         <div class="form-group">
                             <label for="clientCity">Ville du client</label>
-                            <input type="text" class="form-control" name="clientCity" id="clientCity" placeholder="Ville du client">
+                            <input type="text" class="form-control" name="clientCity" id="clientCity" ng-model="client.city" placeholder="Ville du client">
                         </div>
 
                         <div class="form-group">
                             <label for="clientPostalcode">Code postal du client</label>
-                            <input type="text" class="form-control" name="clientPostalCode" id="clientPostalcode" placeholder="Code postal du client">
+                            <input type="text" class="form-control" name="clientPostalCode" id="clientPostalcode" ng-model="client.postalCode" placeholder="Code postal du client">
                         </div>
 
-                        <button type="submit" class="btn btn-success">Ajouter un nouveau client</button>
+                        <button type="submit" ng-if="client.id" class="btn btn-success">Sauver les modifications</button>
+                        <button type="submit" ng-if="!client.id" class="btn btn-success">Ajouter un nouveau client</button>
                     </form>
                 </div>
             </div>
