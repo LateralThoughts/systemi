@@ -57,13 +57,13 @@ module.exports = function (config) {
 
         // Continuous Integration mode
         // if true, it capture browsers, run tests and exit
-        singleRun = true;
+        singleRun : true,
 
-        reporters = ['dots', 'junit'];
+        reporters : ['dots', 'junit'],
 
-        junitReporter = {
+        junitReporter : {
           outputFile: 'test-results.xml'
-        };
+        }
     });
 };
 
