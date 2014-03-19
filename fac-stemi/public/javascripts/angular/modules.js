@@ -35,21 +35,6 @@ facstemi.controller('BasicInvoiceController', function BasicInvoiceController($s
 
 facstemi.controller('CraController', function($scope, $modal, $log, $http, Client) {
 
- // Any function returning a promise object can be used to load values asynchronously
-  $scope.getLocation = function(val) {
-
-      if (val.length >= 3) {
-          return Client.getAll({ q: val }).$promise.then(function(res) {
-            var clients = [];
-            angular.forEach(res, function(item){
-                clients.push(item);
-            });
-            return clients;
-          });
-      }
-      return [];
-  };
-
   $scope.datesSelected = function(start, end, label) {
     $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
     $scope.startDate = start;

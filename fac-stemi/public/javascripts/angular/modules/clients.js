@@ -1,12 +1,9 @@
 
 facstemi.factory('Client', ['$resource', function($resource){
     var Client = $resource('/api/clients/:clientId', {clientId : '@id'}, {
-        query : { method : 'GET', isArray: true}
+        query : { method : 'GET', isArray: true },
+        create : { method : 'POST' }
     });
-
-    Client.getAll = function(params, successCb, errorCb) {
-        return Client.query(params, successCb, errorCb);
-    };
 
     return Client
   }]
