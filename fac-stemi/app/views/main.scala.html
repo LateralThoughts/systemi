@@ -31,7 +31,7 @@
         <ul class="nav nav-pills pull-right">
           <li @if(request.uri == routes.Application.index.url){class="active"}><a href="@routes.Application.index">Home</a></li>
           <li @if(request.uri == routes.Application.cra.url){class="active"}><a href="@routes.Application.cra">Cra</a></li>
-          <li @if(request.uri == routes.Application.clientsView.url){class="active"}><a href="@routes.Application.clientsView">Clients</a></li>
+          <li @if(request.uri == routes.Client.clientsView.url){class="active"}><a href="@routes.Client.clientsView">Clients</a></li>
           <li @if(request.uri == routes.Application.auth.url){class="active"}><a href="@googleAuthUrl">@if(request.session.get("token")) { Re-new access token } else { Log in } </a></li>
         </ul>
         <h3 class="text-muted">Invoice&#64;LT</h3>
