@@ -44,7 +44,18 @@ object Client extends Controller with InvoiceSerializer {
   }
 
   def modifyClient(id: Int) = Action {
-    Ok(s"toto ${id}")
+    implicit request =>
+      request.body.asJson match {
+        case Some(json) => json.validate(invoiceClientReads) match {
+          case errors:JsError => Ok(errors.toString).as("application/json")
+          case result: JsResult[ClientDefinition] => {
+            clients.update(id, result.get)
+            engine.update(id, result.get)
+            Ok
+          }
+        }
+        case None => BadRequest
+      }
   }
 
 

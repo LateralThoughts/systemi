@@ -39,6 +39,13 @@ case class SimpleSearchEngine(clients : collection.mutable.Map[Int, ClientDefini
     writer.close(true)
   }
 
+  def update(id: Int, client : ClientDefinition) {
+    val writer = openWriter
+    writer.deleteDocuments(new Term("id", id.toString))
+    writeDocument(writer, id, client)
+    writer.close(true)
+  }
+
   def createSearchQuery(q: String) = {
     val query = new PhraseQuery()
     query.setSlop(10)
@@ -109,9 +116,17 @@ trait ClientDefinitionIndexation {
     new Field(fieldName, value, textIndexType)
   }
 
+  def createFieldStoredAndIndexed(fieldName: String, value: String) = {
+    val textIndexType = new FieldType()
+    textIndexType.setIndexed(true)
+    textIndexType.setStored(true)
+    textIndexType.setTokenized(false)
+    new Field(fieldName, value, textIndexType)
+  }
+
   protected def createDocFromClient(id: Int, client: ClientDefinition) : Document = {
     val document = new Document()
-    document.add(createFieldStored("id", id.toString))
+    document.add(createFieldStoredAndIndexed("id", id.toString))
     document.add(createFieldStored("name", client.name))
     document.add(createFieldText(client))
     document
