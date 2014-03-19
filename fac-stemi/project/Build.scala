@@ -6,6 +6,7 @@ object ApplicationBuild extends Build {
 
    val appName = "fac-stemi"
    val appVersion = "1.0-SNAPSHOT"
+   val luceneVersion = "4.7.0"
 
    val appDependencies = Seq(
       "org.xhtmlrenderer" % "flying-saucer-pdf" % "9.0.4",
@@ -15,6 +16,14 @@ object ApplicationBuild extends Build {
       "com.google.http-client" % "google-http-client-jackson" % "1.15.0-rc",
       "net.databinder" %% "dispatch-http" % "0.8.8",        
       "jp.t2v" %% "play2-auth"      % "0.11.0",
+
+      "org.apache.lucene" % "lucene-test-framework" % luceneVersion % "test",
+      "org.apache.lucene" % "lucene-core" % luceneVersion,
+      "org.apache.lucene" % "lucene-analyzers-common" % luceneVersion,
+      "org.apache.lucene" % "lucene-queries" % luceneVersion,
+      "org.apache.lucene" % "lucene-queryparser" % luceneVersion,
+      "org.apache.lucene" % "lucene-highlighter" % luceneVersion,
+
       "jp.t2v" %% "play2-auth-test" % "0.11.0" % "test",
       "org.scalatest" %% "scalatest" % "1.9.1" % "test"
    )
