@@ -1,4 +1,4 @@
-@(googleAuthUrl: String)(implicit session: play.api.mvc.Session) 
+@(googleAuthUrl: String)(implicit request: play.api.mvc.RequestHeader)
 
 @main(googleAuthUrl) {
 	<div data-ng-controller="BasicInvoiceController" class="row">
