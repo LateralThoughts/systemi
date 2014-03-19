@@ -14,6 +14,7 @@ class InvoiceRequestSerializerTest extends FunSuite
 			"invoiceNumber":"VT055",
       "paymentDelay": 25,
 			"client" : {
+        "id" : "0",
 				"name" : "VIDAL",
 				"address" : "27 rue camille desmoulins",
 				"postalCode" : "94550",
@@ -29,7 +30,7 @@ class InvoiceRequestSerializerTest extends FunSuite
 		val invoice = InvoiceRequest("facture",
                                  "VT055",
                                  25,
-                                 ClientDefinition("VIDAL", "27 rue camille desmoulins", "94550", "chevilly"),
+                                 ClientDefinition("0", "VIDAL", "27 rue camille desmoulins", "94550", "chevilly"),
                                  List(InvoiceLine("blabla", 25.0, 450.0, 19.6)))
 		Json.parse(data).validate(invoiceReads).get should be (invoice)
 	}
@@ -40,6 +41,7 @@ class InvoiceRequestSerializerTest extends FunSuite
       "title" -> Seq("facture"),
 			"invoiceNumber" -> Seq("VT055"),
       "paymentDelay" -> Seq("25"),
+      "clientId" -> Seq("1"),
 			"clientName" -> Seq("VIDAL"),
 			"clientAddress" -> Seq("27 rue camille desmoulins"),
 			"clientPostalCode" -> Seq("94550"),
@@ -53,7 +55,7 @@ class InvoiceRequestSerializerTest extends FunSuite
     val invoice = InvoiceRequest("facture",
       "VT055",
       25,
-      ClientDefinition("VIDAL", "27 rue camille desmoulins", "94550", "chevilly"),
+      ClientDefinition("1", "VIDAL", "27 rue camille desmoulins", "94550", "chevilly"),
       List(
         InvoiceLine("blabla", 25.0, 450.0, 19.6),
         InvoiceLine("blabla2", 24.0, 451.0, 20.6)

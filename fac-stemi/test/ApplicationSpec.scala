@@ -31,6 +31,7 @@ class ApplicationSpec extends Specification {
         ("title", "faux titre"),
         ("invoiceNumber", "VT500"),
         ("paymentDelay", "50"),
+        ("clientId", "0"),
         ("clientName", "TestClient"),
         ("clientAddress", "35 rue inconnue"),
         ("clientCity", "Issy les moulineaux"),
