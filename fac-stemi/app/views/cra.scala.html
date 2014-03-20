@@ -1,50 +1,54 @@
 @(googleAuthUrl: String)(implicit request: play.api.mvc.RequestHeader)
 
 @main(googleAuthUrl) {
-<div class="row" data-ng-controller="CraController">
-	<h4>Indiquez vos nombres de jours d'activité: </h4>
-	<form class="form">
-		<div class="form-group">
-		  <label for="days">Nombre de jours</label>
-		  <input type="text" class="form-control" name="days" id="days" placeholder="Indiquez le nombre de jours">
-		</div>
+<form class="form" ng-submit="submit()" ng-controller="CraController">
+    <div class="row">
+        <h4>Indiquez vos nombres de jours d'activité: </h4>
 
-		<lt-client-search client="client"></lt-client-search>
+        <div class="form-group">
+            <label for="days">Nombre de jours</label>
+            <input class="form-control" ng-required type="number" step="any" ng-model="cra.numberOfDays" name="days" id="days" placeholder="Indiquez le nombre de jours">
+        </div>
 
-		<button type="submit" class="btn btn-success pull-right">Soumettre</button>
-	</form>
+        <div class="form-group">
+            <label for="days">TJM</label>
+            <input type="number" step="any" ng-required class="form-control" ng-model="cra.tjm" name="tjm" id="tjm" placeholder="Indiquez le TJM">
+        </div>
 
-	<h6>Ou</h6>
-	
-	<h4>Sélectionnez vos dates d'activité : </h4>
-	<div class="well" style="overflow: auto">
-	   <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
-	      <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
-	      <span></span> <b class="caret"></b>
-	   </div>
-	</div>
-	<div class="allDaysBlock">
-		<table class="table">
-			<thead>
-				<tr>
-					<td>Mondi</td>
-					<td>Lardi</td>
-					<td>Credi</td>
-					<td>Ze-dit</td>
-					<td>Friture-Day</td>
-					<td>Sadi</td>
-					<td>Gromanche</td>
-				</tr>	
-			</thead>
-			<tbody>
-				<tr ng-repeat="week in weeks">
-					<td ng-repeat="day in week">
-						<lt-day-block  ng-if="day.day" day="day"></lt-day-block>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
-	<button type="button" class="btn btn-success pull-right" ng-click="submit()">Soumettre</button>
-</div>
+        <lt-client-search client="cra.client"></lt-client-search>
+
+        <h6>Ou</h6>
+
+        <h4>Sélectionnez vos dates d'activité : </h4>
+        <div class="well" style="overflow: auto">
+            <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
+                <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                <span></span> <b class="caret"></b>
+            </div>
+        </div>
+        <div class="allDaysBlock">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <td>Mondi</td>
+                        <td>Lardi</td>
+                        <td>Credi</td>
+                        <td>Ze-dit</td>
+                        <td>Friture-Day</td>
+                        <td>Sadi</td>
+                        <td>Gromanche</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="week in weeks">
+                        <td ng-repeat="day in week">
+                            <lt-day-block  ng-if="day.day" day="day"></lt-day-block>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <button type="submit" class="btn btn-success pull-right">Soumettre</button>
+    </div>
+</form>
 }
