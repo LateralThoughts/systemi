@@ -8,11 +8,11 @@
         <div class="row">
 
             <div class="panel panel-primary">
-                <div class="panel-heading" ng-if="client.id">Modification de "{{ client.name }}"</div>
-                <div class="panel-heading" ng-if="!client.id">Création d'un nouveau client</div>
+                <div class="panel-heading" ng-if="client._id">Modification de "{{ client.name }}"</div>
+                <div class="panel-heading" ng-if="!client._id">Création d'un nouveau client</div>
                 <div class="panel-body">
-                    <form ng-submit="create(client)" role="form">
-                        <input type="hidden" ng-model="client.id"/>
+                    <form ng-submit="handle(client)" role="form">
+                        <input type="hidden" ng-model="client._id"/>
 
                         <div class="form-group">
                             <label for="clientName">Nom du client</label>
@@ -34,8 +34,8 @@
                             <input type="text" class="form-control" name="clientPostalCode" id="clientPostalcode" ng-model="client.postalCode" placeholder="Code postal du client">
                         </div>
 
-                        <button type="submit" ng-if="client.id" class="btn btn-success">Sauver les modifications</button>
-                        <button type="submit" ng-if="!client.id" class="btn btn-success">Ajouter un nouveau client</button>
+                        <button type="submit" ng-if="client._id" class="btn btn-success">Sauver les modifications</button>
+                        <button type="submit" ng-if="!client._id" class="btn btn-success">Ajouter un nouveau client</button>
                     </form>
                 </div>
             </div>

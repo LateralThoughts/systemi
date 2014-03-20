@@ -11,8 +11,11 @@ case class InvoiceRequest(title: String,
 import _root_.util.pdf.PDF
 import play.api.libs.json._
 import views.html.invoice
+import reactivemongo.bson.BSONObjectID
 
 trait InvoiceSerializer {
+
+  import play.modules.reactivemongo.json.BSONFormats._
 
   implicit val invoiceClientReads = Json.reads[ClientDefinition]
   implicit val invoiceNewClientReads = Json.reads[NewClientDefinition]
@@ -35,7 +38,7 @@ trait InvoiceSerializer {
       body.get("title").get.headOption.get,
       body.get("invoiceNumber").get.headOption.get,
       body.get("paymentDelay").get.headOption.get.toInt,
-      ClientDefinition(body.get("clientId").get.headOption.map( _.toLong ),
+      ClientDefinition(body.get("clientId").get.headOption.map(new BSONObjectID(_)).getOrElse(BSONObjectID.generate).toString(),
         body.get("clientName").get.headOption.get,
         body.get("clientAddress").get.headOption.get,
         body.get("clientPostalCode").get.headOption.get,

@@ -16,4 +16,4 @@ dist
 /.settings
 test-result
 test-results.xml
-
+data/

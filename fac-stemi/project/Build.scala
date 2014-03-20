@@ -16,7 +16,7 @@ object ApplicationBuild extends Build {
       "com.google.http-client" % "google-http-client-jackson" % "1.15.0-rc",
       "net.databinder" %% "dispatch-http" % "0.8.8",        
       "jp.t2v" %% "play2-auth"      % "0.11.0",
-      "com.typesafe.play" %% "play-slick" % "0.6.0.1",
+      "org.reactivemongo" %% "play2-reactivemongo" % "0.10.2",
 
       "org.apache.lucene" % "lucene-test-framework" % luceneVersion % "test",
       "org.apache.lucene" % "lucene-core" % luceneVersion,

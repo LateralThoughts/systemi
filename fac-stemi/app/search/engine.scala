@@ -7,7 +7,7 @@ import org.apache.lucene.analysis.fr.{FrenchLightStemFilter, FrenchAnalyzer}
 import org.apache.lucene.document.{FieldType, Field, Document}
 import org.apache.lucene.search.{IndexSearcher, PhraseQuery}
 import org.apache.lucene.analysis.tokenattributes.{CharTermAttribute, OffsetAttribute}
-import domain.{Clients, ClientDefinition}
+import domain.ClientDefinition
 import org.apache.lucene.analysis.{TokenFilter, Analyzer}
 import java.io.Reader
 import org.apache.lucene.analysis.standard.{StandardTokenizer, StandardFilter}
@@ -16,24 +16,28 @@ import org.apache.lucene.analysis.core.{StopFilter, LowerCaseFilter}
 import org.apache.lucene.analysis.miscellaneous.SetKeywordMarkerFilter
 import org.apache.lucene.analysis.Analyzer.TokenStreamComponents
 import org.apache.lucene.analysis.ngram.EdgeNGramTokenFilter
+import scala.concurrent.{ExecutionContext, Future}
 
-case class SimpleSearchEngine() extends ClientDefinitionIndexation {
+
+trait SearchEngineFields {
+  val ID_FIELD = "_id"
+  val TEXT_FIELD = "text"
+}
+
+case class SimpleSearchEngine(clients : Future[List[ClientDefinition]]) extends ClientDefinitionIndexation with SearchEngineFields{
   val MAX_NUMBER_OF_DOCS = 50
   val directory = new RAMDirectory()
   val luceneVersion = Version.LUCENE_47
+
   val docAnalyzer = new LateralThoughtsClientAnalyzer(luceneVersion)
 
   initWithDocuments()
 
 
   def initWithDocuments() {
-    import play.api.Play.current
-    import play.api.db.slick._
-
+    import ExecutionContext.Implicits.global
     val writer = openWriter
-    DB.withSession { implicit s: Session =>
-      Clients.list().map( client => writeDocument(writer, client))
-    }
+    clients.map( _.map( client => writeDocument(writer, client)))
     writer.close(true)
   }
 
@@ -45,7 +49,7 @@ case class SimpleSearchEngine() extends ClientDefinitionIndexation {
 
   def update(id: String, client : ClientDefinition) {
     val writer = openWriter
-    writer.deleteDocuments(new Term("id", id.toString))
+    writer.deleteDocuments(new Term(ID_FIELD, id.toString))
     writeDocument(writer, client)
     writer.close(true)
   }
@@ -71,23 +75,19 @@ case class SimpleSearchEngine() extends ClientDefinitionIndexation {
     query
   }
 
-  def search(q: String) : List[ClientDefinition] = {
-    import play.api.Play.current
-    import play.api.db.slick._
+  def search(q: String) : List[Long] = {
 
     val searchQuery = createSearchQuery(q)
     val dirReader = DirectoryReader.open(directory)
     val searcher = new IndexSearcher(dirReader)
     val results = searcher.search(searchQuery, MAX_NUMBER_OF_DOCS);
 
-    DB.withSession { implicit s: Session =>
-      val resultClients = results.scoreDocs.map(
-        resultDoc => Clients.findById(searcher.doc(resultDoc.doc).get("id").toLong).get
-      )
+    val resultClients = results.scoreDocs.map(
+      resultDoc => searcher.doc(resultDoc.doc).get(ID_FIELD).toLong
+    ).toList
 
-      dirReader.close()
-      resultClients.toList
-    }
+    dirReader.close()
+    resultClients
   }
 
 
@@ -106,7 +106,7 @@ case class SimpleSearchEngine() extends ClientDefinitionIndexation {
   }
 }
 
-trait ClientDefinitionIndexation {
+trait ClientDefinitionIndexation extends SearchEngineFields {
 
   def createFieldText(client: ClientDefinition): IndexableField = {
     val text = s"${client.name}\n ${client.address}\n ${client.city}\n ${client.postalCode}"
@@ -135,7 +135,7 @@ trait ClientDefinitionIndexation {
 
   protected def createDocFromClient(client: ClientDefinition) : Document = {
     val document = new Document()
-    document.add(createFieldStoredAndIndexed("id", client.id.toString))
+    document.add(createFieldStoredAndIndexed(ID_FIELD, client._id.toString()))
     document.add(createFieldStored("name", client.name))
     document.add(createFieldText(client))
     document
