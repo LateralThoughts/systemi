@@ -4,12 +4,11 @@ import play.api.mvc._
 import play.api.libs.json._
 import domain._
 import oauth.GoogleOAuth
-import search.engine.SimpleSearchEngine
-import domain.NewClientDefinition
 import domain.ClientDefinition
 import scala.concurrent.ExecutionContext
 import reactivemongo.bson.{BSONDocument, BSONObjectID}
 import scala.util.{Success, Failure}
+import search.SimpleSearchEngine
 
 // Reactive Mongo imports
 
@@ -35,8 +34,10 @@ with MongoController {
 
   def getAll = Action.async {
     implicit request =>
-      val futureClients = collection.find(Json.obj()).cursor[JsObject].collect[List]()
-      futureClients.map (clients => Ok(JsArray(clients)))
+      val futureClients = collection.find(Json.obj()).cursor[BSONDocument].collect[List]()
+      futureClients.map (
+        clients => Ok(Json.toJson(clients))
+      )
   }
 
   def search(q: String) = Action {
@@ -46,9 +47,9 @@ with MongoController {
 
   def addClient = Action(parse.json) { implicit request =>
     val json = request.body
-    json.validate(invoiceNewClientReads) match {
+    json.validate(invoiceClientReads) match {
       case errors:JsError => Ok(errors.toString).as("application/json")
-      case result: JsResult[NewClientDefinition] => {
+      case result: JsResult[ClientDefinition] => {
         saveClient(result.get)
         Ok
       }
@@ -68,8 +69,7 @@ with MongoController {
   }
 
 
-  private def saveClient(clientProposal: NewClientDefinition) = {
-    val client = new ClientDefinition(None, clientProposal)
+  private def saveClient(client: ClientDefinition) = {
     collection.insert(client)
     engine.addToIndex(client)
   }

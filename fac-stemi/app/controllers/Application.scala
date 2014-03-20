@@ -6,7 +6,6 @@ import domain._
 import play.api.libs.json._
 import oauth._
 import play.api.Logger
-import reactivemongo.bson.BSONObjectID
 
 object Application extends Controller
                     with InvoiceSerializer
@@ -75,7 +74,7 @@ object Application extends Controller
 
   def showInvoiceHtml = Action {
     val invoiceRequest = InvoiceRequest("facture", "VT055", 30,
-      ClientDefinition(BSONObjectID.generate.toString(), "VIDAL", "27 rue camille desmoulins", "94550", "chevilly"),
+      ClientDefinition(None, "VIDAL", "27 rue camille desmoulins", "94550", "chevilly"),
       List(InvoiceLine("blabla", 25.0, 450.0, 19.6)))
 
     val client = invoiceRequest.client

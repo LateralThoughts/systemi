@@ -1,4 +1,4 @@
-package search.engine
+package search
 
 import org.apache.lucene.store.RAMDirectory
 import org.apache.lucene.index._
@@ -62,12 +62,12 @@ case class SimpleSearchEngine(clients : Future[List[ClientDefinition]]) extends 
     val offsetAttribute = tokenStream.addAttribute(classOf[OffsetAttribute])
     val charTermAttribute = tokenStream.addAttribute(classOf[CharTermAttribute])
 
-    tokenStream.reset();
+    tokenStream.reset()
     while (tokenStream.incrementToken()) {
       val startOffset = offsetAttribute.startOffset()
       val endOffset = offsetAttribute.endOffset()
 
-      val term = charTermAttribute.toString()
+      val term = charTermAttribute.toString
       query.add(new Term("text", term))
     }
     tokenStream.close()
@@ -80,7 +80,7 @@ case class SimpleSearchEngine(clients : Future[List[ClientDefinition]]) extends 
     val searchQuery = createSearchQuery(q)
     val dirReader = DirectoryReader.open(directory)
     val searcher = new IndexSearcher(dirReader)
-    val results = searcher.search(searchQuery, MAX_NUMBER_OF_DOCS);
+    val results = searcher.search(searchQuery, MAX_NUMBER_OF_DOCS)
 
     val resultClients = results.scoreDocs.map(
       resultDoc => searcher.doc(resultDoc.doc).get(ID_FIELD).toLong
@@ -94,10 +94,10 @@ case class SimpleSearchEngine(clients : Future[List[ClientDefinition]]) extends 
   /**
    * Close directory after search is done
    */
-  def close { directory.close() }
+  def close() { directory.close() }
 
   private def writeDocument(writer: IndexWriter, client: ClientDefinition) {
-    writer.addDocument(createDocFromClient(client))
+    createDocFromClient(client) map ( writer.addDocument(_) )
   }
 
   private def openWriter = {
@@ -133,12 +133,18 @@ trait ClientDefinitionIndexation extends SearchEngineFields {
     new Field(fieldName, value, textIndexType)
   }
 
-  protected def createDocFromClient(client: ClientDefinition) : Document = {
-    val document = new Document()
-    document.add(createFieldStoredAndIndexed(ID_FIELD, client._id.toString()))
-    document.add(createFieldStored("name", client.name))
-    document.add(createFieldText(client))
-    document
+  protected def createDocFromClient(client: ClientDefinition) : Option[Document] = {
+    client._id match  {
+      case Some(id) =>
+        val document = new Document()
+        document.add(createFieldStoredAndIndexed(ID_FIELD, id.stringify))
+        document.add(createFieldStored("name", client.name))
+        document.add(createFieldText(client))
+        Some(document)
+
+      case None => None
+    }
+
   }
 }
 
