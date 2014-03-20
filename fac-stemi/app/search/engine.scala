@@ -70,7 +70,7 @@ case class SimpleSearchEngine() extends ClientDefinitionIndexation with SearchEn
     query
   }
 
-  def search(q: String) : List[Long] = {
+  def search(q: String) : List[String] = {
 
     val searchQuery = createSearchQuery(q)
     val dirReader = DirectoryReader.open(directory)
@@ -78,7 +78,7 @@ case class SimpleSearchEngine() extends ClientDefinitionIndexation with SearchEn
     val results = searcher.search(searchQuery, MAX_NUMBER_OF_DOCS)
 
     val resultClients = results.scoreDocs.map(
-      resultDoc => searcher.doc(resultDoc.doc).get(ID_FIELD).toLong
+      resultDoc => searcher.doc(resultDoc.doc).get(ID_FIELD)
     ).toList
 
     dirReader.close()

@@ -6,9 +6,9 @@ import domain._
 import oauth.GoogleOAuth
 import domain.Client
 import scala.concurrent.ExecutionContext
-import reactivemongo.bson.{BSONDocument, BSONObjectID}
 import scala.util.{Success, Failure}
 import search.SimpleSearchEngine
+import reactivemongo.bson._
 
 // Reactive Mongo imports
 
@@ -33,17 +33,25 @@ object ClientController extends Controller
       Ok(views.html.clients(GoogleOAuth.getGoogleAuthUrl))
   }
 
-  def getAll = Action.async {
+  def search(q: Option[String]) = Action.async {
     implicit request =>
-      val futureClients = collection.find(Json.obj()).cursor[BSONDocument].collect[List]()
-      futureClients.map (
-        clients => Ok(Json.toJson(clients))
-      )
-  }
+      q match {
+        case Some(query) =>
+          val results = engine.search(query)
+          val resultSelector = Json.obj {
+            "_id" -> Json.obj {
+              "$in" -> results.map(new BSONObjectID(_))
+            }
+          }
+        println(Json.toJson(resultSelector))
+          collection.find(resultSelector).cursor[Client].collect[List]().map {
+            clients => Ok(Json.toJson(clients))
+          }
 
-  def search(q: String) = Action {
-    implicit request =>
-      Ok(Json.toJson(engine.search(q)))
+        case None =>
+            collection.find(Json.obj()).cursor[BSONDocument].collect[List]().map ( clients => Ok(Json.toJson(clients))
+          )
+      }
   }
 
   def addClient = Action(parse.json) { implicit request =>

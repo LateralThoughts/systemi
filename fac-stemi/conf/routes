@@ -11,8 +11,7 @@ GET         /invoice             controllers.Application.showInvoiceHtml
 POST        /api/invoice         controllers.Application.createAndPushInvoice
 
 # client resources
-GET         /api/clients         controllers.ClientController.getAll
-GET         /api/clients         controllers.ClientController.search(q: String)
+GET         /api/clients         controllers.ClientController.search(q: Option[String])
 POST        /api/clients         controllers.ClientController.addClient
 PUT         /api/clients/:id     controllers.ClientController.modifyClient(id: String)
 
