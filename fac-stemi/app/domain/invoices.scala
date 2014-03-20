@@ -5,7 +5,7 @@ case class InvoiceLine(description: String, days: Double, dailyRate: Double, tax
 case class InvoiceRequest(title: String,
                           invoiceNumber : String,
                           paymentDelay: Int,
-                          client: ClientDefinition,
+                          client: Client,
                           invoice: List[InvoiceLine])
 
 import _root_.util.pdf.PDF
@@ -15,11 +15,11 @@ import reactivemongo.bson.BSONObjectID
 
 trait InvoiceSerializer {
   import play.modules.reactivemongo.json.BSONFormats._
-  implicit val invoiceClientReads = Json.reads[ClientDefinition]
+  implicit val invoiceClientReads = Json.reads[Client]
   implicit val invoiceLineReads = Json.reads[InvoiceLine]
   implicit val invoiceReads = Json.reads[InvoiceRequest]
 
-  implicit val invoiceClientWrites = Json.writes[ClientDefinition]
+  implicit val invoiceClientWrites = Json.writes[Client]
 
   def invoiceFromForm(body : Map[String, Seq[String]]) = {
     val descriptions = body.get("invoiceDescription").get
@@ -35,7 +35,7 @@ trait InvoiceSerializer {
       body.get("title").get.headOption.get,
       body.get("invoiceNumber").get.headOption.get,
       body.get("paymentDelay").get.headOption.get.toInt,
-      ClientDefinition(
+      Client(
         body.get("clientId").flatMap(_.headOption.map(new BSONObjectID(_))),
         body.get("clientName").get.headOption.get,
         body.get("clientAddress").get.headOption.get,

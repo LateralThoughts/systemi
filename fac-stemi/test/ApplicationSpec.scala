@@ -1,4 +1,4 @@
-import domain.{InvoiceLine, ClientDefinition}
+import domain.{InvoiceLine, Client}
 import org.specs2.mutable._
 import org.specs2.runner._
 import org.junit.runner._

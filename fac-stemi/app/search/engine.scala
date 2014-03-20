@@ -7,7 +7,7 @@ import org.apache.lucene.analysis.fr.{FrenchLightStemFilter, FrenchAnalyzer}
 import org.apache.lucene.document.{FieldType, Field, Document}
 import org.apache.lucene.search.{IndexSearcher, PhraseQuery}
 import org.apache.lucene.analysis.tokenattributes.{CharTermAttribute, OffsetAttribute}
-import domain.ClientDefinition
+import domain.Client
 import org.apache.lucene.analysis.{TokenFilter, Analyzer}
 import java.io.Reader
 import org.apache.lucene.analysis.standard.{StandardTokenizer, StandardFilter}
@@ -24,7 +24,7 @@ trait SearchEngineFields {
   val TEXT_FIELD = "text"
 }
 
-case class SimpleSearchEngine(clients : Future[List[ClientDefinition]]) extends ClientDefinitionIndexation with SearchEngineFields{
+case class SimpleSearchEngine(clients : Future[List[Client]]) extends ClientDefinitionIndexation with SearchEngineFields{
   val MAX_NUMBER_OF_DOCS = 50
   val directory = new RAMDirectory()
   val luceneVersion = Version.LUCENE_47
@@ -41,13 +41,13 @@ case class SimpleSearchEngine(clients : Future[List[ClientDefinition]]) extends 
     writer.close(true)
   }
 
-  def addToIndex(client : ClientDefinition) {
+  def addToIndex(client : Client) {
     val writer = openWriter
     writeDocument(writer, client)
     writer.close(true)
   }
 
-  def update(id: String, client : ClientDefinition) {
+  def update(id: String, client : Client) {
     val writer = openWriter
     writer.deleteDocuments(new Term(ID_FIELD, id.toString))
     writeDocument(writer, client)
@@ -96,7 +96,7 @@ case class SimpleSearchEngine(clients : Future[List[ClientDefinition]]) extends 
    */
   def close() { directory.close() }
 
-  private def writeDocument(writer: IndexWriter, client: ClientDefinition) {
+  private def writeDocument(writer: IndexWriter, client: Client) {
     createDocFromClient(client) map ( writer.addDocument(_) )
   }
 
@@ -108,7 +108,7 @@ case class SimpleSearchEngine(clients : Future[List[ClientDefinition]]) extends 
 
 trait ClientDefinitionIndexation extends SearchEngineFields {
 
-  def createFieldText(client: ClientDefinition): IndexableField = {
+  def createFieldText(client: Client): IndexableField = {
     val text = s"${client.name}\n ${client.address}\n ${client.city}\n ${client.postalCode}"
     val textIndexType = new FieldType()
     textIndexType.setIndexed(true)
@@ -133,7 +133,7 @@ trait ClientDefinitionIndexation extends SearchEngineFields {
     new Field(fieldName, value, textIndexType)
   }
 
-  protected def createDocFromClient(client: ClientDefinition) : Option[Document] = {
+  protected def createDocFromClient(client: Client) : Option[Document] = {
     client._id match  {
       case Some(id) =>
         val document = new Document()
