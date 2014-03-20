@@ -15,8 +15,6 @@ import reactivemongo.bson.BSONObjectID
 
 trait InvoiceSerializer {
 
-  import play.modules.reactivemongo.json.BSONFormats._
-
   implicit val invoiceClientReads = Json.reads[ClientDefinition]
   implicit val invoiceNewClientReads = Json.reads[NewClientDefinition]
   implicit val invoiceLineReads = Json.reads[InvoiceLine]
@@ -38,7 +36,7 @@ trait InvoiceSerializer {
       body.get("title").get.headOption.get,
       body.get("invoiceNumber").get.headOption.get,
       body.get("paymentDelay").get.headOption.get.toInt,
-      ClientDefinition(body.get("clientId").get.headOption.map(new BSONObjectID(_)).getOrElse(BSONObjectID.generate).toString(),
+      ClientDefinition(body.get("clientId").get.headOption.getOrElse(BSONObjectID.generate.stringify),
         body.get("clientName").get.headOption.get,
         body.get("clientAddress").get.headOption.get,
         body.get("clientPostalCode").get.headOption.get,

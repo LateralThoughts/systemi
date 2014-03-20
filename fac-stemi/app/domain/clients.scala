@@ -2,7 +2,7 @@ package domain
 
 import reactivemongo.bson.BSONObjectID
 
-case class ClientDefinition(_id : String = BSONObjectID.generate.toString(),
+case class ClientDefinition(_id : String,
                             name: String,
                             address: String,
                             postalCode : String = "",
