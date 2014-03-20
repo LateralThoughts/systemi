@@ -1,7 +1,7 @@
 # start backend
 cd $WORKSPACE/fac-stemi
 
-./target/universal/stage/bin/fac-stemi &
+./target/universal/stage/bin/fac-stemi -Dhttp.port=9999 &
 
 cd $WORKSPACE/fac-stemi/test/angular-test
 
