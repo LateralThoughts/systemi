@@ -12,8 +12,8 @@ The angular tests suite is composed of 2 parts:
 
 ####Unit tests
 The unit tests are build using jasmine and run by karma
-To install karma, you need to have nodejs installed with npm.
-Run:
+To install karma, you need to have nodejs installed with npm and ans exec called "node" (not only nodejs).
+Then run:
 
     npm install karma-jasmine karma-chrome-launcher karma-phantomjs-launcher
     npm install karma karma-cli
