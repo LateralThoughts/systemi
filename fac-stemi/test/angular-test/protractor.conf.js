@@ -5,7 +5,8 @@ exports.config = {
 
   // Capabilities to be passed to the webdriver instance.
   capabilities: {
-    'browserName': 'firefox'
+    //'browserName': 'firefox'
+    'browserName': 'phantomjs'
   },
 
   // Spec patterns are relative to the location of the spec file. They may
@@ -14,6 +15,9 @@ exports.config = {
 
   // Options to be passed to Jasmine-node.
   jasmineNodeOpts: {
-    showColors: true, // Use colors in the command line report.
+    //isVerbose: true,
+    showColors: true,
+    //includeStackTrace: true,
+    defaultTimeoutInterval: 30000
   }
 };
