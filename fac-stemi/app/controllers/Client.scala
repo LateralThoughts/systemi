@@ -2,27 +2,27 @@ package controllers
 
 import play.api.mvc._
 import play.api.libs.json._
-import search.engine.SimpleSearchEngine
-import domain.{NewClientDefinition, InvoiceRequest, InvoiceSerializer, ClientDefinition}
+import play.api.db.slick._
+import domain._
 import oauth.GoogleOAuth
-
+import search.engine.SimpleSearchEngine
+import domain.NewClientDefinition
+import domain.ClientDefinition
+import scala.Some
 
 object Client extends Controller with InvoiceSerializer {
 
-  private val clients = collection.mutable.Map(
-    0 -> ClientDefinition("0", "VIDAL", "21 rue camille desmoulins", "92110", "Issy les moulineaux"),
-    1 -> ClientDefinition("1", "Lateral-Thoughts", "37 rue des mathurins", "75009", "Paris")
-  )
-  private val engine = SimpleSearchEngine(clients)
+  private val engine = SimpleSearchEngine()
 
   def clientsView = Action {
     implicit request =>
       Ok(views.html.clients(GoogleOAuth.getGoogleAuthUrl))
   }
 
-  def getAll = Action {
-    implicit request =>
-      Ok(Json.toJson(clients.values))
+  def getAll = DBAction {
+    implicit rs =>
+      val clients = Clients.list()
+      Ok(Json.toJson(clients))
   }
 
   def search(q: String) = Action {
@@ -30,39 +30,34 @@ object Client extends Controller with InvoiceSerializer {
       Ok(Json.toJson(engine.search(q)))
   }
 
-  def addClient() = Action { implicit request =>
-    request.body.asJson match {
-      case Some(json) => json.validate(invoiceNewClientReads) match {
-        case errors:JsError => Ok(errors.toString).as("application/json")
-        case result: JsResult[NewClientDefinition] => {
-          saveClient(result.get)
-          Ok
-        }
+  def addClient = DBAction(parse.json) { implicit rs =>
+    val json = rs.request.body
+    json.validate(invoiceNewClientReads) match {
+      case errors:JsError => Ok(errors.toString).as("application/json")
+      case result: JsResult[NewClientDefinition] => {
+        saveClient(result.get)
+        Ok
       }
-      case None => BadRequest
     }
   }
 
-  def modifyClient(id: Int) = Action {
-    implicit request =>
-      request.body.asJson match {
-        case Some(json) => json.validate(invoiceClientReads) match {
-          case errors:JsError => Ok(errors.toString).as("application/json")
-          case result: JsResult[ClientDefinition] => {
-            clients.update(id, result.get)
-            engine.update(id, result.get)
-            Ok
-          }
+  def modifyClient(id: Long) = DBAction(parse.json) {
+    implicit rs =>
+      val json = rs.request.body
+      json.validate(invoiceClientReads) match {
+        case errors:JsError => Ok(errors.toString).as("application/json")
+        case result: JsResult[ClientDefinition] => {
+          Clients.update(id, result.get)
+          engine.update(id.toString, result.get)
+          Ok
         }
-        case None => BadRequest
       }
   }
 
 
-  private def saveClient(clientProposal: NewClientDefinition) = {
-    val newIndex = clients.size
-    val client = new ClientDefinition(newIndex.toString, clientProposal)
-    clients += (newIndex -> client)
-    engine.addToIndex(newIndex, client)
+  private def saveClient(clientProposal: NewClientDefinition)(implicit s: play.api.db.slick.Config.driver.simple.Session) = {
+    val client = new ClientDefinition(None, clientProposal)
+    Clients.insert(client)
+    engine.addToIndex(client)
   }
 }

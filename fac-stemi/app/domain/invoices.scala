@@ -1,12 +1,5 @@
 package domain
 
-case class NewClientDefinition(name: String, address: String, postalCode : String = "", city: String = "")
-
-case class ClientDefinition(id: String, name: String, address: String, postalCode : String = "", city: String = "")  {
-
-  def this(id: String, c: NewClientDefinition) = this(id, c.name, c.address, c.postalCode, c.city)
-}
-
 case class InvoiceLine(description: String, days: Double, dailyRate: Double, taxRate: Double = 19.6)
 
 case class InvoiceRequest(title: String,
@@ -20,6 +13,7 @@ import play.api.libs.json._
 import views.html.invoice
 
 trait InvoiceSerializer {
+
   implicit val invoiceClientReads = Json.reads[ClientDefinition]
   implicit val invoiceNewClientReads = Json.reads[NewClientDefinition]
   implicit val invoiceLineReads = Json.reads[InvoiceLine]
@@ -34,14 +28,14 @@ trait InvoiceSerializer {
     val rates = body.get("invoiceTaxRate").get
 
     val lines = (for {
-        (((description, day), dailyRate), rate) <- descriptions zip days zip dailyRates zip rates
-      } yield InvoiceLine(description, day.toDouble, dailyRate.toDouble, rate.toDouble)).toList
+      (((description, day), dailyRate), rate) <- descriptions zip days zip dailyRates zip rates
+    } yield InvoiceLine(description, day.toDouble, dailyRate.toDouble, rate.toDouble)).toList
 
     val invoiceRequest = InvoiceRequest(
       body.get("title").get.headOption.get,
       body.get("invoiceNumber").get.headOption.get,
       body.get("paymentDelay").get.headOption.get.toInt,
-      ClientDefinition(body.get("clientId").get.headOption.get,
+      ClientDefinition(body.get("clientId").get.headOption.map( _.toLong ),
         body.get("clientName").get.headOption.get,
         body.get("clientAddress").get.headOption.get,
         body.get("clientPostalCode").get.headOption.get,

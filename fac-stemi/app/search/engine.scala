@@ -7,18 +7,17 @@ import org.apache.lucene.analysis.fr.{FrenchLightStemFilter, FrenchAnalyzer}
 import org.apache.lucene.document.{FieldType, Field, Document}
 import org.apache.lucene.search.{IndexSearcher, PhraseQuery}
 import org.apache.lucene.analysis.tokenattributes.{CharTermAttribute, OffsetAttribute}
-import domain.ClientDefinition
+import domain.{Clients, ClientDefinition}
 import org.apache.lucene.analysis.{TokenFilter, Analyzer}
 import java.io.Reader
-import org.apache.lucene.analysis.standard.{StandardTokenizer, StandardFilter, StandardAnalyzer}
+import org.apache.lucene.analysis.standard.{StandardTokenizer, StandardFilter}
 import org.apache.lucene.analysis.util.{ElisionFilter, CharArraySet}
 import org.apache.lucene.analysis.core.{StopFilter, LowerCaseFilter}
 import org.apache.lucene.analysis.miscellaneous.SetKeywordMarkerFilter
 import org.apache.lucene.analysis.Analyzer.TokenStreamComponents
-import org.apache.lucene.analysis.ngram.{EdgeNGramTokenFilter, EdgeNGramFilterFactory}
+import org.apache.lucene.analysis.ngram.EdgeNGramTokenFilter
 
-
-case class SimpleSearchEngine(clients : collection.mutable.Map[Int, ClientDefinition]) extends ClientDefinitionIndexation {
+case class SimpleSearchEngine() extends ClientDefinitionIndexation {
   val MAX_NUMBER_OF_DOCS = 50
   val directory = new RAMDirectory()
   val luceneVersion = Version.LUCENE_47
@@ -28,21 +27,26 @@ case class SimpleSearchEngine(clients : collection.mutable.Map[Int, ClientDefini
 
 
   def initWithDocuments() {
+    import play.api.Play.current
+    import play.api.db.slick._
+
     val writer = openWriter
-    clients.foreach { case (id : Int, client : ClientDefinition) => writeDocument(writer, id, client)}
+    DB.withSession { implicit s: Session =>
+      Clients.list().map( client => writeDocument(writer, client))
+    }
     writer.close(true)
   }
 
-  def addToIndex(id: Int, client : ClientDefinition) {
+  def addToIndex(client : ClientDefinition) {
     val writer = openWriter
-    writeDocument(writer, id, client)
+    writeDocument(writer, client)
     writer.close(true)
   }
 
-  def update(id: Int, client : ClientDefinition) {
+  def update(id: String, client : ClientDefinition) {
     val writer = openWriter
     writer.deleteDocuments(new Term("id", id.toString))
-    writeDocument(writer, id, client)
+    writeDocument(writer, client)
     writer.close(true)
   }
 
@@ -68,17 +72,22 @@ case class SimpleSearchEngine(clients : collection.mutable.Map[Int, ClientDefini
   }
 
   def search(q: String) : List[ClientDefinition] = {
+    import play.api.Play.current
+    import play.api.db.slick._
+
     val searchQuery = createSearchQuery(q)
     val dirReader = DirectoryReader.open(directory)
     val searcher = new IndexSearcher(dirReader)
     val results = searcher.search(searchQuery, MAX_NUMBER_OF_DOCS);
 
-    val resultClients = results.scoreDocs.map(
-      resultDoc => clients.get(searcher.doc(resultDoc.doc).get("id").toInt).get
-    )
+    DB.withSession { implicit s: Session =>
+      val resultClients = results.scoreDocs.map(
+        resultDoc => Clients.findById(searcher.doc(resultDoc.doc).get("id").toLong).get
+      )
 
-    dirReader.close()
-    resultClients.toList
+      dirReader.close()
+      resultClients.toList
+    }
   }
 
 
@@ -87,8 +96,8 @@ case class SimpleSearchEngine(clients : collection.mutable.Map[Int, ClientDefini
    */
   def close { directory.close() }
 
-  private def writeDocument(writer: IndexWriter, id: Int, client: ClientDefinition) {
-    writer.addDocument(createDocFromClient(id, client))
+  private def writeDocument(writer: IndexWriter, client: ClientDefinition) {
+    writer.addDocument(createDocFromClient(client))
   }
 
   private def openWriter = {
@@ -124,9 +133,9 @@ trait ClientDefinitionIndexation {
     new Field(fieldName, value, textIndexType)
   }
 
-  protected def createDocFromClient(id: Int, client: ClientDefinition) : Document = {
+  protected def createDocFromClient(client: ClientDefinition) : Document = {
     val document = new Document()
-    document.add(createFieldStoredAndIndexed("id", id.toString))
+    document.add(createFieldStoredAndIndexed("id", client.id.toString))
     document.add(createFieldStored("name", client.name))
     document.add(createFieldText(client))
     document
