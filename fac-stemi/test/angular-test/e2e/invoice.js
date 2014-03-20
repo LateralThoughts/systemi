@@ -2,7 +2,7 @@ describe('Invoice page', function() {
   var ptor;
 
     beforeEach(function() {
-        browser.get('http://127.0.0.1:9000/');
+        browser.get('http://127.0.0.1:9999/');
         ptor = protractor.getInstance();
     });
 
