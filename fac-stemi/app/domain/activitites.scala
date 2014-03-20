@@ -10,10 +10,17 @@ case class ActivityDay(day: LocalDate, halfUp : Boolean, halfDown: Boolean)
 
 case class Activity(_id: Option[BSONObjectID],
                     tjm : Double,
-                    numberOfDays : Long,
+                    numberOfDays : Double,
                     client: Client,
-                    days : List[ActivityDay] = List()
-                    )
+                    days : List[ActivityDay] = List()) {
+  def toInvoice = {
+    InvoiceRequest(s"Facture du mois de xxx", "VTXXX", 30, client,
+      List(
+        InvoiceLine("Prestation de développement", numberOfDays, tjm)
+      )
+    )
+  }
+}
 
 trait ActivitySerializer extends InvoiceSerializer {
   import play.modules.reactivemongo.json.BSONFormats._
