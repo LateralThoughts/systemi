@@ -1,4 +1,4 @@
-package search.engine
+package search
 
 import org.apache.lucene.store.RAMDirectory
 import org.apache.lucene.index._
@@ -7,7 +7,7 @@ import org.apache.lucene.analysis.fr.{FrenchLightStemFilter, FrenchAnalyzer}
 import org.apache.lucene.document.{FieldType, Field, Document}
 import org.apache.lucene.search.{IndexSearcher, PhraseQuery}
 import org.apache.lucene.analysis.tokenattributes.{CharTermAttribute, OffsetAttribute}
-import domain.ClientDefinition
+import domain.Client
 import org.apache.lucene.analysis.{TokenFilter, Analyzer}
 import java.io.Reader
 import org.apache.lucene.analysis.standard.{StandardTokenizer, StandardFilter}
@@ -16,7 +16,6 @@ import org.apache.lucene.analysis.core.{StopFilter, LowerCaseFilter}
 import org.apache.lucene.analysis.miscellaneous.SetKeywordMarkerFilter
 import org.apache.lucene.analysis.Analyzer.TokenStreamComponents
 import org.apache.lucene.analysis.ngram.EdgeNGramTokenFilter
-import scala.concurrent.{ExecutionContext, Future}
 
 
 trait SearchEngineFields {
@@ -24,30 +23,26 @@ trait SearchEngineFields {
   val TEXT_FIELD = "text"
 }
 
-case class SimpleSearchEngine(clients : Future[List[ClientDefinition]]) extends ClientDefinitionIndexation with SearchEngineFields{
+case class SimpleSearchEngine() extends ClientDefinitionIndexation with SearchEngineFields{
   val MAX_NUMBER_OF_DOCS = 50
   val directory = new RAMDirectory()
   val luceneVersion = Version.LUCENE_47
 
   val docAnalyzer = new LateralThoughtsClientAnalyzer(luceneVersion)
 
-  initWithDocuments()
-
-
-  def initWithDocuments() {
-    import ExecutionContext.Implicits.global
+  def initWithDocuments(clients : List[Client]) {
     val writer = openWriter
-    clients.map( _.map( client => writeDocument(writer, client)))
+    clients.map( client => writeDocument(writer, client))
     writer.close(true)
   }
 
-  def addToIndex(client : ClientDefinition) {
+  def addToIndex(client : Client) {
     val writer = openWriter
     writeDocument(writer, client)
     writer.close(true)
   }
 
-  def update(id: String, client : ClientDefinition) {
+  def update(id: String, client : Client) {
     val writer = openWriter
     writer.deleteDocuments(new Term(ID_FIELD, id.toString))
     writeDocument(writer, client)
@@ -62,12 +57,12 @@ case class SimpleSearchEngine(clients : Future[List[ClientDefinition]]) extends 
     val offsetAttribute = tokenStream.addAttribute(classOf[OffsetAttribute])
     val charTermAttribute = tokenStream.addAttribute(classOf[CharTermAttribute])
 
-    tokenStream.reset();
+    tokenStream.reset()
     while (tokenStream.incrementToken()) {
       val startOffset = offsetAttribute.startOffset()
       val endOffset = offsetAttribute.endOffset()
 
-      val term = charTermAttribute.toString()
+      val term = charTermAttribute.toString
       query.add(new Term("text", term))
     }
     tokenStream.close()
@@ -75,15 +70,15 @@ case class SimpleSearchEngine(clients : Future[List[ClientDefinition]]) extends 
     query
   }
 
-  def search(q: String) : List[Long] = {
+  def search(q: String) : List[String] = {
 
     val searchQuery = createSearchQuery(q)
     val dirReader = DirectoryReader.open(directory)
     val searcher = new IndexSearcher(dirReader)
-    val results = searcher.search(searchQuery, MAX_NUMBER_OF_DOCS);
+    val results = searcher.search(searchQuery, MAX_NUMBER_OF_DOCS)
 
     val resultClients = results.scoreDocs.map(
-      resultDoc => searcher.doc(resultDoc.doc).get(ID_FIELD).toLong
+      resultDoc => searcher.doc(resultDoc.doc).get(ID_FIELD)
     ).toList
 
     dirReader.close()
@@ -94,10 +89,10 @@ case class SimpleSearchEngine(clients : Future[List[ClientDefinition]]) extends 
   /**
    * Close directory after search is done
    */
-  def close { directory.close() }
+  def close() { directory.close() }
 
-  private def writeDocument(writer: IndexWriter, client: ClientDefinition) {
-    writer.addDocument(createDocFromClient(client))
+  private def writeDocument(writer: IndexWriter, client: Client) {
+    createDocFromClient(client) map ( writer.addDocument(_) )
   }
 
   private def openWriter = {
@@ -108,7 +103,7 @@ case class SimpleSearchEngine(clients : Future[List[ClientDefinition]]) extends 
 
 trait ClientDefinitionIndexation extends SearchEngineFields {
 
-  def createFieldText(client: ClientDefinition): IndexableField = {
+  def createFieldText(client: Client): IndexableField = {
     val text = s"${client.name}\n ${client.address}\n ${client.city}\n ${client.postalCode}"
     val textIndexType = new FieldType()
     textIndexType.setIndexed(true)
@@ -133,12 +128,18 @@ trait ClientDefinitionIndexation extends SearchEngineFields {
     new Field(fieldName, value, textIndexType)
   }
 
-  protected def createDocFromClient(client: ClientDefinition) : Document = {
-    val document = new Document()
-    document.add(createFieldStoredAndIndexed(ID_FIELD, client._id.toString()))
-    document.add(createFieldStored("name", client.name))
-    document.add(createFieldText(client))
-    document
+  protected def createDocFromClient(client: Client) : Option[Document] = {
+    client._id match  {
+      case Some(id) =>
+        val document = new Document()
+        document.add(createFieldStoredAndIndexed(ID_FIELD, id.stringify))
+        document.add(createFieldStored("name", client.name))
+        document.add(createFieldText(client))
+        Some(document)
+
+      case None => None
+    }
+
   }
 }
 

@@ -5,16 +5,15 @@
 # Home page
 GET         /                    controllers.Application.index
 GET         /cra                 controllers.Application.cra
-GET         /client              controllers.Client.clientsView
+GET         /client              controllers.ClientController.clientsView
 GET         /auth                controllers.Application.auth
 GET         /invoice             controllers.Application.showInvoiceHtml
 POST        /api/invoice         controllers.Application.createAndPushInvoice
 
 # client resources
-GET         /api/clients         controllers.Client.getAll
-GET         /api/clients         controllers.Client.search(q: String)
-POST        /api/clients         controllers.Client.addClient
-PUT         /api/clients/:id     controllers.Client.modifyClient(id: String)
+GET         /api/clients         controllers.ClientController.search(q: Option[String])
+POST        /api/clients         controllers.ClientController.addClient
+PUT         /api/clients/:id     controllers.ClientController.modifyClient(id: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file        controllers.Assets.at(path="/public", file)

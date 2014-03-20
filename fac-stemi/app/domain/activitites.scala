@@ -9,7 +9,7 @@ case class ActivityDay(day: LocalDate, halfUp : Boolean, halfDown: Boolean)
 case class Activity(id: Option[Long],
                     numberOfDays : Long,
                     days : List[ActivityDay],
-                    client: ClientDefinition)
+                    client: Client)
 
 trait ActivitySerializer extends InvoiceSerializer {
   implicit val activityDayReads = Json.reads[ActivityDay]

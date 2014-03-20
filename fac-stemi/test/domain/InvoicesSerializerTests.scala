@@ -3,6 +3,7 @@ package domain
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 import play.api.libs.json._
+import reactivemongo.bson.BSONObjectID
 
 class InvoiceRequestSerializerTest extends FunSuite
                                    with ShouldMatchers
@@ -14,7 +15,9 @@ class InvoiceRequestSerializerTest extends FunSuite
 			"invoiceNumber":"VT055",
       "paymentDelay": 25,
 			"client" : {
-        "_id" : "0",
+        "_id" : {
+          "$oid": "532afca061ce6a2db986839f"
+        },
 				"name" : "VIDAL",
 				"address" : "27 rue camille desmoulins",
 				"postalCode" : "94550",
@@ -30,7 +33,7 @@ class InvoiceRequestSerializerTest extends FunSuite
 		val invoice = InvoiceRequest("facture",
                                  "VT055",
                                  25,
-                                 ClientDefinition("0", "VIDAL", "27 rue camille desmoulins", "94550", "chevilly"),
+                                 Client(Some(BSONObjectID("532afca061ce6a2db986839f")), "VIDAL", "27 rue camille desmoulins", "94550", "chevilly"),
                                  List(InvoiceLine("blabla", 25.0, 450.0, 19.6)))
 		Json.parse(data).validate(invoiceReads).get should be (invoice)
 	}
@@ -41,7 +44,7 @@ class InvoiceRequestSerializerTest extends FunSuite
       "title" -> Seq("facture"),
 			"invoiceNumber" -> Seq("VT055"),
       "paymentDelay" -> Seq("25"),
-      "clientId" -> Seq("1"),
+      "clientId" -> Seq("532afca061ce6a2db986839f"),
 			"clientName" -> Seq("VIDAL"),
 			"clientAddress" -> Seq("27 rue camille desmoulins"),
 			"clientPostalCode" -> Seq("94550"),
@@ -55,7 +58,7 @@ class InvoiceRequestSerializerTest extends FunSuite
     val invoice = InvoiceRequest("facture",
       "VT055",
       25,
-      ClientDefinition("1", "VIDAL", "27 rue camille desmoulins", "94550", "chevilly"),
+      Client(Some(BSONObjectID("532afca061ce6a2db986839f")), "VIDAL", "27 rue camille desmoulins", "94550", "chevilly"),
       List(
         InvoiceLine("blabla", 25.0, 450.0, 19.6),
         InvoiceLine("blabla2", 24.0, 451.0, 20.6)
