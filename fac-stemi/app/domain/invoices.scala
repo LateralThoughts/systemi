@@ -35,7 +35,8 @@ trait InvoiceSerializer {
       body.get("title").get.headOption.get,
       body.get("invoiceNumber").get.headOption.get,
       body.get("paymentDelay").get.headOption.get.toInt,
-      ClientDefinition(body.get("clientId").get.headOption.map(new BSONObjectID(_)),
+      ClientDefinition(
+        body.get("clientId").flatMap(_.headOption.map(new BSONObjectID(_))),
         body.get("clientName").get.headOption.get,
         body.get("clientAddress").get.headOption.get,
         body.get("clientPostalCode").get.headOption.get,
