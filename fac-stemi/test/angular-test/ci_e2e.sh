@@ -2,6 +2,7 @@
 # start backend
 cd $WORKSPACE/fac-stemi
 
+export NODE_PATH=$WORKSPACE/../../tools/node_modules/jasmine-reporters/src/
 pkill play
 rm ./target/universal/stage/RUNNING_PID
 ./target/universal/stage/bin/fac-stemi -Dhttp.port=9999 &
