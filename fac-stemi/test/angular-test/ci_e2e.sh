@@ -35,4 +35,4 @@ $WORKSPACE/../../tools/node_modules/protractor/bin/protractor protractor.conf
 # stop selenium
 curl -s -L http://localhost:4444/selenium-server/driver?cmd=shutDownSeleniumServer > /dev/null 2>&1
 
-kill -HUP `cat $WORKSPACE/fac-stemi/target/universal/stage/RUNNING_PID`
+kill -9 `cat $WORKSPACE/fac-stemi/target/universal/stage/RUNNING_PID`
