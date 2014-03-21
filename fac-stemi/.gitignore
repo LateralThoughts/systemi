@@ -3,7 +3,8 @@ project/project
 project/target
 target
 tmp
-node_modules
+/node_modules
+/fac-node_modules
 .history
 dist
 /.idea

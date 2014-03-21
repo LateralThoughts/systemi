@@ -3,4 +3,4 @@
 *.iml
 *.ipr
 *.pyc
-node_modules
+/node_modules
