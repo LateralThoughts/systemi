@@ -21,7 +21,7 @@ facstemi.controller('CraController', function($scope, $modal, $log, $http, Clien
                 weeks.push(currentWeek);
                 currentWeek = [];
             }
-            var currentDay = createDay(day);
+            var currentDay = $scope.createDay(day);
             days.push(currentDay);
             currentWeek.push(currentDay);
             currentDayOfWeek = day.isoWeekday();
@@ -34,7 +34,7 @@ facstemi.controller('CraController', function($scope, $modal, $log, $http, Clien
         $scope.$apply();
     }
 
-    var createDay = function(date) {
+    $scope.createDay = function(date) {
         return {
             day : date,
             halfUp : (date.isoWeekday() != 6 && date.isoWeekday() !=7),

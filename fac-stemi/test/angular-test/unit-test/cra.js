@@ -3,7 +3,7 @@
 describe("Fac stemi - C.R.A.", function () {
     beforeEach(module('fac-stemi'));
 
-    var rootScope, scope, controller, $httpBackend;
+    var rootScope, scope, controller, $httpBackend, craCtl;
 
     // Install requests mock hooker
     beforeEach(function () {
@@ -13,7 +13,7 @@ describe("Fac stemi - C.R.A.", function () {
             scope = rootScope.$new();
             $httpBackend = $injector.get('$httpBackend');
 
-            var craCtl = controller('CraController', {
+            craCtl = controller('CraController', {
                 $scope: scope
             });
 
@@ -75,5 +75,27 @@ describe("Fac stemi - C.R.A.", function () {
         $httpBackend.flush();
 
         expect(scope.cra.numberOfDays).toBe(23);
+    });
+
+    it('should create a day object from week day with properly defined (halfUp, halfDown) = (true, true) values', function () {
+        var start = moment("20111031", "YYYYMMDD");
+
+        var day = scope.createDay(start);
+
+        expect(day).toBeDefined();
+        expect(day.day.isSame(start)).toBe(true);
+        expect(day.halfUp).toBe(true);
+        expect(day.halfDown).toBe(true);
+    });
+
+    it('should create a day object from week-end day with properly defined  (halfUp, halfDown) = (false, false) values', function () {
+        var start = moment("20111030", "YYYYMMDD");
+
+        var day = scope.createDay(start);
+
+        expect(day).toBeDefined();
+        expect(day.day.isSame(start)).toBe(true);
+        expect(day.halfUp).toBe(false);
+        expect(day.halfDown).toBe(false);
     });
 });
