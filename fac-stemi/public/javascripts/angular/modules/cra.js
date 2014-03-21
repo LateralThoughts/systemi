@@ -112,15 +112,4 @@ facstemi.controller('CraController', function($scope, $modal, $log, $http, Clien
     $('#reportrange span').html(moment().subtract('days', 29).format('MMMM D, YYYY') + ' - ' + moment().format('MMMM D, YYYY'));
 
     $('#reportrange').daterangepicker(optionSet1, $scope.datesSelected);
-
-    $('#reportrange').on('show.daterangepicker', function() { console.log("show event fired"); });
-    $('#reportrange').on('hide.daterangepicker', function() { console.log("hide event fired"); });
-    $('#reportrange').on('apply.daterangepicker', function(ev, picker) {
-        console.log("apply event fired, start/end dates are "
-            + picker.startDate.format('MMMM D, YYYY')
-            + " to "
-            + picker.endDate.format('MMMM D, YYYY')
-        );
-    });
-    $('#reportrange').on('cancel.daterangepicker', function(ev, picker) { console.log("cancel event fired"); });
 });
