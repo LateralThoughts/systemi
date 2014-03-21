@@ -34,3 +34,11 @@ class InvoiceLinesAnalyzerTest extends FunSuite with ShouldMatchers with Invoice
  		computeTva(items) should be (Map(("19.6%" -> 2205.0), ("20.0%" -> 840.0)))
  	}
 }
+
+class NextInvoiceNumbersParserTest extends FunSuite with ShouldMatchers with NextInvoiceNumbersParser {
+
+  test("should extract next invoice number") {
+    extractInvoiceNumber("NEXT_VT123") should be (123)
+  }
+
+}

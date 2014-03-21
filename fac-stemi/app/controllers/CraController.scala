@@ -12,11 +12,11 @@ import scala.concurrent.ExecutionContext
 object CraController extends Controller
                      with ActivitySerializer
                      with MongoController
-                     with GoogleDriveInteraction {
+                     with GoogleDriveInteraction
+                     with NextInvoiceNumbersParser {
   import ExecutionContext.Implicits.global
 
   def collection = db.collection[JSONCollection]("cras")
-
 
   def add = Action(parse.json) { implicit request =>
     val json = request.body
@@ -26,9 +26,12 @@ object CraController extends Controller
         val activity = result.get
         collection.insert(activity)
         // and generate corresponding invoice :
-        val invoiceRequest = activity.toInvoice
-        val generatedPdfDocument = invoiceToPdfBytes(invoiceRequest)
-        pushToGoogleDrive(invoiceRequest, generatedPdfDocument)
+        session.get("token").map { token =>
+          val nextInvoiceName: String = getNextInvoiceNameAndIncrement(token)
+          val invoiceRequest = activity.toInvoice(nextInvoiceName)
+          val generatedPdfDocument = invoiceToPdfBytes(invoiceRequest)
+          pushToGoogleDrive(invoiceRequest, generatedPdfDocument)
+        }
         Ok
       }
     }

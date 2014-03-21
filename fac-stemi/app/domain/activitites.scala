@@ -13,8 +13,9 @@ case class Activity(_id: Option[BSONObjectID],
                     numberOfDays : Double,
                     client: Client,
                     days : List[ActivityDay] = List()) {
-  def toInvoice = {
-    InvoiceRequest(s"Facture du mois de xxx", "VTXXX", 30, client,
+  
+  def toInvoice(invoiceNumber: String) = {
+    InvoiceRequest(s"${invoiceNumber} - facture", invoiceNumber, 30, client,
       List(
         InvoiceLine("Prestation de développement", numberOfDays, tjm)
       )
@@ -38,7 +39,14 @@ trait ActivitySerializer extends InvoiceSerializer {
   implicit val activityWrites = Json.writes[Activity]
 }
 
-object Activities extends ActivitySerializer {
-
+trait NextInvoiceNumbersParser {
+  
+  val extractor = "NEXT_VT([0-9]+)".r
+  
+  def extractInvoiceNumber(value: String) =  {
+    val extractor(number) = value
+    val numericValue: Int = number.toInt
+    (numericValue, numericValue+1)
+  }
 
 }
