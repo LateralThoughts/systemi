@@ -51,17 +51,18 @@ facstemi.controller('CraController', function($scope, $modal, $log, $http, Clien
                 while (--count != 0 ){
                     currentWeek.push({});
                 }
-            } else {
-                if (day.isoWeekday() <= currentDayOfWeek) {
-                    // change week
-                    weeks.push(currentWeek);
-                    currentWeek = [];
-                }
+            } else if (day.isoWeekday() <= currentDayOfWeek) {
+                // change week
+                weeks.push(currentWeek);
+                currentWeek = [];
             }
             var currentDay = createDay(day);
             days.push(currentDay);
             currentWeek.push(currentDay);
             currentDayOfWeek = day.isoWeekday();
+            if (day.isSame(end)) {
+                weeks.push(currentWeek);
+            }
         });
         $scope.weeks = weeks;
         $scope.cra.days = days;
@@ -83,11 +84,14 @@ facstemi.controller('CraController', function($scope, $modal, $log, $http, Clien
             stateToHalfDay: function(state) {
                 if(state === 0) {
                     return { halfUp: true, halfDown: true };
-                } else if(state === 1) {
+                }
+                if(state === 1) {
                     return { halfUp: true, halfDown: false };
-                } else if(state === 2) {
+                }
+                if(state === 2) {
                     return { halfUp: false, halfDown: true };
-                } else if(state === 3) {
+                }
+                if(state === 3) {
                     return { halfUp: false, halfDown: false };
                 }
             }
@@ -95,6 +99,11 @@ facstemi.controller('CraController', function($scope, $modal, $log, $http, Clien
     }
 
     $scope.submit = function() {
+        var accumulator = function(acc, day) {
+            return acc + (day.halfUp ? 0.5 : 0) + (day.halfDown ? 0.5 : 0);
+        };
+
+        $scope.cra.numberOfDays = _.reduce($scope.cra.days, accumulator, 0);
         $http.post("/api/cra", JSON.stringify($scope.cra)).success(function() { }).error(function (){ })
     }
 

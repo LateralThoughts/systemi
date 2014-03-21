@@ -19,6 +19,8 @@ trait GoogleDriveInteraction extends NextInvoiceNumbersParser {
 
   private val DESTINATION_FOLDER_ID = "0B7sqFgEnI9EXNEZVcC1KX0xtZlk"
 
+  private val nextFolderId: String = "0B8t2tXgYCAKNRk1kcF83V2lHT2c"
+
   def upload(token: String, invoice : InvoiceRequest, content : Array[Byte]) {
     val credentials = createGoogleCredentials(token)
 
@@ -32,8 +34,6 @@ trait GoogleDriveInteraction extends NextInvoiceNumbersParser {
       case error :Throwable => log.warn("an error occured while trying to upload invoice to Google Drive : " + error)/* nothing to do it failed, it failed... */
     }
   }
-
-  val nextFolderId: String = "0B1lUCDIxZH-3bVk1S1liZG5lUDA"
 
   def getNextInvoiceNameAndIncrement(token :String)  = {
     val credentials = createGoogleCredentials(token)
