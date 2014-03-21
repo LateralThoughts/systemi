@@ -1,3 +1,4 @@
+#!/bin/bash
 # start backend
 cd $WORKSPACE/fac-stemi
 
