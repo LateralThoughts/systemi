@@ -43,6 +43,7 @@
                             <td>Prix Unitaire</td>
                             <td>Quantité</td>
                             <td>Montant (EUR)</td>
+                            <td>TVA (%)</td>
                         </tr>
                     </thead>
                     <tbody>
@@ -52,6 +53,7 @@
                             <td>@line.dailyRate</td>
                             <td>@line.days</td>
                             <td>@{line.dailyRate * line.days}</td>
+                            <td>@{line.taxRate}</td>
                         </tr>
                         }
 
@@ -60,10 +62,12 @@
                             <td>@Application.computeTotalHT(items)</td>
                         </tr>
 
+                        @for((label, tva) <- Application.computeTva(items)) {
                         <tr class="tva end">
-                            <td colspan="3">TVA @for(line <- items) { @line.taxRate% }</td>
-                            <td>@Application.computeTva(items)</td>
+                            <td colspan="3">TVA @label</td>
+                            <td>@tva</td>
                         </tr>
+                        }
                         <tr class="end"><td colspan="4"></td></tr>
                         <tr class="total end">
                             <td colspan="3">Total TTC </td>

@@ -23,6 +23,14 @@ class InvoiceLinesAnalyzerTest extends FunSuite with ShouldMatchers with Invoice
 
 	test("should compute tva properly for multiple lines with rounding on two decimals") {
 		val items = List(InvoiceLine("blabla", 25.0, 450.0), InvoiceLine("blabla", 12.0, 350.0))
-		computeTva(items) should be (3028.20)
+		computeTva(items) should be (Map(
+      ("19.6%" -> 3028.20)
+    ))
 	}
+
+
+  test("should compute tva properly for multiple lines with different tvas rounding on two decimals") {
+ 		val items = List(InvoiceLine("blabla", 25.0, 450.0), InvoiceLine("blabla", 12.0, 350.0, 20.0))
+ 		computeTva(items) should be (Map(("19.6%" -> 2205.0), ("20.0%" -> 840.0)))
+ 	}
 }

@@ -67,10 +67,15 @@ trait InvoiceLinesAnalyzer {
   )
   )
 
-  def computeTva(items : List[InvoiceLine]) = roundUpToSecondDecimal(items.foldLeft(0.0)(
-    (cur: Double, item: InvoiceLine) => cur + ((item.days * item.dailyRate) * item.taxRate / 100 )
-  )
-  )
+  def computeTva(items : List[InvoiceLine]) =
+    items
+      .groupBy( _.taxRate)
+      .map{ case (label: Double, invoiceLines: List[InvoiceLine]) => (s"${label}%", computeTvaByTaxRate(invoiceLines)) }
 
+
+  private def computeTvaByTaxRate(invoiceLines : List[InvoiceLine]) = roundUpToSecondDecimal(
+              invoiceLines.foldLeft(0.0)(
+                (cur: Double, item: InvoiceLine) => cur + ((item.days * item.dailyRate) * item.taxRate / 100 ))
+          )
   private def roundUpToSecondDecimal(value : Double) = BigDecimal(value).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
 }
