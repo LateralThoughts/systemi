@@ -19,7 +19,7 @@ exports.config = {
     // this until inside the onPrepare function.
     require('jasmine-reporters');
     jasmine.getEnv().addReporter(
-       new jasmine.JUnitXmlReporter('xmloutput', true, true));
+       new jasmine.JUnitXmlReporter('./', true, true));
   },
     
   // Options to be passed to Jasmine-node.
