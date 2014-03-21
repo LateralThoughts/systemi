@@ -12,7 +12,7 @@ describe("Fac stemi - invoice", function () {
             controller = $injector.get('$controller');
             scope = rootScope.$new();
 
-            var invoiceCtrl = controller('BasicInvoiceController', {
+            var invoiceCtrl = controller('InvoiceController', {
                 $scope: scope
             });
             /*if(!rootScope.$$phase) {
