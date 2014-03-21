@@ -74,7 +74,25 @@ describe("Fac stemi - Client module", function () {
                      address:"la rue",
                      postalCode:"65432",
                      city:"de ta mère"}
-        $httpBackend.expect('POST', '/api/clients').respond();
+        $httpBackend.expect('POST', '/api/clients', JSON.stringify(client)).respond();
+
+        // have to use $apply to trigger the $digest which will
+        // take care of the HTTP request
+        scope.$apply(function() {
+            scope.handle(client);
+        });
+
+        $httpBackend.flush();
+    });
+
+    it('should handle properly $oid used in mongo db objects when updating client', function () {
+        var client = {
+                     _id: { $oid: "532ac39796bab6d8af6c83ce"},
+                     name:"vidal",
+                     address:"la rue",
+                     postalCode:"65432",
+                     city:"de ta mère"}
+        $httpBackend.expect('PUT', '/api/clients/532ac39796bab6d8af6c83ce', JSON.stringify(client)).respond();
 
         // have to use $apply to trigger the $digest which will
         // take care of the HTTP request
