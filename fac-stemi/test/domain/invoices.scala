@@ -38,7 +38,7 @@ class InvoiceLinesAnalyzerTest extends FunSuite with ShouldMatchers with Invoice
 class NextInvoiceNumbersParserTest extends FunSuite with ShouldMatchers with NextInvoiceNumbersParser {
 
   test("should extract next invoice number") {
-    extractInvoiceNumber("NEXT_VT123") should be (123)
+    extractInvoiceNumber("NEXT_VT123") should be (123, 124)
   }
 
 }
