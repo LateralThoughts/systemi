@@ -3,7 +3,7 @@
 cd $WORKSPACE/fac-stemi
 
 pkill play
-rm ./target/universal/stage/RUNNIN_PID
+rm ./target/universal/stage/RUNNING_PID
 ./target/universal/stage/bin/fac-stemi -Dhttp.port=9999 &
 
 cd $WORKSPACE/fac-stemi/test/angular-test
