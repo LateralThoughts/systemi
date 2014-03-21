@@ -17,4 +17,5 @@ dist
 /.settings
 test-result
 test-results.xml
+/test/angular-test/*.xml
 data/

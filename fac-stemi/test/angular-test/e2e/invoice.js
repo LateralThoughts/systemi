@@ -8,7 +8,7 @@ describe('Invoice page', function() {
 
     it('test that submit button is present', function() {
         // Find the submit button
-        expect(ptor.isElementPresent(by.css('button[type="submit"]'))).toBe(false);
+        expect(ptor.isElementPresent(by.css('button[type="submit"]'))).toBe(true);
     });
 
     it('test that initially only one task line is present', function() {
