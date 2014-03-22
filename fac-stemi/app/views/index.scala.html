@@ -1,7 +1,7 @@
 @(googleAuthUrl: String)(implicit request: play.api.mvc.RequestHeader)
 
 @main(googleAuthUrl) {
-	<div data-ng-controller="BasicInvoiceController" class="row">
+	<div data-ng-controller="InvoiceController" class="row">
 		<form action="/api/invoice" method="POST" role="form">
 		  <div class="form-group">
 		    <label for="title">Titre de la facture</label>
