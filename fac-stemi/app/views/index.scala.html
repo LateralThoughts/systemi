@@ -57,7 +57,15 @@
 		  	</tr>
 		  </table>
 
-		  <button type="submit" class="btn btn-success">Générer la facture &amp; Upload</button>
+          <div class="checkbox">
+            <label>
+              <input ng-model="shouldUpload" type="checkbox" checked> Uploader la facture sur Google Drive
+            </label>
+          </div>
+
+
+		  <button type="submit" ng-if="shouldUpload" class="btn btn-success">Générer la facture &amp; Upload</button>
+          <button type="submit" ng-if="!shouldUpload" class="btn btn-success">Générer la facture</button>
 		</form>
     </div>
 }

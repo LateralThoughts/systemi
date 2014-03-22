@@ -1,4 +1,5 @@
 facstemi.controller('InvoiceController', function ($scope) {
+    $scope.shouldUpload = true;
 
     var initTaskLineData = {
         'invoiceDescription': '',

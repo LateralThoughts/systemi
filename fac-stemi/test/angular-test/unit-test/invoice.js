@@ -34,4 +34,8 @@ describe("Fac stemi - invoice", function () {
         expect(scope.tasklines[0].deleteButtonVisible).toEqual(false);
         expect(scope.tasklines[0].invoiceTaxRate).toEqual("20.0");
 	});
+
+	it('should upload invoice to google drive by default', function () {
+        expect(scope.shouldUpload).toBe(true);
+    });
 });
