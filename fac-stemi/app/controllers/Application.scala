@@ -60,9 +60,12 @@ object Application extends Controller
         case Some(body) =>
           val invoiceRequest = invoiceFromForm(body)
 
+          val shouldUpload = body.get("shouldUpload").map(_.head).map(_.toBoolean).getOrElse(false)
+
           val generatedPdfDocument = invoiceToPdfBytes(invoiceRequest)
 
-          pushToGoogleDrive(invoiceRequest, generatedPdfDocument)
+          if (shouldUpload)
+            pushToGoogleDrive(invoiceRequest, generatedPdfDocument)
 
           Ok(generatedPdfDocument).as("application/pdf")
 
