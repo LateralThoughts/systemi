@@ -40,7 +40,8 @@ trait InvoiceSerializer {
         body.get("clientName").get.headOption.get,
         body.get("clientAddress").get.headOption.get,
         body.get("clientPostalCode").get.headOption.get,
-        body.get("clientCity").get.headOption.get),
+        body.get("clientCity").get.headOption.get,
+        body.get("clientCountry").get.headOption.get),
       lines)
     invoiceRequest
   }

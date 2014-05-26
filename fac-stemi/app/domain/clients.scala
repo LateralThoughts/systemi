@@ -6,4 +6,5 @@ case class Client(_id: Option[BSONObjectID],
                   name: String,
                   address: String,
                   postalCode : String = "",
-                  city: String = "")
+                  city: String = "",
+                  country: String = "")

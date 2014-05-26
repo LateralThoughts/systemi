@@ -18,7 +18,7 @@ class ApplicationSpec extends Specification {
       route(FakeRequest(GET, "/boum")) must beNone
     }
 
-    "render the index page" in new WithApplication{
+    "render the invoice form page" in new WithApplication{
       val home = route(FakeRequest(GET, "/")).get
 
       status(home) must equalTo(OK)
@@ -35,6 +35,7 @@ class ApplicationSpec extends Specification {
         ("clientName", "TestClient"),
         ("clientAddress", "35 rue inconnue"),
         ("clientCity", "Issy les moulineaux"),
+        ("clientCountry", "Zimbabwe"),
         ("clientPostalCode", "94550"),
         ("invoiceDescription", "développement"),
         ("invoiceDays", "125"),

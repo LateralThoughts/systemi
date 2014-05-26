@@ -14,12 +14,9 @@ object InvoiceController extends Controller
 
   implicit val context = scala.concurrent.ExecutionContext.Implicits.global
 
-  private val log = Logger("Application")
-
-
   def index = Action {
     implicit request =>
-      Ok(views.html.index(GoogleOAuth.getGoogleAuthUrl))
+      Ok(views.html.invoice_form(GoogleOAuth.getGoogleAuthUrl))
   }
 
   def cra = Action {

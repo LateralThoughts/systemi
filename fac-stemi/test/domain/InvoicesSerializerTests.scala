@@ -21,7 +21,8 @@ class InvoiceRequestSerializerTest extends FunSuite
 				"name" : "VIDAL",
 				"address" : "27 rue camille desmoulins",
 				"postalCode" : "94550",
-				"city": "chevilly"
+				"city": "chevilly",
+				"country": "France"
 			},
 			"invoice" : [{
 				"description" : "blabla",
@@ -33,7 +34,7 @@ class InvoiceRequestSerializerTest extends FunSuite
 		val invoice = InvoiceRequest("facture",
                                  "VT055",
                                  25,
-                                 Client(Some(BSONObjectID("532afca061ce6a2db986839f")), "VIDAL", "27 rue camille desmoulins", "94550", "chevilly"),
+                                 Client(Some(BSONObjectID("532afca061ce6a2db986839f")), "VIDAL", "27 rue camille desmoulins", "94550", "chevilly", "France"),
                                  List(InvoiceLine("blabla", 25.0, 450.0, 19.6)))
 		Json.parse(data).validate(invoiceReads).get should be (invoice)
 	}
@@ -49,6 +50,7 @@ class InvoiceRequestSerializerTest extends FunSuite
 			"clientAddress" -> Seq("27 rue camille desmoulins"),
 			"clientPostalCode" -> Seq("94550"),
 			"clientCity" -> Seq("chevilly"),
+			"clientCountry" -> Seq("France"),
 			"invoiceDescription" -> Seq("blabla", "blabla2"),
 			"invoiceDays" -> Seq("25.0", "24.0"),
 			"invoiceDailyRate" -> Seq("450", "451"),
@@ -58,7 +60,7 @@ class InvoiceRequestSerializerTest extends FunSuite
     val invoice = InvoiceRequest("facture",
       "VT055",
       25,
-      Client(Some(BSONObjectID("532afca061ce6a2db986839f")), "VIDAL", "27 rue camille desmoulins", "94550", "chevilly"),
+      Client(Some(BSONObjectID("532afca061ce6a2db986839f")), "VIDAL", "27 rue camille desmoulins", "94550", "chevilly", "France"),
       List(
         InvoiceLine("blabla", 25.0, 450.0, 19.6),
         InvoiceLine("blabla2", 24.0, 451.0, 20.6)
