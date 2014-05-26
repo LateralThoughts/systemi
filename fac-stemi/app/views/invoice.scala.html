@@ -21,9 +21,12 @@
         </div>
 
         <div class="row">
-            <div class="col-xs-7"><!----></div>
-            <div class="col-xs-4 invoice_client ">
+            <div class="col-xs-6"><!----></div>
+            <div class="col-xs-5 invoice_client">
                 <span class="name">@client.name</span> <br/>
+                @if(!client.extraInfo.isEmpty) {
+                    <span><em>@client.extraInfo</em></span> <br/>
+                }
                 <span class="address">@client.address</span> <br/>
                 <span class="postal_code">@client.postalCode</span> <span class="city">@client.city</span><br/>
                 <span>@client.country</span>
