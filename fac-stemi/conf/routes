@@ -3,12 +3,11 @@
 # ~~~~
 
 # Home page
-GET         /                       controllers.Application.index
-GET         /cra                    controllers.Application.cra
+GET         /                       controllers.InvoiceController.index
+GET         /cra                    controllers.InvoiceController.cra
 GET         /client                 controllers.ClientController.clientsView
-GET         /auth                   controllers.Application.auth
-GET         /invoice                controllers.Application.showInvoiceHtml
-POST        /api/invoice            controllers.Application.createAndPushInvoice
+GET         /auth                   controllers.InvoiceController.auth
+POST        /api/invoice            controllers.InvoiceController.createAndPushInvoice
 
 # client resources
 GET         /api/clients            controllers.ClientController.search(q: Option[String])

@@ -7,7 +7,7 @@ import oauth._
 import play.api.Logger
 import domain._
 
-object Application extends Controller
+object InvoiceController extends Controller
                     with InvoiceSerializer
                     with InvoiceLinesAnalyzer
                     with GoogleDriveInteraction {
@@ -37,12 +37,12 @@ object Application extends Controller
       }
 
       if (token.isDefined) {
-        Redirect(routes.Application.index)
+        Redirect(routes.InvoiceController.index)
           .withSession(
             "token" -> token.get, "secret" -> authcode.get
           )
       } else {
-        Redirect(routes.Application.index)
+        Redirect(routes.InvoiceController.index)
       }
   }
 
@@ -73,19 +73,5 @@ object Application extends Controller
       }
     }
   }
-  }
-
-  def showInvoiceHtml = Action {
-    val invoiceRequest = InvoiceRequest("facture", "VT055", 30,
-      Client(None, "VIDAL", "27 rue camille desmoulins", "94550", "chevilly"),
-      List(InvoiceLine("blabla", 25.0, 450.0, 19.6)))
-
-    val client = invoiceRequest.client
-    val title = invoiceRequest.title
-    val id = invoiceRequest.invoiceNumber
-    val delay = invoiceRequest.paymentDelay
-    val invoiceLines = invoiceRequest.invoice
-
-    Ok(views.html.invoice(title, id, delay, client, invoiceLines))
   }
 }
