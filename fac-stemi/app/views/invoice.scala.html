@@ -1,21 +1,22 @@
 @(message: String, number: String, paymentDelay: Int, client: domain.Client, items : List[domain.InvoiceLine])
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/bootstrap.min.css")"/>
-    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/pdf.css")"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/bootstrap.min.css")"/>
+    <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/pdf.css")"/>
+    <title>Facture n°@number (@{new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date())})</title>
   </head>
   <body>
     <div class="container">
         <div class="row">
-            <div class="invoice_header col-xs-3">
+            <div class="invoice_header col-xs-4">
                 <p class="company">
-                    <img class="logo" src="@routes.Assets.at("images/logo.png")"/>
+                    <img class="logo" alt="Lateral Thoughts" src="@routes.Assets.at("images/logo.png")"/><br/>
                     <span class="name">Lateral Thoughts SAS</span><br/>
                     <span class="address">37, rue des Mathurins<br/> 75008 Paris</span>
                 </p>
-                <span class="invoice_number">Facture n°@number</span>
+                <span class="invoice_number">Facture n°@number (@{new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date())})</span>
             </div>
         </div>
 
@@ -36,14 +37,14 @@
 
         <div class="row">
             <div class="col-xs-12">
-                <table class="table invoice_lines">
+                <table class="table invoice_lines" summary="lignes de facturation">
                     <thead>
                         <tr>
-                            <td>Désignation</td>
-                            <td>Prix Unitaire</td>
-                            <td>Quantité</td>
-                            <td>Montant (EUR)</td>
-                            <td>TVA (%)</td>
+                            <th>Désignation</th>
+                            <th>Prix Unitaire</th>
+                            <th>Quantité</th>
+                            <th>Montant (EUR)</th>
+                            <th>TVA (%)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -79,16 +80,16 @@
         </div>
 
         <div class="row pay_info">
-            <div class="col-xs-12">A régler par virement bancaire :</div>
+            <div class="col-xs-12">À régler par virement bancaire :</div>
             <div class="col-xs-2"><!----></div>
             <div class="col-xs-6">
-                <table class="table table-bordered">
+                <table class="table table-bordered" summary="coordonnées bancaires">
                     <thead>
                         <tr>
-                            <td>Code banque</td>
-                            <td>Code guichet</td>
-                            <td>N° de Compte</td>
-                            <td>Clé RIB</td>
+                            <th>Code banque</th>
+                            <th>Code guichet</th>
+                            <th>N° de Compte</th>
+                            <th>Clé RIB</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -122,8 +123,8 @@ RCS Paris – SIRET 538 042 649 00011 – Code APE 6202A – Numéro TVA : FR 41
         </div>
     </div>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://code.jquery.com/jquery.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>
   </body>
 </html>
