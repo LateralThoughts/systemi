@@ -23,7 +23,7 @@ Body : {
 	"invoice" : [{
 		"days" : 25,
 		"dailyRate" : 450,
-		"taxRate" : 19.6 // defaults to 19.6
+		"taxRate" : 20.0 // defaults to 20.0
 	}, { ... }]
 }
 
