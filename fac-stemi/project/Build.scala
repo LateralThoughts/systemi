@@ -9,7 +9,7 @@ object ApplicationBuild extends Build {
    val luceneVersion = "4.7.0"
 
    val appDependencies = Seq(
-      "org.xhtmlrenderer" % "flying-saucer-pdf" % "9.0.4",
+      "org.xhtmlrenderer" % "flying-saucer-pdf" % "9.0.6",
       "net.sf.jtidy" % "jtidy" % "r938",
       "com.google.apis" % "google-api-services-drive" % "v2-rev109-1.16.0-rc",
       "com.google.http-client" % "google-http-client-jackson2" % "1.17.0-rc",
