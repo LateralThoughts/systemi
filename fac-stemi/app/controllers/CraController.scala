@@ -26,7 +26,7 @@ object CraController extends Controller
         val activity = result.get
         collection.insert(activity)
         // and generate corresponding invoice :
-        session.get("token").map { token =>
+        request.session.get("token").map { token =>
           val nextInvoiceName: String = getNextInvoiceNameAndIncrement(token)
           val invoiceRequest = activity.toInvoice(nextInvoiceName)
           val generatedPdfDocument = invoiceToPdfBytes(invoiceRequest)

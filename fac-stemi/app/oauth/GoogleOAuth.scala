@@ -29,7 +29,7 @@ object GoogleOAuth {
 
     val postdata = "code=" + authcode + "&client_id=" + clientid + "&client_secret=" + clientsecret + "&redirect_uri=" + redirecturi + "&grant_type=authorization_code"
     val http = new dispatch.Http
-    val access_token = http(url(gettokenurl) << (postdata, "application/x-www-form-urlencoded") >- {
+    /*val access_token = http(url(gettokenurl) << (postdata, "application/x-www-form-urlencoded") >- {
       str =>
         {
           val json = parseFull(str).get.asInstanceOf[Map[String, Any]]
@@ -37,7 +37,8 @@ object GoogleOAuth {
         }
     })
     http.shutdown
-    access_token.toString
+    access_token.toString*/
+    ""
   }
 
 }

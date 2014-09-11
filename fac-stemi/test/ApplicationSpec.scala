@@ -5,6 +5,7 @@ import org.junit.runner._
 
 import play.api.test._
 import play.api.test.Helpers._
+import reactivemongo.bson.BSONObjectID
 
 /**
  * Full application spec to execute page rendering and check consistency
@@ -31,7 +32,7 @@ class ApplicationSpec extends Specification {
         ("title", "faux titre"),
         ("invoiceNumber", "VT500"),
         ("paymentDelay", "50"),
-        ("clientId", "0"),
+        ("clientId", BSONObjectID.generate.stringify),
         ("clientName", "TestClient"),
         ("clientAddress", "35 rue inconnue"),
         ("clientCity", "Issy les moulineaux"),

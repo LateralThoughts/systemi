@@ -10,8 +10,8 @@ case class InvoiceRequest(title: String,
 
 import _root_.util.pdf.PDF
 import play.api.libs.json._
-import views.html.invoice
 import reactivemongo.bson.BSONObjectID
+import views.html.invoice
 
 trait InvoiceSerializer {
   import play.modules.reactivemongo.json.BSONFormats._
@@ -36,7 +36,7 @@ trait InvoiceSerializer {
       body.get("invoiceNumber").get.headOption.get,
       body.get("paymentDelay").get.headOption.get.toInt,
       Client(
-        body.get("clientId").flatMap(_.headOption.map(new BSONObjectID(_))),
+        body.get("clientId").flatMap(_.headOption.map(BSONObjectID(_))),
         body.get("clientName").get.headOption.get,
         body.get("clientAddress").get.headOption.get,
         body.get("clientPostalCode").get.headOption.get,
@@ -75,7 +75,7 @@ trait InvoiceLinesAnalyzer {
   def computeTva(items : List[InvoiceLine]) =
     items
       .groupBy( _.taxRate)
-      .map{ case (label: Double, invoiceLines: List[InvoiceLine]) => (s"${label}%", computeTvaByTaxRate(invoiceLines)) }
+      .map{ case (label: Double, invoiceLines: List[InvoiceLine]) => (s"$label%", computeTvaByTaxRate(invoiceLines)) }
 
 
   private def computeTvaByTaxRate(invoiceLines : List[InvoiceLine]) = roundUpToSecondDecimal(

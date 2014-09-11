@@ -1,10 +1,10 @@
 package domain
 
 import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 
 
-class InvoiceLinesAnalyzerTest extends FunSuite with ShouldMatchers with InvoiceLinesAnalyzer {
+class InvoiceLinesAnalyzerTest extends FunSuite with Matchers with InvoiceLinesAnalyzer {
 
 	test("should compute total properly") {
 		val items = List(InvoiceLine("blabla", 25.0, 450.0))
@@ -35,7 +35,7 @@ class InvoiceLinesAnalyzerTest extends FunSuite with ShouldMatchers with Invoice
  	}
 }
 
-class NextInvoiceNumbersParserTest extends FunSuite with ShouldMatchers with NextInvoiceNumbersParser {
+class NextInvoiceNumbersParserTest extends FunSuite with Matchers with NextInvoiceNumbersParser {
 
   test("should extract next invoice number") {
     extractInvoiceNumber("NEXT_VT123") should be (123, 124)

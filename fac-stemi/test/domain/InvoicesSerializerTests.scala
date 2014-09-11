@@ -1,12 +1,12 @@
 package domain
 
 import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 import play.api.libs.json._
 import reactivemongo.bson.BSONObjectID
 
 class InvoiceRequestSerializerTest extends FunSuite
-                                   with ShouldMatchers
+                                   with Matchers
                                    with InvoiceSerializer {
 
 	test("should deserialize invoices properly from json") {

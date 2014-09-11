@@ -40,7 +40,7 @@ object ClientController extends Controller
           val results = engine.search(query)
           val resultSelector = Json.obj {
             "_id" -> Json.obj {
-              "$in" -> results.map(new BSONObjectID(_))
+              "$in" -> results.map(BSONObjectID(_))
             }
           }
         println(Json.toJson(resultSelector))
