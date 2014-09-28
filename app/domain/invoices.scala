@@ -1,5 +1,9 @@
 package domain
 
+case class InvoiceNumber(value: Int) {
+  def increment = this.copy(value + 1)
+}
+
 case class InvoiceLine(description: String, days: Double, dailyRate: Double, taxRate: Double = 19.6)
 
 case class InvoiceRequest(title: String,
@@ -18,8 +22,10 @@ trait InvoiceSerializer {
   implicit val invoiceClientReads = Json.reads[Client]
   implicit val invoiceLineReads = Json.reads[InvoiceLine]
   implicit val invoiceReads = Json.reads[InvoiceRequest]
+  implicit val invoiceNumberReads = Json.reads[InvoiceNumber]
 
   implicit val invoiceClientWrites = Json.writes[Client]
+  implicit val invoiceNumberWrites = Json.writes[InvoiceNumber]
 
   def invoiceFromForm(body : Map[String, Seq[String]]) = {
     val descriptions = body.get("invoiceDescription").get

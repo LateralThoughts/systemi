@@ -4,6 +4,7 @@ import play.api.data.Form
 import play.api.i18n.Lang
 import play.api.mvc.RequestHeader
 import play.api.templates.Html
+import search.SimpleSearchEngine
 import securesocial.controllers._
 import securesocial.core._
 import securesocial.core.providers._
@@ -40,4 +41,5 @@ class ProductionModule {
   lazy val invoiceController = wire[InvoiceController]
   lazy val app = wire[Application]
   lazy val accountsController = wire[AccountsController]
+  lazy val searchEngine = wire[SimpleSearchEngine]
 }

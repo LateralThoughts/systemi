@@ -16,6 +16,7 @@ import org.apache.lucene.analysis.core.{StopFilter, LowerCaseFilter}
 import org.apache.lucene.analysis.miscellaneous.SetKeywordMarkerFilter
 import org.apache.lucene.analysis.Analyzer.TokenStreamComponents
 import org.apache.lucene.analysis.ngram.EdgeNGramTokenFilter
+import play.api.libs.json.Json
 
 
 trait SearchEngineFields {
@@ -23,7 +24,7 @@ trait SearchEngineFields {
   val TEXT_FIELD = "text"
 }
 
-case class SimpleSearchEngine() extends ClientDefinitionIndexation with SearchEngineFields{
+case class SimpleSearchEngine() extends ClientDefinitionIndexation with SearchEngineFields {
   val MAX_NUMBER_OF_DOCS = 50
   val directory = new RAMDirectory()
   val luceneVersion = Version.LUCENE_47

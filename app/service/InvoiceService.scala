@@ -1,0 +1,6 @@
+package service
+
+
+class InvoiceService() {
+
+}
