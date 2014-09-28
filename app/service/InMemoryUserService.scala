@@ -1,164 +1,106 @@
-/**
- * Copyright 2012 Jorge Aliss (jaliss at gmail dot com) - twitter: @jaliss
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
 package service
 
-import play.api.Logger
+import play.api.Application
 import securesocial.core._
-import securesocial.core.providers.{ UsernamePasswordProvider, MailToken }
+import securesocial.core.services._
+import securesocial.core.providers.{MailToken}
+
 import scala.concurrent.Future
-import securesocial.core.services.{ UserService, SaveMode }
 
-/**
- * A Sample In Memory user service in Scala
- *
- * IMPORTANT: This is just a sample and not suitable for a production environment since
- * it stores everything in memory.
- */
-class InMemoryUserService extends UserService[DemoUser] {
-  val logger = Logger("application.controllers.InMemoryUserService")
 
-  //
-  var users = Map[(String, String), DemoUser]()
-  //private var identities = Map[String, BasicProfile]()
-  private var tokens = Map[String, MailToken]()
+class InMemoryUserService() extends UserService[BasicProfile] {
+  import scala.concurrent.ExecutionContext.Implicits.global
 
-  def find(providerId: String, userId: String): Future[Option[BasicProfile]] = {
-    if (logger.isDebugEnabled) {
-      logger.debug("users = %s".format(users))
-    }
-    val result = for (
-      user <- users.values;
-      basicProfile <- user.identities.find(su => su.providerId == providerId && su.userId == userId)
-    ) yield {
-      basicProfile
-    }
-    Future.successful(result.headOption)
-  }
+  /**
+   * Finds a SocialUser that maches the specified id
+   *
+   * @param providerId the provider id
+   * @param userId the user id
+   * @return an optional profile
+   */
+  def find(providerId: String, userId: String): Future[Option[BasicProfile]]= Future(None)
 
-  def findByEmailAndProvider(email: String, providerId: String): Future[Option[BasicProfile]] = {
-    if (logger.isDebugEnabled) {
-      logger.debug("users = %s".format(users))
-    }
-    val someEmail = Some(email)
-    val result = for (
-      user <- users.values;
-      basicProfile <- user.identities.find(su => su.providerId == providerId && su.email == someEmail)
-    ) yield {
-      basicProfile
-    }
-    Future.successful(result.headOption)
-  }
+  /**
+   * Finds a profile by email and provider
+   *
+   * @param email - the user email
+   * @param providerId - the provider id
+   * @return an optional profile
+   */
+  def findByEmailAndProvider(email: String, providerId: String): Future[Option[BasicProfile]]= ???
 
-  def save(user: BasicProfile, mode: SaveMode): Future[DemoUser] = {
-    mode match {
-      case SaveMode.SignUp =>
-        val newUser = DemoUser(user, List(user))
-        users = users + ((user.providerId, user.userId) -> newUser)
-      case SaveMode.LoggedIn =>
+  /**
+   * Saves a profile.  This method gets called when a user logs in, registers or changes his password.
+   * This is your chance to save the user information in your backing store.
+   *
+   * @param profile the user profile
+   * @param mode a mode that tells you why the save method was called
+   */
+  def save(profile: BasicProfile, mode: SaveMode): Future[BasicProfile]= Future(profile)
 
-    }
-    // first see if there is a user with this BasicProfile already.
-    val maybeUser = users.find {
-      case (key, value) if value.identities.exists(su => su.providerId == user.providerId && su.userId == user.userId) => true
-      case _ => false
-    }
-    maybeUser match {
-      case Some(existingUser) =>
-        val identities = existingUser._2.identities
-        val updatedList = identities.patch(identities.indexWhere(i => i.providerId == user.providerId && i.userId == user.userId), Seq(user), 1)
-        val updatedUser = existingUser._2.copy(identities = updatedList)
-        users = users + (existingUser._1 -> updatedUser)
-        Future.successful(updatedUser)
+  /**
+   * Links the current user to another profile
+   *
+   * @param current The current user instance
+   * @param to the profile that needs to be linked to
+   */
+  def link(current: BasicProfile, to: BasicProfile): Future[BasicProfile]= ???
 
-      case None =>
-        val newUser = DemoUser(user, List(user))
-        users = users + ((user.providerId, user.userId) -> newUser)
-        Future.successful(newUser)
-    }
-  }
+  /**
+   * Returns an optional PasswordInfo instance for a given user
+   *
+   * @param user a user instance
+   * @return returns an optional PasswordInfo
+   */
+  def passwordInfoFor(user: BasicProfile): Future[Option[PasswordInfo]]= ???
 
-  def link(current: DemoUser, to: BasicProfile): Future[DemoUser] = {
-    if (current.identities.exists(i => i.providerId == to.providerId && i.userId == to.userId)) {
-      Future.successful(current)
-    } else {
-      val added = to :: current.identities
-      val updatedUser = current.copy(identities = added)
-      users = users + ((current.main.providerId, current.main.userId) -> updatedUser)
-      Future.successful(updatedUser)
-    }
-  }
+  /**
+   * Updates the PasswordInfo for a given user
+   *
+   * @param user a user instance
+   * @param info the password info
+   * @return
+   */
+  def updatePasswordInfo(user: BasicProfile, info: PasswordInfo): Future[Option[BasicProfile]]= ???
 
-  def saveToken(token: MailToken): Future[MailToken] = {
-    Future.successful {
-      tokens += (token.uuid -> token)
-      token
-    }
-  }
+  /**
+   * Saves a mail token.  This is needed for users that
+   * are creating an account in the system or trying to reset a password
+   *
+   * Note: If you do not plan to use the UsernamePassword provider just provide en empty
+   * implementation
+   *
+   * @param token The token to save
+   */
+  def saveToken(token: MailToken): Future[MailToken] = ???
 
-  def findToken(token: String): Future[Option[MailToken]] = {
-    Future.successful { tokens.get(token) }
-  }
+  /**
+   * Finds a token
+   *
+   * Note: If you do not plan to use the UsernamePassword provider just provide en empty
+   * implementation
+   *
+   * @param token the token id
+   * @return
+   */
+  def findToken(token: String): Future[Option[MailToken]]= ???
 
-  def deleteToken(uuid: String): Future[Option[MailToken]] = {
-    Future.successful {
-      tokens.get(uuid) match {
-        case Some(token) =>
-          tokens -= uuid
-          Some(token)
-        case None => None
-      }
-    }
-  }
+  /**
+   * Deletes a token
+   *
+   * Note: If you do not plan to use the UsernamePassword provider just provide en empty
+   * implementation
+   *
+   * @param uuid the token id
+   */
+  def deleteToken(uuid: String): Future[Option[MailToken]]= ???
 
-  //  def deleteTokens(): Future {
-  //    tokens = Map()
-  //  }
-
-  def deleteExpiredTokens() {
-    tokens = tokens.filter(!_._2.isExpired)
-  }
-
-  override def updatePasswordInfo(user: DemoUser, info: PasswordInfo): Future[Option[BasicProfile]] = {
-    Future.successful {
-      for (
-        found <- users.values.find(_ == user);
-        identityWithPasswordInfo <- found.identities.find(_.providerId == UsernamePasswordProvider.UsernamePassword)
-      ) yield {
-        val idx = found.identities.indexOf(identityWithPasswordInfo)
-        val updated = identityWithPasswordInfo.copy(passwordInfo = Some(info))
-        val updatedIdentities = found.identities.patch(idx, Seq(updated), 1)
-        found.copy(identities = updatedIdentities)
-        updated
-      }
-    }
-  }
-
-  override def passwordInfoFor(user: DemoUser): Future[Option[PasswordInfo]] = {
-    Future.successful {
-      for (
-        found <- users.values.find(_ == user);
-        identityWithPasswordInfo <- found.identities.find(_.providerId == UsernamePasswordProvider.UsernamePassword)
-      ) yield {
-        identityWithPasswordInfo.passwordInfo.get
-      }
-    }
-  }
+  /**
+   * Deletes all expired tokens
+   *
+   * Note: If you do not plan to use the UsernamePassword provider just provide en empty
+   * implementation
+   *
+   */
+  def deleteExpiredTokens() {}
 }
-
-
-// a simple User class that can have multiple identities
-case class DemoUser(main: BasicProfile, identities: List[BasicProfile])
