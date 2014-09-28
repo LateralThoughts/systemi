@@ -1,72 +1,66 @@
 @(user: securesocial.core.BasicProfile)(implicit request: play.api.mvc.RequestHeader, env: securesocial.core.RuntimeEnvironment[securesocial.core.BasicProfile])
 
 @main(user) {
-    <div data-ng-controller="InvoiceController" class="row">
+    <div id="facture_page" data-ng-controller="InvoiceController" class="row">
         <form action="/api/invoice" method="POST" role="form">
-            <div class="form-group">
-                <label for="title">Titre de la facture</label>
-                <input type="text" class="form-control" name="title" id="title" placeholder="Entrer un titre">
+
+            <div class="facture_info_form">
+                <div class="form-group facture_num">
+                    <input type="text" class="form-control" name="invoiceNumber" id="number" placeholder="Numéro de facture">
+                </div>
+
+                <div class="form-group">
+                    <input type="text" class="form-control" name="title" id="title" placeholder="Titre de la facture">
+                </div>
+
+                <div class="form-group delais_jour">
+                    <label for="paymentDelay">Délai de paiement (en jours) :</label>
+                    <input type="text" class="form-control" name="paymentDelay" id="paymentDelay" placeholder="Délai de paiement" value="30">
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="number">Numéro de facture</label>
-                <input type="text" class="form-control" name="invoiceNumber" id="number" placeholder="Numéro de facture">
+            <div class="client_form">
+                <div class="form-group">
+                    <input type="text" class="form-control" name="clientName" id="clientName" placeholder="Nom du client">
+                </div>
+
+                <div class="form-group">
+                    <input type="text" class="form-control" name="clientAddress" id="clientAddress" placeholder="Adresse du client">
+                </div>
+
+                <div class="form-group postal_code">
+                    <input type="text" class="form-control" name="clientPostalCode" id="clientPostalcode" placeholder="Code postal du client">
+                </div>
+
+                <div class="form-group city">
+                    <input type="text" class="form-control" name="clientCity" id="clientCity" placeholder="Ville du client">
+                </div>
+
+                <div class="form-group">
+                    <input type="text" class="form-control" name="clientCountry" id="clientCountry" placeholder="Pays du client" value="France">
+                </div>
+
+                <div class="form-group">
+                    <input type="text" class="form-control" name="clientExtraInfo" id="clientExtraInfo" placeholder="Mentions supplémentaires (facultatif)">
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="paymentDelay">Délai de paiement (en jours)</label>
-                <input type="text" class="form-control" name="paymentDelay" id="paymentDelay" placeholder="Délai de paiement" value="30">
+            <div class="item_line" ng-repeat="taskline in tasklines">
+                <div class="col-md-7"><input class="item_desc" type="text" name="invoiceDescription" placeholder="Description" data-ng-model="taskline.invoiceDescription"></div>
+                <div class="col-md-1"><input class="item-days" type="text" name="invoiceDays" placeholder="Jours" data-ng-model="taskline.invoiceDays"></div>
+                <div class="col-md-1"><input class="item_tjm" type="text" name="invoiceDailyRate" placeholder="TJM" data-ng-model="taskline.invoiceDailyRate"></div>
+                <div class="col-md-1"><input class="item_tva" type="text" name="invoiceTaxRate" placeholder="TVA" data-ng-model="taskline.invoiceTaxRate"></div>
+                <div class="col-md-1" ng-show="taskline.addButtonVisible">
+                    <button type="button" class="add-task-btn btn btn-primary btn-sm" ng-click="addTask()">
+                        <span class="glyphicon glyphicon-plus"></span>
+                    </button>
+                </div>
+                <div class="col-md-1" ng-show="taskline.deleteButtonVisible">
+                    <button type="button" class="delete-task-btn btn btn-danger btn-sm" ng-click="deleteTask()">
+                        <span class="glyphicon glyphicon-minus"></span>
+                    </button>
+                </div>
             </div>
-
-            <div class="form-group">
-                <label for="clientName">Nom du client</label>
-                <input type="text" class="form-control" name="clientName" id="clientName" placeholder="Nom du client">
-            </div>
-
-            <div class="form-group">
-                <label for="clientAddress">Adresse du client</label>
-                <input type="text" class="form-control" name="clientAddress" id="clientAddress" placeholder="Adresse du client">
-            </div>
-
-            <div class="form-group">
-                <label for="clientCity">Ville du client</label>
-                <input type="text" class="form-control" name="clientCity" id="clientCity" placeholder="Ville du client">
-            </div>
-
-            <div class="form-group">
-                <label for="clientPostalcode">Code postal du client</label>
-                <input type="text" class="form-control" name="clientPostalCode" id="clientPostalcode" placeholder="Code postal du client">
-            </div>
-
-            <div class="form-group">
-                <label for="clientCountry">Pays du client</label>
-                <input type="text" class="form-control" name="clientCountry" id="clientCountry" placeholder="Pays du client" value="France">
-            </div>
-
-            <div class="form-group">
-                <label for="clientCountry">Mentions supplémentaires client (facultatif)</label>
-                <input type="text" class="form-control" name="clientExtraInfo" id="clientExtraInfo" placeholder="Mentions supplémentaires">
-            </div>
-
-
-            <table class="table form-group">
-                <tr ng-repeat="taskline in tasklines">
-                    <td><input type="text" name="invoiceDescription" placeholder="Description" data-ng-model="taskline.invoiceDescription"></td>
-                    <td><input type="text" name="invoiceDays" placeholder="Nombre de jours" data-ng-model="taskline.invoiceDays"></td>
-                    <td><input type="text" name="invoiceDailyRate" placeholder="TJM" data-ng-model="taskline.invoiceDailyRate"></td>
-                    <td><input type="text" name="invoiceTaxRate" placeholder="TVA" data-ng-model="taskline.invoiceTaxRate"></td>
-                    <td ng-show="taskline.addButtonVisible">
-                        <button type="button" class="add-task-btn btn btn-primary btn-sm" ng-click="addTask()">
-                            <span class="glyphicon glyphicon-plus"></span>
-                        </button>
-                    </td>
-                    <td ng-show="taskline.deleteButtonVisible">
-                        <button type="button" class="delete-task-btn btn btn-danger btn-sm" ng-click="deleteTask()">
-                            <span class="glyphicon glyphicon-minus"></span>
-                        </button>
-                    </td>
-                </tr>
-            </table>
 
             <div class="checkbox">
                 <label>
