@@ -3,7 +3,8 @@
 # ~~~~
 
 # Home page
-GET         /                       @controllers.InvoiceController.index
+GET         /                       @controllers.Application.index
+GET         /invoice                @controllers.InvoiceController.index
 GET         /cra                    @controllers.InvoiceController.cra
 GET         /client                 @controllers.ClientController.clientsView
 POST        /api/invoice            @controllers.InvoiceController.createAndPushInvoice

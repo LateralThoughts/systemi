@@ -33,7 +33,8 @@
         <div class="container">
             <div class="header">
                 <ul class="nav nav-pills pull-right">
-                    <li @if(request.uri == routes.InvoiceController.index.url){class="active"}><a href="@routes.InvoiceController.index">Home</a></li>
+                    <li @if(request.uri == routes.Application.index.url){class="active"}><a href="@routes.Application.index">Home</a></li>
+                    <li @if(request.uri == routes.InvoiceController.index.url){class="active"}><a href="@routes.InvoiceController.index">Invoice</a></li>
                     <li @if(request.uri == routes.InvoiceController.cra.url){class="active"}><a href="@routes.InvoiceController.cra">Cra</a></li>
                     <li @if(request.uri == routes.ClientController.clientsView.url){class="active"}><a href="@routes.ClientController.clientsView">Clients</a></li>
                     <li>@if(user != null) {

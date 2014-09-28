@@ -42,7 +42,7 @@ trait InvoiceSerializer {
         body.get("clientPostalCode").get.headOption.get,
         body.get("clientCity").get.headOption.get,
         body.get("clientCountry").get.headOption.get,
-        body.get("clientExtraInfo").getOrElse(Seq("")).headOption.get match {
+        body.getOrElse("clientExtraInfo", Seq("")).headOption.get match {
           case ""|null => None
           case x => Some(x)
         }),

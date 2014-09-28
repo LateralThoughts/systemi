@@ -1,7 +1,6 @@
 package controllers
 
 import domain._
-import oauth._
 import play.api.mvc._
 import securesocial.core.{BasicProfile, RuntimeEnvironment}
 import util.pdf._
@@ -38,7 +37,7 @@ class InvoiceController(override implicit val env: RuntimeEnvironment[BasicProfi
         case Some(body) =>
           val invoiceRequest = invoiceFromForm(body)
 
-          val shouldUpload = body.get("shouldUpload").map(_.head).map(_.toBoolean).getOrElse(false)
+          val shouldUpload = body.get("shouldUpload").map(_.head).exists(_.toBoolean)
 
           val generatedPdfDocument = invoiceToPdfBytes(invoiceRequest)
 
