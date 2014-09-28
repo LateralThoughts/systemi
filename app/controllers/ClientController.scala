@@ -17,7 +17,7 @@ import play.modules.reactivemongo.MongoController
 import play.modules.reactivemongo.json.collection.JSONCollection
 
 
-object ClientController extends Controller
+class ClientController extends Controller
               with InvoiceSerializer
               with MongoController {
   import play.modules.reactivemongo.json.BSONFormats._

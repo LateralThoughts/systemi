@@ -35,7 +35,7 @@
           <li @if(request.uri == routes.InvoiceController.index.url){class="active"}><a href="@routes.InvoiceController.index">Home</a></li>
           <li @if(request.uri == routes.InvoiceController.cra.url){class="active"}><a href="@routes.InvoiceController.cra">Cra</a></li>
           <li @if(request.uri == routes.ClientController.clientsView.url){class="active"}><a href="@routes.ClientController.clientsView">Clients</a></li>
-          <li @if(request.uri == routes.InvoiceController.auth.url){class="active"}><a href="@googleAuthUrl">@if(request.session.get("token")) { Re-new access token } else { Log in } </a></li>
+          <li @if(request.uri == routes.InvoiceController.auth.url){class="active"}><a href=""          >@if(request.session.get("token")) { Re-new access token } else { Log in } </a></li>
         </ul>
         <h3 class="text-muted">Invoice&#64;LT</h3>
       </div>

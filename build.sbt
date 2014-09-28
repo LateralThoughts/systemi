@@ -28,7 +28,10 @@ libraryDependencies ++= Seq(
   "org.apache.lucene"       % "lucene-queries"          % luceneVersion,
   "org.apache.lucene"       % "lucene-queryparser"      % luceneVersion,
   "org.apache.lucene"       % "lucene-highlighter"      % luceneVersion,
-  "org.scalatestplus"       %% "play"                   % "1.1.0" % "test"
+  "com.softwaremill.macwire" %% "macros" % "0.7.1",
+  "com.softwaremill.macwire" %% "runtime" % "0.7.1",
+  "ws.securesocial" %% "securesocial" % "master-SNAPSHOT",
+"org.scalatestplus"       %% "play"                   % "1.1.0" % "test"
 )
 
 lazy val root = (project in file(".")).enablePlugins(SbtWeb).enablePlugins(PlayScala)
