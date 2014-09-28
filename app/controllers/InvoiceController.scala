@@ -1,49 +1,30 @@
 package controllers
 
-import util.pdf._
-import play.api.mvc._
-import play.api.libs.json._
-import oauth._
-import play.api.Logger
 import domain._
+import oauth._
+import play.api.mvc._
+import securesocial.core.{BasicProfile, RuntimeEnvironment}
+import util.pdf._
+import play.api.libs.json._
 
-object InvoiceController extends Controller
+class InvoiceController(override implicit val env: RuntimeEnvironment[BasicProfile]) extends Controller
                     with InvoiceSerializer
-                    with InvoiceLinesAnalyzer
-                    with GoogleDriveInteraction {
+                    with GoogleDriveInteraction
+                    with securesocial.core.SecureSocial[BasicProfile] {
 
   implicit val context = scala.concurrent.ExecutionContext.Implicits.global
 
-  def index = Action {
+  def index = SecuredAction {
     implicit request =>
-      Ok(views.html.invoice_form(GoogleOAuth.getGoogleAuthUrl))
+      Ok(views.html.invoice_form(request.user))
   }
 
-  def cra = Action {
+  def cra = SecuredAction {
     implicit request =>
-      Ok(views.html.cra(GoogleOAuth.getGoogleAuthUrl))
+      Ok(views.html.cra(request.user))
   }
 
-  def auth = Action {
-    implicit request =>
-      val authcode = GoogleOAuth.getAuthCode(request)
-
-      val token = authcode match {
-        case Some(a) => Some(GoogleOAuth.getAccessToken(a))
-        case _ => None
-      }
-
-      if (token.isDefined) {
-        Redirect(routes.InvoiceController.index)
-          .withSession(
-            "token" -> token.get, "secret" -> authcode.get
-          )
-      } else {
-        Redirect(routes.InvoiceController.index)
-      }
-  }
-
-  def createAndPushInvoice = Action { implicit request => {
+  def createAndPushInvoice = SecuredAction { implicit request => {
     request.body.asJson match {
       case Some(json) => json.validate(invoiceReads) match {
 

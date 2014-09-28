@@ -5,6 +5,7 @@ import play.api.libs.json._
 import domain._
 import oauth.GoogleOAuth
 import domain.Client
+import securesocial.core.{BasicProfile, RuntimeEnvironment}
 import scala.concurrent.ExecutionContext
 import scala.util.{Success, Failure}
 import search.SimpleSearchEngine
@@ -17,9 +18,10 @@ import play.modules.reactivemongo.MongoController
 import play.modules.reactivemongo.json.collection.JSONCollection
 
 
-class ClientController extends Controller
+class ClientController(override implicit val env: RuntimeEnvironment[BasicProfile]) extends Controller
               with InvoiceSerializer
-              with MongoController {
+              with MongoController
+              with securesocial.core.SecureSocial[BasicProfile] {
   import play.modules.reactivemongo.json.BSONFormats._
   import ExecutionContext.Implicits.global
 
@@ -28,12 +30,12 @@ class ClientController extends Controller
   private val engine = SimpleSearchEngine()
   initIndex()
 
-  def clientsView = Action {
+  def clientsView = SecuredAction {
     implicit request =>
-      Ok(views.html.clients(GoogleOAuth.getGoogleAuthUrl))
+      Ok(views.html.clients(request.user))
   }
 
-  def search(q: Option[String]) = Action.async {
+  def search(q: Option[String]) = SecuredAction.async {
     implicit request =>
       q match {
         case Some(query) =>
@@ -54,18 +56,17 @@ class ClientController extends Controller
       }
   }
 
-  def addClient = Action(parse.json) { implicit request =>
+  def addClient = SecuredAction(parse.json) { implicit request =>
     val json = request.body
     json.validate(invoiceClientReads) match {
       case errors:JsError => Ok(errors.toString).as("application/json")
-      case result: JsResult[Client] => {
+      case result: JsResult[Client] =>
         saveClient(result.get)
         Ok
-      }
     }
   }
 
-  def modifyClient(id: String) = Action(parse.json) {
+  def modifyClient(id: String) = SecuredAction(parse.json) {
     implicit request =>
       val clientJsonModified = request.body
       val idSelector = Json.obj("_id" -> BSONObjectID(id))

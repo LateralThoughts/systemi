@@ -1,6 +1,6 @@
-@(googleAuthUrl: String)(implicit request: play.api.mvc.RequestHeader)
+@(user: securesocial.core.BasicProfile)(implicit request: play.api.mvc.RequestHeader, env: securesocial.core.RuntimeEnvironment[securesocial.core.BasicProfile])
 
-@main(googleAuthUrl) {
+@main(user) {
     <div data-ng-controller="ClientController">
         <div class="row">
             <lt-client-search client="client"></lt-client-search>

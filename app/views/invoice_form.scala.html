@@ -1,6 +1,6 @@
-@(googleAuthUrl: String)(implicit request: play.api.mvc.RequestHeader)
+@(user: securesocial.core.BasicProfile)(implicit request: play.api.mvc.RequestHeader, env: securesocial.core.RuntimeEnvironment[securesocial.core.BasicProfile])
 
-@main(googleAuthUrl) {
+@main(user) {
     <div data-ng-controller="InvoiceController" class="row">
         <form action="/api/invoice" method="POST" role="form">
             <div class="form-group">

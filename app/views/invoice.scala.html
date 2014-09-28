@@ -64,10 +64,10 @@
 
                         <tr class="end">
                             <td colspan="4">Total HT</td>
-                            <td>@InvoiceController.computeTotalHT(items)</td>
+                            <td>@domain.InvoiceLinesAnalyzer.computeTotalHT(items)</td>
                         </tr>
 
-                        @for((label, tva) <- InvoiceController.computeTva(items)) {
+                        @for((label, tva) <- domain.InvoiceLinesAnalyzer.computeTva(items)) {
                         <tr class="tva end">
                             <td colspan="4">TVA @label</td>
                             <td>@tva</td>
@@ -76,7 +76,7 @@
                         <tr class="end"><td colspan="5"></td></tr>
                         <tr class="total end">
                             <td colspan="4">Total TTC </td>
-                            <td>@InvoiceController.computeTotal(items)</td>
+                            <td>@domain.InvoiceLinesAnalyzer.computeTotal(items)</td>
                         </tr>
                     </tbody>
                 </table>

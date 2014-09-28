@@ -3,12 +3,10 @@
 # ~~~~
 
 # Home page
-GET         /                       controllers.InvoiceController.index
-GET         /cra                    controllers.InvoiceController.cra
+GET         /                       @controllers.InvoiceController.index
+GET         /cra                    @controllers.InvoiceController.cra
 GET         /client                 @controllers.ClientController.clientsView
-GET         /auth                   controllers.InvoiceController.auth
-GET         /test                   @controllers.ApplicationT.index
-POST        /api/invoice            controllers.InvoiceController.createAndPushInvoice
+POST        /api/invoice            @controllers.InvoiceController.createAndPushInvoice
 
 # client resources
 GET         /api/clients            @controllers.ClientController.search(q: Option[String])
@@ -16,9 +14,12 @@ POST        /api/clients            @controllers.ClientController.addClient
 PUT         /api/clients/:id        @controllers.ClientController.modifyClient(id: String)
 
 # cra resources
-POST        /api/cra            controllers.CraController.add
+POST        /api/cra                @controllers.CraController.add
+
+
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file           controllers.Assets.at(path="/public", file)
 
-->         /auth                securesocial.Routes
+
+->          /auth                   securesocial.Routes

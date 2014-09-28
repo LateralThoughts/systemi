@@ -8,7 +8,7 @@
 @import helper._
 @import play.api.Play
 
-@main("SecureSocial - Sample Protected Page") {
+@main(user) {
     <div class="page-header">
         <h2><img src="@user.avatarUrl.getOrElse("")" alt="@user.firstName.getOrElse("")" width="40px" height="40px"/> Welcome @user.firstName.getOrElse("")</h2>
     </div>

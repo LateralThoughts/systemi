@@ -61,6 +61,8 @@ trait InvoiceSerializer {
   }
 }
 
+object InvoiceLinesAnalyzer extends InvoiceLinesAnalyzer
+
 trait InvoiceLinesAnalyzer {
   def computeTotalHT(items : List[InvoiceLine]) = roundUpToSecondDecimal(items.foldLeft(0.0)(
     (cur: Double, item: InvoiceLine) => cur + (item.days * item.dailyRate)
