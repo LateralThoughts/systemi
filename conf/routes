@@ -3,24 +3,30 @@
 # ~~~~
 
 # Home page
-GET         /                       @controllers.Application.index
-GET         /invoice                @controllers.InvoiceController.index
-GET         /cra                    @controllers.InvoiceController.cra
-GET         /client                 @controllers.ClientController.clientsView
-POST        /api/invoice            @controllers.InvoiceController.createAndPushInvoice
+GET         /                                 @controllers.Application.index
+GET         /invoice                          @controllers.InvoiceController.index
+GET         /cra                              @controllers.InvoiceController.cra
+GET         /client                           @controllers.ClientController.clientsView
 
 # client resources
-GET         /api/clients            @controllers.ClientController.search(q: Option[String])
-POST        /api/clients            @controllers.ClientController.addClient
-PUT         /api/clients/:id        @controllers.ClientController.modifyClient(id: String)
+GET         /api/clients                      @controllers.api.ClientApiController.search(q: Option[String])
+POST        /api/clients                      @controllers.api.ClientApiController.addClient
+PUT         /api/clients/:id                  @controllers.api.ClientApiController.modifyClient(id: String)
+
+# invoice resources
+POST        /api/invoice                      @controllers.api.InvoiceApiController.createAndPushInvoice
+
+# invoice number resources
+GET         /api/invoice/numbers/last         @controllers.api.InvoiceApiController.getLastInvoiceNumber
+POST        /api/invoice/numbers/reset        @controllers.api.InvoiceApiController.reset(value: Int)
 
 # cra resources
-POST        /api/cra                @controllers.CraController.add
+POST        /api/cra                          @controllers.CraController.add
 
 
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file           controllers.Assets.at(path="/public", file)
+GET         /assets/*file                     controllers.Assets.at(path="/public", file)
 
 
-->          /auth                   securesocial.Routes
+->          /auth                             securesocial.Routes
