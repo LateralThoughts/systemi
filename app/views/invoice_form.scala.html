@@ -42,7 +42,7 @@
                 </div>
             </div>
 
-            <div class="col-md-12 item_line" ng-repeat="taskline in tasklines">
+            <div class="col-md-12 item_line row" ng-repeat="taskline in tasklines">
                 <div class="col-md-7"><input type="text" name="invoiceDescription" placeholder="Description" data-ng-model="taskline.invoiceDescription"></div>
                 <div class="col-md-1"><input type="text" name="invoiceDays" placeholder="Jours" data-ng-model="taskline.invoiceDays"></div>
                 <div class="col-md-1"><input type="text" name="invoiceDailyRate" placeholder="TJM" data-ng-model="taskline.invoiceDailyRate"></div>
@@ -61,7 +61,7 @@
 
             <div class="col-md-12 checkbox">
                 <label>
-                    <input ng-model="shouldUpload" type="checkbox" checked> Uploader la facture sur Google Drive
+                    <input ng-model="shouldUpload" type="checkbox"> Uploader la facture sur Google Drive
                 </label>
             </div>
 
