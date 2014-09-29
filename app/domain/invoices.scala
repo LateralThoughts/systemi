@@ -15,7 +15,6 @@ case class InvoiceRequest(title: String,
 import _root_.util.pdf.PDF
 import play.api.libs.json._
 import reactivemongo.bson.BSONObjectID
-import views.html.invoice
 
 trait InvoiceSerializer extends AttachmentSerializer {
   import play.modules.reactivemongo.json.BSONFormats._
@@ -62,7 +61,7 @@ trait InvoiceSerializer extends AttachmentSerializer {
     val delay = invoiceRequest.paymentDelay
     val invoiceLines = invoiceRequest.invoice
 
-    PDF.toBytes(invoice.render(title, id, delay, client, invoiceLines))
+    PDF.toBytes(views.html.invoice.invoice.render(title, id, delay, client, invoiceLines))
   }
 }
 

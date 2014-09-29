@@ -1,0 +1,11 @@
+@(user: securesocial.core.BasicProfile)(implicit request: play.api.mvc.RequestHeader, env: securesocial.core.RuntimeEnvironment[securesocial.core.BasicProfile])
+
+@main(user, "invoice") {
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="active"><a href="#pending">Non-affectées</a></li>
+        <li><a href="#created">Créé une facture</a></li>
+        <li><a href="#in-progress">En cours</a></li>
+        <li><a href="#paid">Payées</a></li>
+    </ul>
+    <div ng-view class="row"/>
+}

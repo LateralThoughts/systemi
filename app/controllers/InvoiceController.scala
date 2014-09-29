@@ -8,7 +8,7 @@ class InvoiceController(override implicit val env: RuntimeEnvironment[BasicProfi
 
   def index = SecuredAction {
     implicit request =>
-      Ok(views.html.invoice_form(request.user))
+      Ok(views.html.invoice.index(request.user))
   }
 
   def cra = SecuredAction {
