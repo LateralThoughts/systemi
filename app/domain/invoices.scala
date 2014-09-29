@@ -1,5 +1,9 @@
 package domain
 
+case class InvoiceNumber(value: Int) {
+  def increment = this.copy(value + 1)
+}
+
 case class InvoiceLine(description: String, days: Double, dailyRate: Double, taxRate: Double = 19.6)
 
 case class InvoiceRequest(title: String,
@@ -13,13 +17,14 @@ import play.api.libs.json._
 import reactivemongo.bson.BSONObjectID
 import views.html.invoice
 
-trait InvoiceSerializer {
+trait InvoiceSerializer extends AttachmentSerializer {
   import play.modules.reactivemongo.json.BSONFormats._
-  implicit val invoiceClientReads = Json.reads[Client]
-  implicit val invoiceLineReads = Json.reads[InvoiceLine]
-  implicit val invoiceReads = Json.reads[InvoiceRequest]
+  implicit val invoiceClientFormat = Json.format[Client]
+  implicit val invoiceLineFormat = Json.format[InvoiceLine]
 
-  implicit val invoiceClientWrites = Json.writes[Client]
+  implicit val invoiceReqFormat = Json.format[InvoiceRequest]
+  implicit val invoiceNumberFormat = Json.format[InvoiceNumber]
+  implicit val invoiceFormat = Json.format[Invoice]
 
   def invoiceFromForm(body : Map[String, Seq[String]]) = {
     val descriptions = body.get("invoiceDescription").get
