@@ -36,7 +36,7 @@ class InvoiceRequestSerializerTest extends FunSuite
                                  25,
                                  Client(Some(BSONObjectID("532afca061ce6a2db986839f")), "VIDAL", "27 rue camille desmoulins", "94550", "chevilly", "France"),
                                  List(InvoiceLine("blabla", 25.0, 450.0, 19.6)))
-		Json.parse(data).validate(invoiceReads).get should be (invoice)
+		Json.parse(data).validate(invoiceReqFormat).get should be (invoice)
 	}
 
 

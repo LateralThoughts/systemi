@@ -4,7 +4,7 @@ import org.bouncycastle.util.encoders.Base64
 import org.joda.time.DateTime
 import play.api.libs.json.{Json, Format, JsResult, JsValue}
 
-case class User(email: String, username: String, avatarUrl: String, firstName: String, lastName: String)
+case class User(userId: String, firstName: String, lastName: String, email: String, avatarUrl: String)
 
 sealed trait Member
 case class Human(user: User) extends Member
@@ -30,6 +30,10 @@ trait AttachmentSerializer {
   implicit val wrs: Writes[Array[Byte]] = (__ \ "data").write[String].contramap{ (a: Array[Byte]) => new String(Base64.encode(a)) }
   implicit val fmt: Format[Array[Byte]] = Format(rds, wrs)
   implicit val attachmentFormatter = Json.format[Attachment]
+}
+
+trait UserSerializer {
+  implicit val userFormatter = Json.format[User]
 }
 
 case class Invoice(invoice: InvoiceRequest, pdfDocument: Attachment) extends AccountOperation(Plus) // TODO add file
