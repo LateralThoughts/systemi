@@ -1,4 +1,4 @@
-<h2>Liste des factures non-affectées</h2>
+<h2>Liste des factures en cours</h2>
 <table class="table table-bordered">
     <thead>
     <tr>
@@ -13,12 +13,11 @@
         <td>{{ item.invoice.title }} ({{ item.invoice.invoiceNumber }})</td>
         <td>
             <ul>
-                <li data-ng-repeat="status in item.statuses"><strong>{{ status.name }}</strong> le {{ status.createdAt }}</li>
+                <li data-ng-repeat="status in item.statuses"><strong>{{ status.name }}</strong> le {{ status.createdAt }} par {{ status.email }}</li>
             </ul>
         </td>
         <td>
-            <a href="/api/invoices/document/{{ item._id.$oid }}">Voir la facture (PDF)</a>
-            <a ng-href="#/edit/{{project.$id}}"><i class="icon-pencil"></i></a>
+            <button class="button" ng-click="pay(item)">La facture a été payée</button>
         </td>
     </tr>
     </tbody>

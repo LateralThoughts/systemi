@@ -1,10 +1,9 @@
 import com.softwaremill.macwire.MacwireMacros._
 import controllers._
-import controllers.api.{ActivityApiController, ClientApiController, InvoiceApiController}
+import controllers.api.{AccountApiController, ActivityApiController, ClientApiController, InvoiceApiController}
 import play.api.data.Form
 import play.api.i18n.Lang
 import play.api.mvc.RequestHeader
-import play.api.templates.Html
 import search.SimpleSearchEngine
 import securesocial.controllers._
 import securesocial.core._
@@ -45,4 +44,5 @@ class ProductionModule {
   lazy val invoiceApiController = wire[InvoiceApiController]
   lazy val clientApiController = wire[ClientApiController]
   lazy val activityApiController = wire[ActivityApiController]
+  lazy val accountApiController = wire[AccountApiController]
 }

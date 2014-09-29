@@ -16,9 +16,15 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
     case invoice: Invoice =>
       val db = ReactiveMongoPlugin.db
-      val collection = db.collection[JSONCollection]("invoices")
-      collection.save(Json.toJson(invoice))
-      Logger.info(s"Saved invoice $invoice to mongo database")
+      db.
+        collection[JSONCollection]("invoices")
+        .save(Json.toJson(invoice))
+      Logger.info(s"Saved invoice $invoice")
+
+      db.
+        collection[JSONCollection]("invoices_tasks")
+        .save(Json.toJson(invoice))
+      Logger.info(s"Created pending invoice $invoice")
   }
 
 

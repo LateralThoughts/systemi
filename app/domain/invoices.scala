@@ -1,5 +1,11 @@
 package domain
 
+import _root_.util.pdf.PDF
+import org.bouncycastle.util.encoders.Base64
+import org.joda.time.DateTime
+import play.api.libs.json._
+import reactivemongo.bson.BSONObjectID
+
 case class InvoiceNumber(value: Int) {
   def increment = this.copy(value + 1)
 }
@@ -12,12 +18,59 @@ case class InvoiceRequest(title: String,
                           client: Client,
                           invoice: List[InvoiceLine])
 
-import _root_.util.pdf.PDF
-import play.api.libs.json._
-import reactivemongo.bson.BSONObjectID
+
+case class Attachment(contentType: String,
+                      stub: Boolean,
+                      data: Array[Byte])
+
+
+case class Status(name: String, createdAt: DateTime, email: String)
+
+case class Invoice(invoice: InvoiceRequest,
+                   pdfDocument: Attachment,
+                   statuses: List[Status],
+                    lastStatus: Status) extends AccountOperation(Plus)
+
+
+object InvoiceLinesAnalyzer extends InvoiceLinesAnalyzer
+
+trait InvoiceLinesAnalyzer {
+  def computeTotalHT(items : List[InvoiceLine]) = roundUpToSecondDecimal(items.foldLeft(0.0)(
+    (cur: Double, item: InvoiceLine) => cur + (item.days * item.dailyRate)
+  )
+  )
+
+  def computeTotal(items : List[InvoiceLine]) = roundUpToSecondDecimal(items.foldLeft(0.0)(
+    (cur: Double, item: InvoiceLine) => cur + ((item.days * item.dailyRate) * ( 1 + item.taxRate / 100))
+  )
+  )
+
+  def computeTva(items : List[InvoiceLine]) =
+    items
+      .groupBy( _.taxRate)
+      .map{ case (label: Double, invoiceLines: List[InvoiceLine]) => (s"$label%", computeTvaByTaxRate(invoiceLines)) }
+
+
+  private def computeTvaByTaxRate(invoiceLines : List[InvoiceLine]) = roundUpToSecondDecimal(
+    invoiceLines.foldLeft(0.0)(
+      (cur: Double, item: InvoiceLine) => cur + ((item.days * item.dailyRate) * item.taxRate / 100 ))
+  )
+  private def roundUpToSecondDecimal(value : Double) = BigDecimal(value).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
+}
+
+trait AttachmentSerializer {
+  import play.api.libs.functional.syntax._
+  import play.api.libs.json._
+
+  implicit val rds: Reads[Array[Byte]] = (__ \ "data").read[String].map{ arr: String => Base64.decode(arr) }
+  implicit val wrs: Writes[Array[Byte]] = (__ \ "data").write[String].contramap{ (a: Array[Byte]) => new String(Base64.encode(a)) }
+  implicit val fmt: Format[Array[Byte]] = Format(rds, wrs)
+  implicit val attachmentFormatter = Json.format[Attachment]
+}
 
 trait InvoiceSerializer extends AttachmentSerializer {
   import play.modules.reactivemongo.json.BSONFormats._
+  implicit val invoiceStatus = Json.format[Status]
   implicit val invoiceClientFormat = Json.format[Client]
   implicit val invoiceLineFormat = Json.format[InvoiceLine]
 
@@ -65,28 +118,4 @@ trait InvoiceSerializer extends AttachmentSerializer {
   }
 }
 
-object InvoiceLinesAnalyzer extends InvoiceLinesAnalyzer
 
-trait InvoiceLinesAnalyzer {
-  def computeTotalHT(items : List[InvoiceLine]) = roundUpToSecondDecimal(items.foldLeft(0.0)(
-    (cur: Double, item: InvoiceLine) => cur + (item.days * item.dailyRate)
-  )
-  )
-
-  def computeTotal(items : List[InvoiceLine]) = roundUpToSecondDecimal(items.foldLeft(0.0)(
-    (cur: Double, item: InvoiceLine) => cur + ((item.days * item.dailyRate) * ( 1 + item.taxRate / 100))
-  )
-  )
-
-  def computeTva(items : List[InvoiceLine]) =
-    items
-      .groupBy( _.taxRate)
-      .map{ case (label: Double, invoiceLines: List[InvoiceLine]) => (s"$label%", computeTvaByTaxRate(invoiceLines)) }
-
-
-  private def computeTvaByTaxRate(invoiceLines : List[InvoiceLine]) = roundUpToSecondDecimal(
-              invoiceLines.foldLeft(0.0)(
-                (cur: Double, item: InvoiceLine) => cur + ((item.days * item.dailyRate) * item.taxRate / 100 ))
-          )
-  private def roundUpToSecondDecimal(value : Double) = BigDecimal(value).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
-}

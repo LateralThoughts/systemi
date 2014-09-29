@@ -2,8 +2,9 @@ package controllers.api
 
 import domain._
 import org.bouncycastle.util.encoders.Base64
+import org.joda.time.DateTime
 import play.Logger
-import play.api.libs.json.{JsObject, Json, JsResult, JsError}
+import play.api.libs.json.{JsError, JsObject, JsResult, Json}
 import play.api.mvc.{Action, Controller}
 import play.libs.Akka
 import play.modules.reactivemongo.MongoController
@@ -37,12 +38,14 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
         case Some(body) =>
           val invoiceRequest = invoiceFromForm(body)
 
-          val shouldUpload = body.get("shouldUpload").map(_.head).exists(_.toBoolean)
+          val shouldUpload = body.get("shouldUpload").map(_.head).exists(_.equalsIgnoreCase("on"))
 
           val generatedPdfDocument = invoiceToPdfBytes(invoiceRequest)
 
-          if (shouldUpload)
-            invoiceActor ! Invoice(invoiceRequest, Attachment("application/pdf", stub = false, generatedPdfDocument))
+          if (shouldUpload) {
+            val status = domain.Status("created", DateTime.now(), request.user.email.get)
+            invoiceActor ! Invoice(invoiceRequest, Attachment("application/pdf", stub = false, generatedPdfDocument), List(status), status)
+          }
 
           Ok(generatedPdfDocument).as("application/pdf")
 
@@ -65,13 +68,46 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     Ok
   }
 
-  def findAll = Action.async {
+  def findPendingInvoice = Action.async {
     db
-      .collection[JSONCollection]("invoices")
-      .find(Json.obj(), Json.obj("invoice" -> 1))
+      .collection[JSONCollection]("invoices_tasks")
+      .find(Json.obj(), Json.obj("invoice" -> 1, "statuses" -> 1))
       .cursor[JsObject]
       .collect[List]()
       .map(invoices => Ok(Json.toJson(invoices)))
+  }
+
+  def findByStatus(status: Option[String], exclude: Option[Boolean]) = Action.async { implicit request =>
+    val selector = (status: String) => if (exclude.getOrElse(false )) {
+      Json.obj("lastStatus.name" -> Json.obj("$ne" -> status))
+    } else {
+      Json.obj("lastStatus.name" -> status)
+    }
+
+    db
+      .collection[JSONCollection]("invoices")
+      .find(status.map(selector).getOrElse(Json.obj()), Json.obj("invoice" -> 1, "statuses" -> 1))
+      .cursor[JsObject]
+      .collect[List]()
+      .map(invoices => Ok(Json.toJson(invoices)))
+  }
+
+  def addStatusToInvoice(oid: String, status: String) = SecuredAction { implicit request =>
+    val selecteur = Json.obj("_id" -> Json.obj("$oid" -> oid))
+    val lastStatus = Json.toJson(domain.Status(status, DateTime.now(), request.user.email.get))
+    val pushToStatesAndLastStatus = Json.obj(
+      "$push" ->
+        Json.obj(
+          "statuses" -> lastStatus
+        ),
+      "$set" -> Json.obj("lastStatus" -> lastStatus)
+    )
+
+    db
+      .collection[JSONCollection]("invoices")
+      .update(selecteur, pushToStatesAndLastStatus)
+
+    Ok
   }
 
   def getPdfByInvoice(oid: String) = Action.async {

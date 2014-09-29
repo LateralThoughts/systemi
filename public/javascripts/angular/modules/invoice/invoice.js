@@ -9,6 +9,14 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute'])
                 controller:'CreateCtrl',
                 templateUrl:'/assets/javascripts/angular/modules/invoice/templates/create.html'
             })
+            .when('/in-progress', {
+                controller:'InProgressCtrl',
+                templateUrl:'/assets/javascripts/angular/modules/invoice/templates/in-progress.html'
+            })
+            .when('/paid', {
+                controller:'PaidCtrl',
+                templateUrl:'/assets/javascripts/angular/modules/invoice/templates/paid.html'
+            })
             .otherwise({
                 redirectTo:'/pending'
             });
@@ -17,6 +25,30 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute'])
         $http.get("/api/invoices").success(function(data) {
             $scope.invoices = data;
         });
+    })
+    .controller('InProgressCtrl', function($scope, $http) {
+        var reload = function(scope) {
+            $http.get("/api/invoices?status=paid&exclude=true").success(function (data) {
+                scope.invoices = data;
+            });
+        };
+        reload($scope);
+
+        $scope.pay = function(invoice) {
+            $http.post("/api/invoices/" + invoice._id.$oid + "/paid").success(function(){ reload($scope)})
+        }
+    })
+    .controller('PaidCtrl', function($scope, $http) {
+        var reload = function(scope) {
+            $http.get("/api/invoices?status=paid").success(function (data) {
+                scope.invoices = data;
+            });
+        };
+        reload($scope);
+        $scope.revert = function(invoice) {
+            $http.post("/api/invoices/" + invoice._id.$oid + "/pending-payment").success(function(){ reload($scope)})
+
+        }
     })
     .controller('CreateCtrl', function($scope) {
         $scope.shouldUpload = true;
