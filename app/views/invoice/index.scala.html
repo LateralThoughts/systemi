@@ -1,11 +1,11 @@
 @(user: securesocial.core.BasicProfile)(implicit request: play.api.mvc.RequestHeader, env: securesocial.core.RuntimeEnvironment[securesocial.core.BasicProfile])
 
 @main(user, "invoice") {
-    <ul class="nav nav-tabs" role="tablist">
-        <li><a href="#pending">Non-affectées</a></li>
-        <li><a href="#create">Créé une facture</a></li>
-        <li><a href="#in-progress">En cours</a></li>
-        <li><a href="#paid">Payées</a></li>
+    <ul class="nav nav-tabs" role="tablist" data-ng-controller="HeaderCtrl">
+        <li ng-class="{ active: isActive('/pending')}"><a href="#pending">Non-affectées</a></li>
+        <li ng-class="{ active: isActive('/create')}"><a href="#create">Créé une facture</a></li>
+        <li ng-class="{ active: isActive('/in-progress')}"><a href="#in-progress">En cours</a></li>
+        <li ng-class="{ active: isActive('/paid')}"><a href="#paid">Payées</a></li>
     </ul>
     <div ng-view class="row"/>
 }
