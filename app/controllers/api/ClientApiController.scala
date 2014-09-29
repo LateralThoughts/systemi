@@ -47,7 +47,7 @@ class ClientApiController(engine: SimpleSearchEngine)
   }
 
   def addClient() = SecuredAction(parse.json) { implicit request =>
-    request.body.validate(invoiceClientReads) match {
+    request.body.validate(invoiceClientFormat) match {
       case errors:JsError => Ok(errors.toString).as("application/json")
       case result: JsResult[Client] =>
         saveClient(result.get)

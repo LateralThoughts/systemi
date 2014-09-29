@@ -1,16 +1,15 @@
 package controllers.api
 
-import domain.{InvoiceNumber, InvoiceRequest, InvoiceSerializer}
+import domain._
+import play.Logger
 import play.api.libs.json.{Json, JsResult, JsError}
 import play.api.mvc.{Action, Controller}
+import play.libs.Akka
 import play.modules.reactivemongo.MongoController
 import play.modules.reactivemongo.json.collection.JSONCollection
 import securesocial.core.{BasicProfile, RuntimeEnvironment}
 import util.pdf.GoogleDriveInteraction
 
-/**
- * Created by ogirardot on 29/09/2014.
- */
 class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicProfile])
   extends Controller
   with MongoController
@@ -20,9 +19,12 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
 
   implicit val context = scala.concurrent.ExecutionContext.Implicits.global
 
+  private val akkaSystem = Akka.system
+  private lazy val invoiceActor = akkaSystem.actorSelection(akkaSystem / "invoice")
+
   def createAndPushInvoice = SecuredAction { implicit request =>
     request.body.asJson match {
-      case Some(json) => json.validate(invoiceReads) match {
+      case Some(json) => json.validate(invoiceReqFormat) match {
 
         case errors:JsError =>
           Ok(errors.toString).as("application/json")
@@ -39,7 +41,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
           val generatedPdfDocument = invoiceToPdfBytes(invoiceRequest)
 
           if (shouldUpload)
-            pushToGoogleDrive(invoiceRequest, generatedPdfDocument)
+            invoiceActor ! Invoice(invoiceRequest, Attachment("application/pdf", stub = false, generatedPdfDocument))
 
           Ok(generatedPdfDocument).as("application/pdf")
 
@@ -56,6 +58,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
   }
 
   def reset(value: Int) = Action {
+    Logger.info(s"reset value of invoiceNumber to $value")
     db.collection[JSONCollection]("invoiceNumber")
       .update(Json.obj(), Json.toJson(InvoiceNumber(value)))
     Ok
