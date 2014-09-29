@@ -8,7 +8,6 @@ import play.api.mvc.{Action, Controller}
 import play.libs.Akka
 import play.modules.reactivemongo.MongoController
 import play.modules.reactivemongo.json.collection.JSONCollection
-import reactivemongo.bson.BSONObjectID
 import securesocial.core.{BasicProfile, RuntimeEnvironment}
 import util.pdf.GoogleDriveInteraction
 

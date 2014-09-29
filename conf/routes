@@ -23,7 +23,7 @@ GET         /api/invoice/numbers/last         @controllers.api.InvoiceApiControl
 POST        /api/invoice/numbers/reset        @controllers.api.InvoiceApiController.reset(value: Int)
 
 # cra resources
-POST        /api/cra                          @controllers.CraController.add
+POST        /api/cra                          @controllers.api.ActivityApiController.createAndPushCRA
 
 
 

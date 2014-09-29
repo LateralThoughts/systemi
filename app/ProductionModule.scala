@@ -1,6 +1,6 @@
 import com.softwaremill.macwire.MacwireMacros._
 import controllers._
-import controllers.api.{ClientApiController, InvoiceApiController}
+import controllers.api.{ActivityApiController, ClientApiController, InvoiceApiController}
 import play.api.data.Form
 import play.api.i18n.Lang
 import play.api.mvc.RequestHeader
@@ -38,11 +38,11 @@ class ProductionModule {
 
   // application modules
   lazy val clientController = wire[ClientController]
-  lazy val craController = wire[CraController]
   lazy val invoiceController = wire[InvoiceController]
   lazy val app = wire[Application]
   lazy val accountsController = wire[AccountsController]
   lazy val searchEngine = wire[SimpleSearchEngine]
   lazy val invoiceApiController = wire[InvoiceApiController]
   lazy val clientApiController = wire[ClientApiController]
+  lazy val activityApiController = wire[ActivityApiController]
 }
