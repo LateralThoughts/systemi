@@ -52,4 +52,9 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute'])
             $scope.tasklines[$scope.tasklines.length - 1]['addButtonVisible'] = true;
             $scope.tasklines[$scope.tasklines.length - 1]['deleteButtonVisible'] = ($scope.tasklines.length>1);
         }
+    }).controller("HeaderCtrl", function($scope, $location) {
+
+        $scope.isActive = function (viewLocation) {
+            return viewLocation === $location.path();
+        };
     });
