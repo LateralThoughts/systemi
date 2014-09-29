@@ -3,51 +3,24 @@
 }
 
 #facture_page .client_form {
-    float: right;
-    width: 50%;
-    padding-left: 10px;
     border-left: 1px solid lightgrey;
     margin-bottom: 20px;
 }
 
-#facture_page .facture_info_form {
-    width: 50%;
-    float: left;
-    padding-right: 10px;
+#facture_page .delais_jour label{
+    padding-top: 5px;
 }
 
-#facture_page .facture_info_form .facture_num {
-    width: 50%;
-}
-
-#facture_page .facture_info_form .delais_jour label{
-    float: left;
-}
-
-#facture_page .facture_info_form .delais_jour input{
-    float: right;
-    wifth: 15%;
-}
-
-#facture_page .client_form .postal_code {
-    float: left;
-    width: 30%
-}
-
-#facture_page .client_form .city {
-    float: right;
-    width: 67%;
-}
-
-#facture_page .col-md-7, #facture_page .col-md-1{
+#facture_page .item_line .col-md-7, #facture_page .item_line .col-md-1{
     padding: 0 5px 0 5px;
 }
 
 #facture_page .item_line {
     border-top: 1px solid lightgrey;
     padding-top: 10px;
+    padding-bottom: 10px;
 }
 
-#facture_page .item_line > input, #facture_page .item_line > button {
+#facture_page .item_line input, #facture_page .item_line button {
     width: 100%;
 }
