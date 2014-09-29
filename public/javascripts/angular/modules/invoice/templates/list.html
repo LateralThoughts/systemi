@@ -1,5 +1,21 @@
-<ul data-ng-controller="ListCtrl">Test : {{ invoices }}
-    <li data-ng-repeat="invoice in invoices">
-        {{ invoice.name }} créé le  {{ invoice.createdAt }}
-    </li>
-</ul>
+<h2>Liste des factures non-affectées</h2>
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>Project</th>
+        <th>Description</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr data-ng-repeat="item in invoices | filter:search ">
+
+        <td>{{ item.invoice.title }} ({{ item.invoice.invoiceNumber }})</td>
+        <td></td>
+        <td>
+            <a href="/api/invoices/document/{{ item._id.$oid }}">Voir la facture (PDF)</a>
+            <a ng-href="#/edit/{{project.$id}}"><i class="icon-pencil"></i></a>
+        </td>
+    </tr>
+    </tbody>
+</table>

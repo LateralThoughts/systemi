@@ -1,21 +1,20 @@
 angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute'])
     .config(function($routeProvider) {
         $routeProvider
-            .when('/', {
+            .when('/pending', {
                 controller:'ListCtrl',
                 templateUrl:'/assets/javascripts/angular/modules/invoice/templates/list.html'
             })
-            .when('/created', {
+            .when('/create', {
                 controller:'CreateCtrl',
                 templateUrl:'/assets/javascripts/angular/modules/invoice/templates/detail.html'
             })
             .otherwise({
-                redirectTo:'/'
+                redirectTo:'/pending'
             });
     })
-    .controller('ListCtrl', function($scope) {
-        $.get("/api/invoices").success(function(data) {
-            console.log(data);
+    .controller('ListCtrl', function($scope, $http) {
+        $http.get("/api/invoices").success(function(data) {
             $scope.invoices = data;
         });
     })
