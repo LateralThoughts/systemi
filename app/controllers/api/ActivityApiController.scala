@@ -5,12 +5,14 @@ import play.api.mvc.Controller
 import play.modules.reactivemongo.MongoController
 import domain._
 import util.pdf.GoogleDriveInteraction
-import play.api.libs.json.{JsResult, JsError}
+import play.api.libs.json.{JsObject, Json, JsResult, JsError}
 import scala.Some
 import securesocial.core.BasicProfile
 import domain.ActivityRequest
-import org.joda.time.DateTime
 import play.libs.Akka
+import play.modules.reactivemongo.json.collection.JSONCollection
+import org.bouncycastle.util.encoders.Base64
+import play.api.mvc.Action
 
 class ActivityApiController(override implicit val env: RuntimeEnvironment[BasicProfile])
   extends Controller
@@ -44,7 +46,21 @@ class ActivityApiController(override implicit val env: RuntimeEnvironment[BasicP
     }
 
   }
-  
-  
+
+
+  def getPdfByCRA(oid: String) = Action.async {
+    db
+      .collection[JSONCollection]("activities")
+      .find(Json.obj("_id" -> Json.obj("$oid" -> oid)), Json.obj("pdfDocument" -> 1))
+      .one[JsObject]
+      .map {
+      case Some(pdfObj) =>
+        val doc = (pdfObj \ "pdfDocument" \ "data" \ "data").as[String]
+        Ok(Base64.decode(doc)).as("application/pdf")
+
+      case None => BadRequest
+    }
+
+  }
 
 }

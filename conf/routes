@@ -30,7 +30,8 @@ GET         /api/invoice/numbers/last          @controllers.api.InvoiceApiContro
 POST        /api/invoice/numbers/reset         @controllers.api.InvoiceApiController.reset(value: Int)
 
 # cra resources
-POST        /api/cra                          @controllers.api.ActivityApiController.createAndPushCRA
+POST        /api/cra                           @controllers.api.ActivityApiController.createAndPushCRA
+GET         /api/cra/document/:oid             @controllers.api.ActivityApiController.getPdfByCRA(oid: String)
 
 
 # Map static resources from the /public folder to the /assets URL path
