@@ -109,7 +109,7 @@ trait InvoiceSerializer extends AttachmentSerializer {
     val delay = invoiceRequest.paymentDelay
     val invoiceLines = invoiceRequest.invoice
 
-    PDF.toBytes(views.html.invoice.template.render(title, id, delay, client, invoiceLines))
+    PDF.toBytes(views.html.invoice.template(title, id, delay, client, invoiceLines))
   }
 }
 
