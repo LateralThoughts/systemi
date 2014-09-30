@@ -8,7 +8,7 @@ class BasicProfileSerializerTest extends FunSuite
                                  with Matchers
                                  with BasicProfileSerializer {
 
-    val profile = new BasicProfile(providerId = "p",
+    val profile = new BasicProfile(providerId = "google",
         userId = "u",
         firstName = Option("Olivier"),
         lastName = Option("Girardot"),
@@ -19,7 +19,7 @@ class BasicProfileSerializerTest extends FunSuite
     )
 
     val dbProfile ="""{
-        "providerId": "p",
+        "providerId": "google",
         "userId": "u",
         "firstName": "Olivier",
         "lastName": "Girardot",

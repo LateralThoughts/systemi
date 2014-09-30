@@ -1,14 +1,19 @@
 package service
 
-import play.api.Application
+import play.api.Play.current
 import securesocial.core._
 import securesocial.core.services._
 import securesocial.core.providers.{MailToken}
 
 import scala.concurrent.Future
+import play.modules.reactivemongo.json.collection.JSONCollection
+import play.modules.reactivemongo.ReactiveMongoPlugin
+import domain.BasicProfileSerializer
+import play.api.libs.json.Json
 
 
-class InMemoryUserService() extends UserService[BasicProfile] {
+class InMemoryUserService() extends UserService[BasicProfile]
+                            with BasicProfileSerializer {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   /**
@@ -18,7 +23,13 @@ class InMemoryUserService() extends UserService[BasicProfile] {
    * @param userId the user id
    * @return an optional profile
    */
-  def find(providerId: String, userId: String): Future[Option[BasicProfile]]= Future(None)
+  def find(providerId: String, userId: String): Future[Option[BasicProfile]]= {
+      val db = ReactiveMongoPlugin.db
+
+      db.collection[JSONCollection]("users")
+          .find(Json.obj("providerId" -> providerId, "userId" -> userId))
+          .one[BasicProfile]
+  }
 
   /**
    * Finds a profile by email and provider
@@ -36,7 +47,15 @@ class InMemoryUserService() extends UserService[BasicProfile] {
    * @param profile the user profile
    * @param mode a mode that tells you why the save method was called
    */
-  def save(profile: BasicProfile, mode: SaveMode): Future[BasicProfile]= Future(profile)
+  def save(profile: BasicProfile, mode: SaveMode): Future[BasicProfile] = {
+
+      val db = ReactiveMongoPlugin.db
+
+      db.collection[JSONCollection]("users")
+          .save(Json.toJson(profile))
+
+      Future(profile)
+  }
 
   /**
    * Links the current user to another profile
