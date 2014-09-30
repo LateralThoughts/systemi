@@ -4,6 +4,7 @@ import domain._
 import org.bouncycastle.util.encoders.Base64
 import org.joda.time.DateTime
 import play.Logger
+import play.api.libs.concurrent.Promise
 import play.api.libs.json.{JsError, JsObject, JsResult, Json}
 import play.api.mvc.{Action, Controller}
 import play.libs.Akka
@@ -12,11 +13,14 @@ import play.modules.reactivemongo.json.collection.JSONCollection
 import securesocial.core.{BasicProfile, RuntimeEnvironment}
 import util.pdf.GoogleDriveInteraction
 
+import scala.concurrent.Future
+
 class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicProfile])
   extends Controller
   with MongoController
   with InvoiceSerializer
-  with GoogleDriveInteraction
+  with AccountSerializer
+  with AffectationSerializer
   with securesocial.core.SecureSocial[BasicProfile] {
 
   implicit val context = scala.concurrent.ExecutionContext.Implicits.global
@@ -108,6 +112,41 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
       .update(selecteur, pushToStatesAndLastStatus)
 
     Ok
+  }
+
+  def affectToAccount(oid: String, account: String) = Action.async {
+    val futureMayBeInvoice = db
+      .collection[JSONCollection]("invoices")
+      .find(Json.obj("_id" -> Json.obj("$oid" -> oid)))
+      .one[Invoice]
+
+    val futureMayBeAccount = db
+      .collection[JSONCollection]("accounts")
+      .find(Json.obj("_id" -> Json.obj("$oid" -> account)))
+      .one[Account]
+
+    Logger.info(s"Going to load invoice $oid and account $account, saving affectation")
+    val future = for {
+      mayBeInvoice: Option[Invoice] <- futureMayBeInvoice
+      mayBeAccount: Option[Account] <- futureMayBeAccount
+    } yield (mayBeAccount, mayBeInvoice)
+
+    future.map {
+      case (mayBeAccount: Option[Account], mayBeInvoice: Option[Invoice]) =>
+        (for (account <- mayBeAccount; invoice <- mayBeInvoice) yield {
+          val affectation = Affectation(invoice, account, invoice.totalHT)
+          Logger.info(s"Loaded invoice and account, saving affectation $affectation")
+          db
+            .collection[JSONCollection]("affectations")
+            .save(Json.toJson(affectation))
+
+          db
+            .collection[JSONCollection]("invoices_tasks")
+            .remove(Json.obj("_id" -> Json.obj("$oid" -> oid)))
+          Ok
+        }).getOrElse(InternalServerError)
+      case _ => BadRequest
+    }
   }
 
   def getPdfByInvoice(oid: String) = Action.async {

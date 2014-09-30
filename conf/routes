@@ -18,7 +18,8 @@ PUT         /api/clients/:id                   @controllers.api.ClientApiControl
 POST        /api/invoice                       @controllers.api.InvoiceApiController.createAndPushInvoice
 GET         /api/invoices                      @controllers.api.InvoiceApiController.findByStatus(status: Option[String], exclude: Option[Boolean])
 GET         /api/invoices/pending              @controllers.api.InvoiceApiController.findPendingInvoice
-POST        /api/invoices/:oid/:status         @controllers.api.InvoiceApiController.addStatusToInvoice(oid: String, status: String)
+POST        /api/invoices/:oid/status/:status  @controllers.api.InvoiceApiController.addStatusToInvoice(oid: String, status: String)
+POST        /api/invoices/:oid/affect/:account @controllers.api.InvoiceApiController.affectToAccount(oid: String, account: String)
 GET         /api/invoices/document/:oid        @controllers.api.InvoiceApiController.getPdfByInvoice(oid: String)
 
 # account resources

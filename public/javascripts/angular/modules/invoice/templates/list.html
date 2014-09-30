@@ -18,7 +18,12 @@
         </td>
         <td>
             <a href="/api/invoices/document/{{ item._id.$oid }}">Voir la facture (PDF)</a>
-            <a ng-href="#/edit/{{project.$id}}"><i class="icon-pencil"></i></a>
+            <div>
+                <select ng-model="selectedAccount" ng-options="account._id.$oid as account.name for account in accounts">
+                    <option value="">---- Non affecté -----</option>
+                </select>
+                <button class="btn" ng-click="affect(item, selectedAccount)">Affecter la facture</button>
+            </div>
         </td>
     </tr>
     </tbody>
