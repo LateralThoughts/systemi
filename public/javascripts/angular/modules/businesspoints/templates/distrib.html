@@ -1,70 +1,19 @@
-<h2>Ajouter une contribution business</h2>
-<div id="facture_page" data-ng-controller="CreateCtrl" class="row">
-    <form action="/api/invoice" method="POST" role="form">
-
-        <div class="facture_info_form col-md-6">
-            <div class="form-group">
-                <input type="text" class="form-control" name="invoiceNumber" id="number" placeholder="Numéro de facture">
-            </div>
-
-            <div class="form-group">
-                <input type="text" class="form-control" name="title" id="title" placeholder="Titre de la facture">
-            </div>
-
-            <div class="form-group delais_jour row">
-                <div class="col-md-9"><label for="paymentDelay">Délai de paiement (en jours) :</label></div>
-                <div class="col-md-3"><input class="form-control" type="text" class="form-control" name="paymentDelay" id="paymentDelay" placeholder="Délai de paiement" value="30"></div>
-            </div>
-        </div>
-
-        <div class="client_form col-md-6">
-            <div class="form-group">
-                <input type="text" class="form-control" name="clientName" id="clientName" placeholder="Nom du client">
-            </div>
-
-            <div class="form-group">
-                <input type="text" class="form-control" name="clientAddress" id="clientAddress" placeholder="Adresse du client">
-            </div>
-
-            <div class="form-group row">
-                <div class="col-md-5"><input type="text" class="form-control" name="clientPostalCode" id="clientPostalcode" placeholder="Code postal"></div>
-                <div class="col-md-7"><input type="text" class="form-control" name="clientCity" id="clientCity" placeholder="Ville du client"></div>
-            </div>
-
-            <div class="form-group">
-                <input type="text" class="form-control" name="clientCountry" id="clientCountry" placeholder="Pays du client" value="France">
-            </div>
-
-            <div class="form-group">
-                <input type="text" class="form-control" name="clientExtraInfo" id="clientExtraInfo" placeholder="Mentions supplémentaires (facultatif)">
-            </div>
-        </div>
-
-        <div class="col-md-12 item_line row" ng-repeat="taskline in tasklines">
-            <div class="col-md-7"><input type="text" name="invoiceDescription" placeholder="Description" data-ng-model="taskline.invoiceDescription"></div>
-            <div class="col-md-1"><input type="text" name="invoiceDays" placeholder="Jours" data-ng-model="taskline.invoiceDays"></div>
-            <div class="col-md-1"><input type="text" name="invoiceDailyRate" placeholder="TJM" data-ng-model="taskline.invoiceDailyRate"></div>
-            <div class="col-md-1"><input type="text" name="invoiceTaxRate" placeholder="TVA" data-ng-model="taskline.invoiceTaxRate"></div>
-            <div class="col-md-1" ng-show="taskline.addButtonVisible">
-                <button type="button" class="add-task-btn btn btn-primary btn-sm" ng-click="addTask()">
-                    <span class="glyphicon glyphicon-plus"></span>
-                </button>
-            </div>
-            <div class="col-md-1" ng-show="taskline.deleteButtonVisible">
-                <button type="button" class="delete-task-btn btn btn-danger btn-sm" ng-click="deleteTask()">
-                    <span class="glyphicon glyphicon-minus"></span>
-                </button>
-            </div>
-        </div>
-
-        <div class="col-md-12 checkbox">
-            <label>
-                <input name="shouldUpload" ng-model="shouldUpload" type="checkbox"> Uploader la facture dans le système
-            </label>
-        </div>
-
-
-        <button type="submit" ng-if="shouldUpload" class="btn btn-success">Générer la facture &amp; Upload</button>
-        <button type="submit" ng-if="!shouldUpload" class="btn btn-success">Générer la facture</button>
-    </form>
-</div>
+<h2>Liste des mecs qui comptent <small> merci les potos !</small></h2>
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>Il pèse</th>
+        <th>son poids</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr data-ng-repeat="item in members ">
+        <td>{{ item.member.name }}</td>
+        <td>{{ item.member.contribution.solde }}</td>
+        <td>
+           <button>payer</button>
+        </td>
+    </tr>
+    </tbody>
+</table>
