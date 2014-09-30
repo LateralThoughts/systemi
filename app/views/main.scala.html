@@ -19,6 +19,7 @@
         <script src="@routes.Assets.at("javascripts/angular/modules/clients.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/angular/modules/cra.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/angular/modules/invoice/invoice.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/angular/modules/businesspoints/businesspoints.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/angular/modules.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/angular/directives/day-block.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/angular/directives/client-search.js")" type="text/javascript"></script>
@@ -38,6 +39,7 @@
                     <li @if(request.uri == routes.InvoiceController.index.url){class="active"}><a href="@routes.InvoiceController.index">Invoice</a></li>
                     <li @if(request.uri == routes.InvoiceController.cra.url){class="active"}><a href="@routes.InvoiceController.cra">Cra</a></li>
                     <li @if(request.uri == routes.ClientController.clientsView.url){class="active"}><a href="@routes.ClientController.clientsView">Clients</a></li>
+                    <li @if(request.uri == routes.BusinessPointsController.index.url){class="active"}><a href="@routes.BusinessPointsController.index">Biz Points</a></li>
                     <li>@if(user != null) {
                         <button class="btn btn-default dropdown-toggle" type="button" id="userMenu" data-toggle="dropdown">
                             <img src="@user.avatarUrl.getOrElse("")" alt="@user.firstName.getOrElse("")" width="40px" height="40px"/>

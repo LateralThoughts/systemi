@@ -5,6 +5,7 @@
 # Home page
 GET         /                                  @controllers.Application.index
 GET         /invoice                           @controllers.InvoiceController.index
+GET         /business                          @controllers.BusinessPointsController.index
 GET         /cra                               @controllers.InvoiceController.cra
 GET         /client                            @controllers.ClientController.clientsView
 
