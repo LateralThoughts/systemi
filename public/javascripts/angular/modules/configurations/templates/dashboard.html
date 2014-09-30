@@ -1,0 +1,34 @@
+<h3>Configuration de la république sociale démocratique de LT</h3>
+<h4>Ces ratios ont été décidés le {{ config.lastDecided }},
+    la décision est disponible sur <a href="{{ config.agoraLink }}" target="_blank">Agora</a>.
+</h4>
+<ul>
+    <li>Ratio des revenus affecté au budget communs:<strong>
+        <span ng-if="config.commonExpensesRatio.ratioType == 'fixed'">{{ config.commonExpensesRatio.value }}€</span>
+        <span ng-if="config.commonExpensesRatio.ratioType == 'percentage'">{{ config.commonExpensesRatio.value }}%</span>
+    </strong>
+    </li>
+    <li>Ratio des revenus affecté aux points business: <strong>
+        <span ng-if="config.bizPointsRatio.ratioType == 'fixed'">{{ config.bizPointsRatio.value }}€</span>
+        <span ng-if="config.bizPointsRatio.ratioType == 'percentage'">{{ config.bizPointsRatio.value }}%</span>
+    </strong>
+    </li>
+    <li>Ratio des revenus affecté aux bénéfices:
+        <strong>
+            <span ng-if="config.earningsRatio.ratioType == 'fixed'">{{ config.earningsRatio.value }}€</span>
+            <span ng-if="config.earningsRatio.ratioType == 'percentage'">{{ config.earningsRatio.value }}%</span>
+        </strong>
+    </li>
+    <li>Ratio des revenus affecté aux frais persos:
+        <strong>
+            <span ng-if="config.individualExpensesRatio.ratioType == 'fixed'">{{ config.individualExpensesRatio.value }}€</span>
+            <span ng-if="config.individualExpensesRatio.ratioType == 'percentage'">{{ config.individualExpensesRatio.value }}%</span>
+        </strong>
+    </li>
+    <li>Ratio des revenus affecté aux Timeoff(s):
+        <strong>
+            <span ng-if="config.timeoffExpensesRatio.ratioType == 'fixed'">{{ config.timeoffExpensesRatio.value }}€</span>
+            <span ng-if="config.timeoffExpensesRatio.ratioType == 'percentage'">{{ config.timeoffExpensesRatio.value }}%</span>
+        </strong>
+    </li>
+</ul>

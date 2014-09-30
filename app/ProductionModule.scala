@@ -39,6 +39,7 @@ class ProductionModule {
   lazy val clientController = wire[ClientController]
   lazy val invoiceController = wire[InvoiceController]
   lazy val businessPointsController = wire[BusinessPointsController]
+  lazy val configController = wire[ConfigurationController]
   lazy val app = wire[Application]
   lazy val accountsController = wire[AccountsController]
   lazy val searchEngine = wire[SimpleSearchEngine]
