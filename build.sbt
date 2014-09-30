@@ -31,7 +31,8 @@ libraryDependencies ++= Seq(
   "com.softwaremill.macwire" %% "macros" % "0.7.1",
   "com.softwaremill.macwire" %% "runtime" % "0.7.1",
   "ws.securesocial" %% "securesocial" % "master-SNAPSHOT",
-"org.scalatestplus"       %% "play"                   % "1.1.0" % "test"
+  "org.julienrf" %% "play-json-variants" % "1.0.0",
+  "org.scalatestplus"       %% "play"                   % "1.1.0" % "test"
 )
 
 lazy val root = (project in file(".")).enablePlugins(SbtWeb).enablePlugins(PlayScala)
