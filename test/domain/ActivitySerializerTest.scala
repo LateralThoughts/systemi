@@ -5,7 +5,7 @@ import reactivemongo.bson.BSONObjectID
 import play.api.libs.json.Json
 import org.joda.time.LocalDate
 
-class ActivitiesTest extends FunSuite
+class ActivitySerializerTest extends FunSuite
                      with Matchers
                      with ActivitySerializer {
 
@@ -15,52 +15,52 @@ class ActivitiesTest extends FunSuite
         {
           "days":[
             {
-               "day":"2014-09-22T22:00:00.000Z",
-               "halfUp":true,
-               "halfDown":true,
-               "state":0,
-               "$$hashKey":"00C"
-             },
-             {
-             "day":"2014-09-23T22:00:00.000Z",
-             "halfUp":true,
-             "halfDown":true,
-             "state":0,
-             "$$hashKey":"00D"
-             },             {
-            "day":"2014-09-24T22:00:00.000Z",
-            "halfUp":true,
-            "halfDown":true,
-            "state":0,
-            "$$hashKey":"00E"
+              "day":"2014-09-22T22:00:00.000Z",
+              "halfUp":true,
+              "halfDown":true,
+              "state":0,
+              "$$hashKey":"00C"
             },
             {
-            "day":"2014-09-25T22:00:00.000Z",
-            "halfUp":true,
-            "halfDown":true,
-            "state":0,
-            "$$hashKey":"00F"
+              "day":"2014-09-23T22:00:00.000Z",
+              "halfUp":true,
+              "halfDown":true,
+              "state":0,
+              "$$hashKey":"00D"
+            },             {
+              "day":"2014-09-24T22:00:00.000Z",
+              "halfUp":true,
+              "halfDown":true,
+              "state":0,
+              "$$hashKey":"00E"
             },
             {
-            "day":"2014-09-26T22:00:00.000Z",
-            "halfUp":false,
-            "halfDown":false,
-            "state":3,
-            "$$hashKey":"00G"
+              "day":"2014-09-25T22:00:00.000Z",
+              "halfUp":true,
+              "halfDown":true,
+              "state":0,
+              "$$hashKey":"00F"
             },
             {
-            "day":"2014-09-27T22:00:00.000Z",
-            "halfUp":false,
-            "halfDown":false,
-            "state":3,
-            "$$hashKey":"00H"
+              "day":"2014-09-26T22:00:00.000Z",
+              "halfUp":false,
+              "halfDown":false,
+              "state":3,
+              "$$hashKey":"00G"
             },
             {
-            "day":"2014-09-28T22:00:00.000Z",
-            "halfUp":true,
-            "halfDown":true,
-            "state":0,
-            "$$hashKey":"011"
+              "day":"2014-09-27T22:00:00.000Z",
+              "halfUp":false,
+              "halfDown":false,
+              "state":3,
+              "$$hashKey":"00H"
+            },
+            {
+              "day":"2014-09-28T22:00:00.000Z",
+              "halfUp":true,
+              "halfDown":true,
+              "state":0,
+              "$$hashKey":"011"
             }
         ],
         "tjm":450,
