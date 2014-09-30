@@ -73,10 +73,20 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
   }
 
   def findByStatus(status: Option[String], exclude: Option[Boolean]) = Action.async { implicit request =>
-    val selector = (status: String) => if (exclude.getOrElse(false )) {
-      Json.obj("lastStatus.name" -> Json.obj("$ne" -> status))
-    } else {
-      Json.obj("lastStatus.name" -> status)
+    val selector = (status: String) => {
+      val selectorField =
+        if(List("paid", "unpaid") contains status)
+          "paymentStatus"
+        else if(List("unaffected", "affected") contains status)
+          "affectationStatus"
+        else
+          "lastStatus.name"
+
+      if (exclude.getOrElse(false)) {
+        Json.obj(selectorField -> Json.obj("$ne" -> status))
+      } else {
+        Json.obj(selectorField -> status)
+      }
     }
 
     db
@@ -145,12 +155,20 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
   private def setStatusToInvoice(oid: String, status: String, request: SecuredRequest[AnyContent]) = {
     val selector = Json.obj("_id" -> Json.obj("$oid" -> oid))
     val lastStatus = Json.toJson(domain.Status(status, DateTime.now(), request.user.email.get))
+
+    val setterObj = if (List("paid", "unpaid") contains status)
+      Json.obj("lastStatus" -> lastStatus, "paymentStatus" -> status)
+    else if (List("unaffected", "affected") contains status)
+      Json.obj("lastStatus" -> lastStatus, "affectationStatus" -> status)
+    else
+      Json.obj("lastStatus" -> lastStatus)
+
     val pushToStatesAndLastStatus = Json.obj(
       "$push" ->
         Json.obj(
           "statuses" -> lastStatus
         ),
-      "$set" -> Json.obj("lastStatus" -> lastStatus)
+      "$set" -> setterObj
     )
     Logger.info(s"Add status $status to invoice $oid")
     db

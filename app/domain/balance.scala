@@ -13,7 +13,9 @@ sealed abstract class AccountOperation(way: Way)
 case class Invoice(invoice: InvoiceRequest,
                    pdfDocument: Attachment,
                    statuses: List[Status],
-                   lastStatus: Status) extends AccountOperation(Plus) {
+                   lastStatus: Status,
+                   paymentStatus: String = "unpaid",
+                   affectationStatus: String = "unaffected") extends AccountOperation(Plus) {
 
   def totalHT = InvoiceLinesAnalyzer.computeTotalHT(invoice.invoice)
 }
