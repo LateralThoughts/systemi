@@ -1,17 +1,100 @@
-.invoice_header {
+.cra_header {
 	margin-top: 20px;
 }
 
-.invoice_header .company .logo {
+.cra_header .company .logo {
 	width: 150px;
 	height: auto;
 }
 
-.invoice_header .invoice_number, .invoice_header .name {
+.cra_header .title {
 	font-weight: bold;
+    text-align: center;
+    font-size: 23px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+.consultant_header {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.client_header {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.days_table {
+    width: 100%;
+    font-size: 10px;
+    text-align: center;
+    border-collapse: collapse;
+    border: 1px solid #000000;
+    margin-bottom: 10px;
+}
+
+.days_table .trhead {
+    font-weight: bold;
+    background-color: darkgray;
+    font-size: 12px;
+    border-bottom: 1px solid #000000;
+}
+
+.days_table .thhead {
+    border-right: 1px solid #000000;
+}
+
+.days_table .trbody {
+    border-right: 1px solid #000000;
+}
+
+.days_table .th {
+    border-bottom: 1px solid #000000;
+}
+
+.consultant_footer {
+    margin-bottom: 10px;
+ }
+
+.consultant_footer .title {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.consultant_footer .content {
+    margin-bottom: 5px;
+}
+
+.consultant_footer .signature {
+    width: 100%;
+}
+
+.consultant_footer .name {
+    float: left;
+}
+
+.consultant_footer .date {
+    float: right;
+}
+
+
+.consultant_footer .sign {
+    clear: both;
+}
+
+.days_table .tr {
+    border-left: 1px solid #000000;
+}
+
+.days_table .tdfoot {
+    font-size: 12px;
+    font-weight: bold;
+    background-color: darkgray;
 }
 
 .container {
-	width: 100%;
-	height: 27cm;
+    font-size: 14px;
+	width: 18cm;
+	height: 25cm;
 }
