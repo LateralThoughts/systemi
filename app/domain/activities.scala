@@ -3,6 +3,7 @@ package domain
 import org.joda.time.LocalDate
 import play.api.libs.json.{Reads, Json}
 import org.joda.time.format.ISODateTimeFormat
+import util.pdf.PDF
 
 
 case class ActivityDay(day: LocalDate, halfUp : Boolean, halfDown: Boolean)
@@ -40,9 +41,12 @@ trait ActivitySerializer extends InvoiceSerializer {
   implicit val activityFormat = Json.format[Activity]
 
   def activityToPdfBytes(activityRequest : ActivityRequest) :Array[Byte] = {
-     new Array[Byte](0)
-  }
-
+    val client = activityRequest.client
+    val days = activityRequest.days
+    val numberOfDays = activityRequest.numberOfDays
+    val tjm = activityRequest.tjm
+    PDF.toBytes(views.html.cra.template(client, days, numberOfDays, tjm))
+   }
 }
 
 trait NextInvoiceNumbersParser {
