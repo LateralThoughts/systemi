@@ -1,4 +1,4 @@
-import actors.InvoiceActor
+import actors.{ActivityActor, InvoiceActor}
 import akka.actor.Props
 import play.api.Play.current
 import play.api._
@@ -13,6 +13,7 @@ object Global extends GlobalSettings {
   override def onStart(app: Application) = {
     super.onStart(app)
     Akka.system.actorOf(Props[InvoiceActor], name="invoice")
+    Akka.system.actorOf(Props[ActivityActor], name="activity")
   }
 
   override def getControllerInstance[A](controllerClass: Class[A]) = {

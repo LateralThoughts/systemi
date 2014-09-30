@@ -21,6 +21,7 @@ case class ActivityRequest(tjm : Double,
   }
 }
 
+case class Activity(activity: ActivityRequest, pdfDocument: Attachment) extends AccountOperation(Plus)
 
 trait ActivitySerializer extends InvoiceSerializer {
 
@@ -35,6 +36,8 @@ trait ActivitySerializer extends InvoiceSerializer {
 
   implicit val activityDayWrites = Json.writes[ActivityDay]
   implicit val activityWrites = Json.writes[ActivityRequest]
+
+  implicit val activityFormat = Json.format[Activity]
 
   def activityToPdfBytes(activityRequest : ActivityRequest) :Array[Byte] = {
      new Array[Byte](0)
