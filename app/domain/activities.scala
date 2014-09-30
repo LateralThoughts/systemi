@@ -22,7 +22,7 @@ case class ActivityRequest(tjm : Double,
   }
 }
 
-case class Activity(activity: ActivityRequest, pdfDocument: Attachment) extends AccountOperation(Plus)
+case class Activity(activity: ActivityRequest, pdfDocument: Attachment)
 
 trait ActivitySerializer extends InvoiceSerializer {
 
