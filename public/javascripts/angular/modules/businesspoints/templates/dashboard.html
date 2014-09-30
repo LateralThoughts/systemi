@@ -1,0 +1,46 @@
+<h2>Blah blah blah <small>blah !</small></h2>
+<ul>
+    <li>Solde budget contribution : <span>{{contributionAccount.solde}}</span></li>
+    <li>Solde points : <span>{{pointsAccount.solde}}</span></li>
+    <li>Nombre de points distribués : <span>{{pointsAccount.distributed}}</span></li>
+    <li>Siousioux distribués : <span>{{contributionAccount.distributed}}</span></li>
+</ul>
+<h2>Dernières contributions <small>merci les poulets !</small></h2>
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>Date</th>
+        <th>Contribution</th>
+        <th>Merci qui ?</th>
+        <th>Points gagnés</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr data-ng-repeat="item in contributions | limit:10 ">
+        <td>{{ item.contribution.date }}</td>
+        <td>{{ item.contribution.title }}</td>
+        <td>{{ item.contribution.member }}</td>
+        <td>{{ item.contribution.points }}</td>
+    </tr>
+    </tbody>
+</table>
+
+<h2>Dernières distributions <small>money money !!</small></h2>
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>Date</th>
+        <th>Points distribués</th>
+        <th>Valeur du point</th>
+        <th>Sioux sioux</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr data-ng-repeat="item in distributions | limit:10 ">
+        <td>{{ item.distribution.date }}</td>
+        <td>{{ item.distribution.points }}</td>
+        <td>{{ item.contribution.pointValue }}</td>
+        <td>{{ item.contribution.total }}</td>
+    </tr>
+    </tbody>
+</table>
