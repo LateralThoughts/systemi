@@ -2,7 +2,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">
     <head>
-        <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/bootstrap.min.css")"/>
         <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/pdf_cra.css")" media="all"/>
         <title>CRA @{
             days.head.day.toString("MM/yyyy")
@@ -11,51 +10,48 @@
     <body>
         <div class="container">
             <div class="row">
-                <div class="invoice_header col-xs-4">
+                <div class="cra_header col-xs-4">
                     <p class="company">
                         <img class="logo" alt="Lateral Thoughts" src="@routes.Assets.at("images/logo.png")"/><br/>
                         <span class="name">Lateral Thoughts SAS</span><br/>
                         <span class="address">37, rue des Mathurins<br/> 75008 Paris</span>
                     </p>
-                    <span class="invoice_number">Compte-Rendu de Prestation</span>
+                    <div class="title">Compte-Rendu de Prestation</div>
                 </div>
             </div>
 
-            <div>
-                <ul>
-                    <li>Nom du consultant :</li>
-                    <li>Téléphone :</li>
-                </ul>
+            <div class="consultant_header">
+                Nom du consultant :
             </div>
 
-            <div>
+            <div class="client_header">
                 Nom du client : @{
                 client.name
             }
             </div>
 
-            <table>
+            <table class="days_table">
                 <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Lieu de la Prestation</th>
-                        <th>Jour travaillé</th>
+                    <tr class="days_table trhead">
+                        <th class="days_table thhead">Date</th>
+                        <th class="days_table thhead">Lieu de la Prestation</th>
+                        <th class="days_table thhead">Jour travaillé</th>
                     </tr>
                 </thead>
                 <tbody>
                 @for(day <- days) {
-                    <tr>
-                        <td>
+                    <tr class="days_table tr">
+                        <td class="days_table td">
                         @day.day.toString("dd/MM/yyyy")
                         </td>
-                        <td>
+                        <td class="days_table td">
                         @if(day.halfDown || day.halfUp) {
                             @client.name
                         } else {
                             -
                         }
                         </td>
-                        <td>
+                        <td class="days_table td">
                         @day match {
                             case domain.ActivityDay(_, true, true) => {1}
                             case domain.ActivityDay(_, false, true) => {0.5}
@@ -68,28 +64,28 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="2">Total de jours travaillés</td>
-                        <td>@{
+                        <td class="days_table tdfoot" colspan="2">Total de jours travaillés</td>
+                        <td class="days_table tdfoot">@{
                             numberOfDays
                         }</td>
                     </tr>
                 </tfoot>
             </table>
 
-            <div>
+            <div class="consultant_footer">
                 <div>
-                    <div>Déclaration du consultant :</div>
-                    <div>
+                    <div class="consultant_footer title">Déclaration du consultant :</div>
+                    <div class="consultant_footer content">
                         Je confirme que les heures mentionnées ci-dessus sont conformes aux heures effectivement travaillées par mes soins</div>
                 </div>
 
-                <div>
-                    Signature
-                    Date : @{
-                    org.joda.time.LocalDate.now().toString("dd/MM/yyyy")
-                }
-                    Nom :
+                <div class="consultant_footer signature">
+                    <div class="consultant_footer name">Nom : </div>
+                    <div class="consultant_footer date">Date : @{
+                        org.joda.time.LocalDate.now().toString("dd/MM/yyyy")
+                    }</div>
                 </div>
+                <div class="consultant_footer sign">Signature :</div>
             </div>
 
             <div>
