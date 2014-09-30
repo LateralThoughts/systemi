@@ -14,7 +14,7 @@ import play.api.templates.Html
 
 object PDF {
 
-        private val PLAY_DEFAULT_URL = "http://invoice.lateral-thoughts.com"
+        private val PLAY_DEFAULT_URL = Play.maybeApplication.flatMap(_.configuration.getString("application.hostname")).getOrElse("http://localhost")
 
         class MyUserAgent(outputDevice : ITextOutputDevice) extends ITextUserAgent(outputDevice) {
 
