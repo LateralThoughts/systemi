@@ -112,5 +112,3 @@ trait InvoiceSerializer extends AttachmentSerializer {
     PDF.toBytes(views.html.invoice.template(title, id, delay, client, invoiceLines))
   }
 }
-
-

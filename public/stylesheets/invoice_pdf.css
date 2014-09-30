@@ -1,0 +1,91 @@
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{border:0;font-size:100%;font:inherit;vertical-align:baseline;margin:0;padding:0}article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:none}table{border-collapse:collapse;border-spacing:0}
+
+body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+    color: #333;
+    height: 1026px;
+}
+
+.lt-row {
+    display: block;
+    clear: both;
+}
+
+.invoice-header { float: left; }
+
+.company .logo { width: 150px; }
+
+.company .name { font-weight: bold; }
+
+.invoice-number {
+    font-weight: bold;
+    margin-top: 25px;
+}
+
+.invoice-customer {
+    float: right;
+    margin-top: 10px;
+}
+
+.invoice-customer .name { font-weight: bold; }
+
+.invoice-customer .extra { font-style: italic; }
+
+.invoice_subject {
+    font-weight: bold;
+    padding-top: 20px;
+}
+
+.invoice_lines {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+    margin-top: 20px;
+}
+.invoice_lines th {
+    text-align: left;
+    border-bottom: solid 2px rgb(221, 221, 221);
+    font-weight: bold;
+    padding: 8px 8px 8px 0;
+}
+.invoice_lines td {
+    border-top: solid 1px rgb(221, 221, 221);
+}
+.invoice_lines .tva, .invoice_lines .total {
+    font-weight: bold;
+}
+.invoice_lines .end td {
+    height: 2px;
+}
+
+.pay_info .title, .delay .title { margin-top: 25px; }
+.bank-coord {
+    margin: 10px auto 0 auto;
+    border: solid 1px rgb(221, 221, 221);
+}
+.bank-coord th {
+    font-weight: bold;
+    text-align: left;
+    padding: 5px 20px;
+    border-bottom: solid 1px rgb(221, 221, 221);
+    border-right: solid 1px rgb(221, 221, 221);
+}
+.bank-coord td {
+    padding: 0 30px;
+    border-bottom: solid 1px rgb(221, 221, 221);
+}
+
+.delay ul {
+    list-style-type: disc;
+    margin: 10px 0 0 50px;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0px;
+    text-align: center;
+    font-size: 9px;
+    width: 100%;
+}

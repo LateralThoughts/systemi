@@ -1,134 +1,125 @@
-@(message: String, number: String, paymentDelay: Int, client: domain.Client, items : List[domain.InvoiceLine])
+@(message: String, number: String, paymentDelay: Int, client: domain.Client, items: List[domain.InvoiceLine])
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/bootstrap.min.css")"/>
-    <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/pdf.css")"/>
-    <title>Facture n°@number (@{new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date())})</title>
+    <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/invoice_pdf.css")"/>
+    <title>Facture n°@number (@{
+      new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date())
+    })</title>
   </head>
   <body>
-    <div class="container">
-        <div class="row">
-            <div class="invoice_header col-xs-4">
-                <p class="company">
-                    <img class="logo" alt="Lateral Thoughts" src="@routes.Assets.at("images/logo.png")"/><br/>
-                    <span class="name">Lateral Thoughts SAS</span><br/>
-                    <span class="address">37, rue des Mathurins<br/> 75008 Paris</span>
-                </p>
-                <span class="invoice_number">Facture n°@number (@{new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date())})</span>
-            </div>
-        </div>
+    <div class="lt-row">
+      <div class="invoice-header">
+        <p class="company">
+          <img class="logo" alt="Lateral Thoughts" src="@routes.Assets.at("images/logo.png")"/> <br/>
+          <span class="name">Lateral Thoughts SAS</span> <br/>
+          <span class="address">37, rue des Mathurins<br/> 75008 Paris</span>
+        </p>
+        <p class="invoice-number">Facture n°@number (@{
+          new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date())
+        })</p>
+      </div>
+    </div>
 
-        <div class="row">
-            <div class="col-xs-6"><!----></div>
-            <div class="col-xs-5 invoice_client">
-                <span class="name">@client.name</span> <br/>
-                @if(!client.extraInfo.isEmpty) {
-                    <span><em>@client.extraInfo</em></span> <br/>
-                }
-                <span class="address">@client.address</span> <br/>
-                <span class="postal_code">@client.postalCode</span> <span class="city">@client.city</span><br/>
-                <span>@client.country</span>
-            </div>
-        </div>
+    <div class="lt-row">
+      <div class="invoice-customer">
+        <span class="name">@client.name</span> <br/>
+        @if(!client.extraInfo.isEmpty) {
+          <span><em class="extra">@client.extraInfo</em></span> <br/>
+        }
+        <span class="address">@client.address</span> <br/>
+        <span class="postal_code">@client.postalCode</span> <span class="city">@client.city</span> <br/>
+        <span>@client.country</span>
+      </div>
+    </div>
 
-        <div class="row">
-            <div class="invoice_subject col-xs-12">
-                Objet : @message
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-xs-12">
-                <table class="table invoice_lines" summary="lignes de facturation">
-                    <thead>
-                        <tr>
-                            <th>Désignation</th>
-                            <th>Prix Unitaire</th>
-                            <th>Quantité</th>
-                            <th>Montant (EUR)</th>
-                            <th>TVA (%)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for(line <- items) {
-                        <tr>
-                            <td>@line.description</td>
-                            <td>@line.dailyRate</td>
-                            <td>@line.days</td>
-                            <td>@{line.dailyRate * line.days}</td>
-                            <td>@{line.taxRate}</td>
-                        </tr>
-                        }
-
-                        <tr class="end">
-                            <td colspan="4">Total HT</td>
-                            <td>@domain.InvoiceLinesAnalyzer.computeTotalHT(items)</td>
-                        </tr>
-
-                        @for((label, tva) <- domain.InvoiceLinesAnalyzer.computeTva(items)) {
-                        <tr class="tva end">
-                            <td colspan="4">TVA @label</td>
-                            <td>@tva</td>
-                        </tr>
-                        }
-                        <tr class="end"><td colspan="5"></td></tr>
-                        <tr class="total end">
-                            <td colspan="4">Total TTC </td>
-                            <td>@domain.InvoiceLinesAnalyzer.computeTotal(items)</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="row pay_info">
-            <div class="col-xs-12">À régler par virement bancaire :</div>
-            <div class="col-xs-2"><!----></div>
-            <div class="col-xs-6">
-                <table class="table table-bordered" summary="coordonnées bancaires">
-                    <thead>
-                        <tr>
-                            <th>Code banque</th>
-                            <th>Code guichet</th>
-                            <th>N° de Compte</th>
-                            <th>Clé RIB</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td colspan="4">30056 00949 09490124011 06</td>
-                        </tr>
-                        <tr>
-                            <td>IBAN N°</td>
-                            <td colspan="3">FR76 3005 6009 4909 4901 2401 106</td>
-                        </tr>
-                        <tr>
-                            <td>Code BIC</td>
-                            <td colspan="3">CCFRFRPP</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="col-xs-1"><!----></div>
-        </div>
-        <div class="row delay"><span class="disclaimer">En conformité de l’article L441-6 du Code du commerce :</span>
-            <ul>
-                <li> La facture est payable sous @paymentDelay jours.</li>
-                <li> Tout réglement effectué après expiration du délai donnera lieu, à titre de pénalité de retard, à l’application d’un
-intérêt égal à celui appliqué par la Banque Centrale Européenne à son opération de refinancement la plus récente, majoré de 10 points de pourcentage, ainsi qu’à une indemnité forfaitaire pour frais de recouvrement d’un montant de 40 Euros.</li>
-                <li> Les pénalités de retard sont exigibles sans qu’un rappel soit nécessaire.</li>
-            </ul>
-        </div>
-        <div class="row footer">
-            Lateral Thoughts au capital de 30 000 € – 37, rue des Mathurins - 75008 Paris Telephone : +33(0)6 87 05 60 19 – E-mail : contact(at)lateral-thoughts.com<br/>
-RCS Paris – SIRET 538 042 649 00011 – Code APE 6202A – Numéro TVA : FR 41 538 042 649 <br/>Déclaration d’activité pour la formation enregistrée sous le numéro 11 75 49039 75 auprès du préfet de région d’Ile de France.
+    <div class="lt-row">
+      <div class="invoice_subject">
+            Objet : @message
         </div>
     </div>
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script type="text/javascript" src="https://code.jquery.com/jquery.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script type="text/javascript" src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>
+
+    <div class="lt-row">
+      <table class="invoice_lines" summary="lignes de facturation">
+        <thead>
+          <tr>
+            <th>Désignation</th>
+            <th>Prix Unitaire</th>
+            <th>Quantité</th>
+            <th>Montant (EUR)</th>
+            <th>TVA (%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for(line <- items) {
+            <tr>
+              <td>@line.description</td>
+              <td>@line.dailyRate</td>
+              <td>@line.days</td>
+              <td>@{
+                line.dailyRate * line.days
+              }</td>
+              <td>@{
+                line.taxRate
+              }</td>
+            </tr>
+          }
+
+        <tr class="end">
+          <td colspan="4">Total HT</td>
+          <td>@domain.InvoiceLinesAnalyzer.computeTotalHT(items)</td>
+        </tr>
+
+          @for((label, tva) <- domain.InvoiceLinesAnalyzer.computeTva(items)) {
+            <tr class="tva">
+              <td colspan="4">TVA @label</td>
+              <td>@tva</td>
+            </tr>
+          }
+        <tr class="end">
+          <td colspan="5"></td>
+        </tr>
+        <tr class="total">
+          <td colspan="4">Total TTC </td>
+          <td>@domain.InvoiceLinesAnalyzer.computeTotal(items)</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="lt-row pay_info">
+      <h3 class="title">À régler par virement bancaire :</h3>
+      <table class="bank-coord" summary="Coordonnées bancaires">
+        <tr>
+          <th>RIB</th>
+          <td>30056 00949 09490124011 06</td>
+        </tr>
+        <tr>
+          <th>IBAN</th>
+          <td>FR76 3005 6009 4909 4901 2401 106</td>
+        </tr>
+        <tr>
+          <th>BIC</th>
+          <td>CCFRFRPP</td>
+        </tr>
+      </table>
+    </div>
+    <div class="lt-row delay">
+      <h3 class="title">En conformité de l’article L441-6 du Code du commerce :</h3>
+      <ul>
+        <li> La facture est payable sous @paymentDelay jours.</li>
+        <li> Tout réglement effectué après expiration du délai donnera lieu, à titre de pénalité de retard, à l’application d’un
+          intérêt égal à celui appliqué par la Banque Centrale Européenne à son opération de refinancement la plus récente, majoré de 10 points de pourcentage, ainsi qu’à une indemnité forfaitaire pour frais de recouvrement d’un montant de 40 Euros.</li>
+        <li> Les pénalités de retard sont exigibles sans qu’un rappel soit nécessaire.</li>
+      </ul>
+    </div>
+    <p class="footer">
+    Lateral Thoughts au capital de 30 000 € – 37, rue des Mathurins - 75008 Paris Telephone : +33(0)6 87 05 60 19 – E-mail : contact(at)lateral-thoughts.com
+      <br/>
+      RCS Paris – SIRET 538 042 649 00011 – Code APE 6202A – Numéro TVA : FR 41 538 042 649
+      <br/>
+      Déclaration d’activité pour la formation enregistrée sous le numéro 11 75 49039 75 auprès du préfet de région d’Ile de France.
+    </p>
   </body>
 </html>
