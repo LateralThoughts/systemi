@@ -4,6 +4,7 @@ import securesocial.core._
 import julienrf.variants.Variants
 import play.api.libs.json.Json
 
+
 sealed trait Member
 case class Human(user: BasicProfile) extends Member
 case class LT(underlying: String) extends Member
