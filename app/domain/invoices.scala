@@ -26,11 +26,6 @@ case class Attachment(contentType: String,
 
 case class Status(name: String, createdAt: DateTime, email: String)
 
-case class Invoice(invoice: InvoiceRequest,
-                   pdfDocument: Attachment,
-                   statuses: List[Status],
-                    lastStatus: Status) extends AccountOperation(Plus)
-
 
 object InvoiceLinesAnalyzer extends InvoiceLinesAnalyzer
 

@@ -20,11 +20,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
         collection[JSONCollection]("invoices")
         .save(Json.toJson(invoice))
       Logger.info(s"Saved invoice $invoice")
-
-      db.
-        collection[JSONCollection]("invoices_tasks")
-        .save(Json.toJson(invoice))
-      Logger.info(s"Created pending invoice $invoice")
   }
 
 

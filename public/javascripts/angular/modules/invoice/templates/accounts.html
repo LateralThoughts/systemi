@@ -1,0 +1,12 @@
+<div>
+    <h2>Liste des comptes disponibles :</h2>
+    <ul>
+        <li ng-repeat="account in accounts">
+            <strong>{{ account.name }}</strong> créé par <strong>{{ account.stakeholder.user.email }}</strong>
+        </li>
+    </ul>
+    <form>
+        <input ng-model="name" type="text" placeholder="Nom du compte à créer"/>
+        <button ng-click="create(name)">Créer le compte</button>
+    </form>
+</div>
