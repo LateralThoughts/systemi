@@ -6,7 +6,7 @@ import org.joda.time.DateTime
 import play.Logger
 import play.api.libs.concurrent.Promise
 import play.api.libs.json.{JsError, JsObject, JsResult, Json}
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.{AnyContent, Action, Controller}
 import play.libs.Akka
 import play.modules.reactivemongo.MongoController
 import play.modules.reactivemongo.json.collection.JSONCollection
@@ -72,15 +72,6 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     Ok
   }
 
-  def findPendingInvoice = Action.async {
-    db
-      .collection[JSONCollection]("invoices_tasks")
-      .find(Json.obj(), Json.obj("invoice" -> 1, "statuses" -> 1))
-      .cursor[JsObject]
-      .collect[List]()
-      .map(invoices => Ok(Json.toJson(invoices)))
-  }
-
   def findByStatus(status: Option[String], exclude: Option[Boolean]) = Action.async { implicit request =>
     val selector = (status: String) => if (exclude.getOrElse(false )) {
       Json.obj("lastStatus.name" -> Json.obj("$ne" -> status))
@@ -97,24 +88,12 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
   }
 
   def addStatusToInvoice(oid: String, status: String) = SecuredAction { implicit request =>
-    val selecteur = Json.obj("_id" -> Json.obj("$oid" -> oid))
-    val lastStatus = Json.toJson(domain.Status(status, DateTime.now(), request.user.email.get))
-    val pushToStatesAndLastStatus = Json.obj(
-      "$push" ->
-        Json.obj(
-          "statuses" -> lastStatus
-        ),
-      "$set" -> Json.obj("lastStatus" -> lastStatus)
-    )
-
-    db
-      .collection[JSONCollection]("invoices")
-      .update(selecteur, pushToStatesAndLastStatus)
+    setStatusToInvoice(oid, status, request)
 
     Ok
   }
 
-  def affectToAccount(oid: String, account: String) = Action.async {
+  def affectToAccount(oid: String, account: String) = SecuredAction.async { implicit request =>
     val futureMayBeInvoice = db
       .collection[JSONCollection]("invoices")
       .find(Json.obj("_id" -> Json.obj("$oid" -> oid)))
@@ -134,15 +113,14 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     future.map {
       case (mayBeAccount: Option[Account], mayBeInvoice: Option[Invoice]) =>
         (for (account <- mayBeAccount; invoice <- mayBeInvoice) yield {
-          val affectation = Affectation(invoice, account, invoice.totalHT)
+          val affectation = IncomeAffectation(invoice, account, invoice.totalHT)
           Logger.info(s"Loaded invoice and account, saving affectation $affectation")
           db
             .collection[JSONCollection]("affectations")
             .save(Json.toJson(affectation))
 
-          db
-            .collection[JSONCollection]("invoices_tasks")
-            .remove(Json.obj("_id" -> Json.obj("$oid" -> oid)))
+          setStatusToInvoice(oid, "affected", request)
+
           Ok
         }).getOrElse(InternalServerError)
       case _ => BadRequest
@@ -163,4 +141,20 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     }
   }
 
+
+  private def setStatusToInvoice(oid: String, status: String, request: SecuredRequest[AnyContent]) = {
+    val selector = Json.obj("_id" -> Json.obj("$oid" -> oid))
+    val lastStatus = Json.toJson(domain.Status(status, DateTime.now(), request.user.email.get))
+    val pushToStatesAndLastStatus = Json.obj(
+      "$push" ->
+        Json.obj(
+          "statuses" -> lastStatus
+        ),
+      "$set" -> Json.obj("lastStatus" -> lastStatus)
+    )
+    Logger.info(s"Add status $status to invoice $oid")
+    db
+      .collection[JSONCollection]("invoices")
+      .update(selector, pushToStatesAndLastStatus)
+  }
 }

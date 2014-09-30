@@ -18,8 +18,11 @@ trait BasicProfileSerializer {
   implicit val basicProfileFormatter = Json.format[BasicProfile]
 }
 
-trait AccountSerializer extends BasicProfileSerializer {
+trait MemberSerializer extends BasicProfileSerializer {
   implicit val memberFormatter = Variants.format[Member]
+}
+
+trait AccountSerializer extends MemberSerializer {
   implicit val accountFormatter = Json.format[Account]
 }
 

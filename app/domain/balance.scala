@@ -18,15 +18,13 @@ case class Invoice(invoice: InvoiceRequest,
   def totalHT = InvoiceLinesAnalyzer.computeTotalHT(invoice.invoice)
 }
 
-abstract class Expense(value: Double) extends AccountOperation(Minus)
-
 case class CommonExpenseType(name: String)
 
 case class CommonExpense(name: String,
                          description: String,
                          createdAt: DateTime,
                          expenseType: CommonExpenseType,
-                         value: Double) extends Expense(value) // TODO add file
+                         value: Double) extends AccountOperation(Minus) // TODO add file
 
 sealed trait SalaryType
 case object MonthlySalary extends SalaryType
@@ -39,20 +37,30 @@ case class Salary(name: String,
                   createdAt: DateTime,
                   recipient: Member,
                   value: Double,
-                  salaryType: SalaryType) extends Expense(value) // TODO add file
+                  salaryType: SalaryType) extends AccountOperation(Minus) // TODO add file
 
 case class MemberExpense(description: String,
                          createdAt: DateTime,
                          recipient: Member,
-                         value: Double) extends Expense(value) // TODO add file
+                         value: Double) extends AccountOperation(Minus) // TODO add file
 
+
+sealed trait Affectation
 
 // une facture/un revenu se fait subdivisé entre le membre LT, la structure etc..
-case class Affectation(incomeOperation: AccountOperation,
+case class IncomeAffectation(incomeOperation: Invoice,
                        account: Account,
-                       value: Double)
+                       value: Double) extends Affectation
 
-trait AffectationSerializer extends AccountSerializer {
-  implicit val accountOperationFormatter = Variants.format[AccountOperation]
-  implicit val affectationFormatter = Json.format[Affectation]
+trait ExpenseSerializer extends MemberSerializer {
+  implicit val salaryType = Variants.format[SalaryType]
+  implicit val commonExpenseType = Json.format[CommonExpenseType]
+  implicit val common = Json.format[CommonExpense]
+  implicit val salary = Json.format[Salary]
+  implicit val member = Json.format[MemberExpense]
+}
+
+trait AffectationSerializer extends AccountSerializer with InvoiceSerializer with ExpenseSerializer {
+  implicit val wayFormatter = Variants.format[Way]
+  implicit val affectationFormatter = Json.format[IncomeAffectation]
 }
