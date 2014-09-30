@@ -19,10 +19,11 @@ test-result
 test-results.xml
 /test/angular-test/*.xml
 data/
-.DS_Store
+*.DS_Store
 *.pyc
 *.class
 *.iml
 *.ipr
 /node_modules
+fac-stemi/
 
