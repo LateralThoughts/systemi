@@ -1,6 +1,9 @@
-<a>
-    <img ng-src="http://www.ociogo.com/images/barcelona/0000/423_torre-agbar.jpg" width="16">
-    <span bind-html-unsafe="match.label | typeaheadHighlight:query"></span><br/>
-    <span style="font-style: italic; font-size: 8px;">{{ match.model.address }}, <br/>{{ match.model.postalCode }} - {{ match.model.city }}</span>
-    <hr/>
+<a href="#">
+    <div class="typeahead">
+        <div class="pull-left margin-small">
+            <div class="text-left"><span bind-html-unsafe="match.label | typeaheadHighlight:query"></span></div>
+            <div class="text-left">{{ match.model.address }}, {{ match.model.postalCode }} - {{ match.model.city }}</div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
 </a>
