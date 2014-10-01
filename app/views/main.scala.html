@@ -41,7 +41,6 @@
                     <li @if(request.uri == routes.Application.index.url){class="active"}><a href="@routes.Application.index">Home</a></li>
                     <li @if(request.uri == routes.InvoiceController.index.url){class="active"}><a href="@routes.InvoiceController.index">Invoice</a></li>
                     <li @if(request.uri == routes.ActivityController.index.url){class="active"}><a href="@routes.ActivityController.index">Cra</a></li>
-                    <li @if(request.uri == routes.BusinessPointsController.index.url){class="active"}><a href="@routes.BusinessPointsController.index">Biz Points</a></li>
                     <li class="dropdown @if(List(routes.ClientController.clientsView.url, routes.MembersController.index.url, routes.ConfigurationController.index.url, routes.BusinessPointsController.index.url).contains(request.uri)){active} ">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Intendance<span class="caret"></span>
                         </a>

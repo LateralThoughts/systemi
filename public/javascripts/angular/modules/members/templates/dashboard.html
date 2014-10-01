@@ -2,6 +2,7 @@
 <table class="table table-bordered">
     <thead>
     <tr>
+        <th>Avatar</th>
         <th>Nom</th>
         <th>Prénom</th>
         <th>Email</th>
@@ -9,8 +10,11 @@
     </tr>
     </thead>
     <tbody>
-    <tr data-ng-repeat="item in members | limit:10 ">
-
+    <tr data-ng-repeat="item in members">
+        <td><img ng-src="{{ item.avatarUrl }}"/></td>
+        <td>{{ item.firstName }}</td>
+        <td>{{ item.lastName }}</td>
+        <td>{{ item.email }}</td>
     </tr>
     </tbody>
 </table>

@@ -1,5 +1,6 @@
 package service
 
+import play.Logger
 import play.api.Play.current
 import securesocial.core._
 import securesocial.core.services._
@@ -13,7 +14,7 @@ import play.api.libs.json.Json
 
 
 class InMemoryUserService() extends UserService[BasicProfile]
-                            with BasicProfileSerializer {
+with BasicProfileSerializer {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   /**
@@ -24,11 +25,11 @@ class InMemoryUserService() extends UserService[BasicProfile]
    * @return an optional profile
    */
   def find(providerId: String, userId: String): Future[Option[BasicProfile]]= {
-      val db = ReactiveMongoPlugin.db
+    val db = ReactiveMongoPlugin.db
 
-      db.collection[JSONCollection]("users")
-          .find(Json.obj("providerId" -> providerId, "userId" -> userId))
-          .one[BasicProfile]
+    db.collection[JSONCollection]("users")
+      .find(Json.obj("providerId" -> providerId, "userId" -> userId))
+      .one[BasicProfile]
   }
 
   /**
@@ -49,12 +50,18 @@ class InMemoryUserService() extends UserService[BasicProfile]
    */
   def save(profile: BasicProfile, mode: SaveMode): Future[BasicProfile] = {
 
-      val db = ReactiveMongoPlugin.db
+    val db = ReactiveMongoPlugin.db
 
-      db.collection[JSONCollection]("users")
-          .save(Json.toJson(profile))
+    db.collection[JSONCollection]("users")
+      .update(Json.obj("email" -> profile.email), Json.toJson(profile), upsert = true)
+      .map {errors =>
+      if (errors.inError)
+        Logger.warn(s"Failed to save user '${profile.email} when logged")
+      else
+        Logger.info(s"Successfully saved user '${profile.email}' as log in happened")
+    }
 
-      Future(profile)
+    Future(profile)
   }
 
   /**
