@@ -33,7 +33,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
       case Some(json) => json.validate(invoiceReqFormat) match {
 
         case errors:JsError =>
-          Ok(errors.toString).as("application/json")
+          BadRequest(errors.toString).as("application/json")
 
         case result: JsResult[InvoiceRequest] =>
           Ok(invoiceToPdfBytes(result.get)).as("application/pdf")

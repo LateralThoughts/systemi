@@ -31,7 +31,7 @@ class ActivityApiController(override implicit val env: RuntimeEnvironment[BasicP
       case Some(json) => json.validate(activityReqFormat) match {
 
         case errors: JsError =>
-          Ok(errors.toString).as("application/json")
+          BadRequest(errors.toString).as("application/json")
 
         case result: JsResult[ActivityRequest] =>
           val generatedPdfDocument = activityToPdfBytes(result.get)
