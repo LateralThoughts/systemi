@@ -1,6 +1,7 @@
 package controllers.api
 
 import domain._
+import engine.AffectationEngine
 import org.bouncycastle.util.encoders.Base64
 import org.joda.time.DateTime
 import play.Logger
@@ -21,6 +22,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
   with InvoiceSerializer
   with AccountSerializer
   with AffectationSerializer
+  with AffectationEngine
   with securesocial.core.SecureSocial[BasicProfile] {
 
   implicit val context = scala.concurrent.ExecutionContext.Implicits.global
@@ -120,20 +122,23 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
       mayBeAccount: Option[Account] <- futureMayBeAccount
     } yield (mayBeAccount, mayBeInvoice)
 
-    future.map {
+    future.flatMap {
       case (mayBeAccount: Option[Account], mayBeInvoice: Option[Invoice]) =>
         (for (account <- mayBeAccount; invoice <- mayBeInvoice) yield {
-          val affectation = IncomeAffectation(invoice, account, invoice.totalHT)
-          Logger.info(s"Loaded invoice and account, saving affectation $affectation")
-          db
-            .collection[JSONCollection]("affectations")
-            .save(Json.toJson(affectation))
-
-          setStatusToInvoice(oid, "affected", request)
-
-          Ok
-        }).getOrElse(InternalServerError)
-      case _ => BadRequest
+          Logger.info("Loaded invoice and account, creating multiple affectations...")
+          computeAffectationsFromConfiguration(invoice, account).map {
+            isInError => {
+              if (isInError)
+                InternalServerError
+              else {
+                Logger.info(s"Affectation completed - setting status to affected for invoice $invoice")
+                setStatusToInvoice(oid, "affected", request)
+                Ok
+              }
+            }
+          }
+        }).getOrElse(Future(InternalServerError))
+      case _ => Future(BadRequest)
     }
   }
 
