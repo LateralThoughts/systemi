@@ -3,7 +3,13 @@
 @main(user) {
 <form class="form" ng-submit="submit()" ng-controller="CraController">
     <div class="row">
-        <h4>Indiquez vos nombres de jours d'activité: </h4>
+
+        <h4>Indiquez les informations générales</h4>
+
+        <div class="form-group">
+            <label for="contractor">Nom du prestataire</label>
+            <input type="text" class="form-control" name="contractor" id="contractor" ng-model="cra.contractor" value="@{user.fullName}">
+        </div>
 
         <div class="form-group">
             <label for="tjm">TJM</label>
@@ -11,6 +17,8 @@
         </div>
 
         <lt-client-search client="cra.client"></lt-client-search>
+
+        <h4>Indiquez vos nombres de jours d'activité: </h4>
 
         <h6>Ou</h6>
 

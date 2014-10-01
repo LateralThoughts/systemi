@@ -11,8 +11,13 @@
 	font-weight: bold;
     text-align: center;
     font-size: 23px;
-    margin-bottom: 10px;
     margin-top: 10px;
+}
+
+.cra_header .subtitle {
+    text-align: center;
+    font-size: 21px;
+    margin-bottom: 10px;
 }
 
 .consultant_header {
