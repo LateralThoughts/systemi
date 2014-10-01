@@ -1,0 +1,19 @@
+<h2>Liste des mecs qui comptent <small> merci les potos !</small></h2>
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>Il pèse</th>
+        <th>son poids</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr data-ng-repeat="item in members ">
+        <td>{{ item.member.name }}</td>
+        <td>{{ item.member.contribution.solde }}</td>
+        <td>
+           <button>payer</button>
+        </td>
+    </tr>
+    </tbody>
+</table>

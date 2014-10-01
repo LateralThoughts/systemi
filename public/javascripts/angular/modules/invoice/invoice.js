@@ -59,7 +59,7 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute'])
         };
         reload($scope);
         $scope.revert = function(invoice) {
-            $http.post("/api/invoices/" + invoice._id.$oid + "/status/pending-payment").success(function(){ reload($scope)})
+            $http.post("/api/invoices/" + invoice._id.$oid + "/status/unpaid").success(function(){ reload($scope)})
 
         }
     })

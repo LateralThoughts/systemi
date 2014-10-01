@@ -3,38 +3,43 @@
 # ~~~~
 
 # Home page
-GET         /                                  @controllers.Application.index
-GET         /invoice                           @controllers.InvoiceController.index
-GET         /business                          @controllers.BusinessPointsController.index
-GET         /cra                               @controllers.InvoiceController.cra
-GET         /client                            @controllers.ClientController.clientsView
+GET         /                                         @controllers.Application.index
+GET         /invoice                                  @controllers.InvoiceController.index
+GET         /business                                 @controllers.BusinessPointsController.index
+GET         /config                                   @controllers.ConfigurationController.index
+GET         /members                                  @controllers.MembersController.index
+GET         /cra                                      @controllers.InvoiceController.cra
+GET         /client                                   @controllers.ClientController.clientsView
 
 # client resources
-GET         /api/clients                       @controllers.api.ClientApiController.search(q: Option[String])
-POST        /api/clients                       @controllers.api.ClientApiController.addClient
-PUT         /api/clients/:id                   @controllers.api.ClientApiController.modifyClient(id: String)
+GET         /api/clients                              @controllers.api.ClientApiController.search(q: Option[String])
+POST        /api/clients                              @controllers.api.ClientApiController.addClient
+PUT         /api/clients/:id                          @controllers.api.ClientApiController.modifyClient(id: String)
 
 # invoice resources
-POST        /api/invoice                       @controllers.api.InvoiceApiController.createAndPushInvoice
-GET         /api/invoices                      @controllers.api.InvoiceApiController.findByStatus(status: Option[String], exclude: Option[Boolean])
-POST        /api/invoices/:oid/status/:status  @controllers.api.InvoiceApiController.addStatusToInvoice(oid: String, status: String)
-POST        /api/invoices/:oid/affect/:account @controllers.api.InvoiceApiController.affectToAccount(oid: String, account: String)
-GET         /api/invoices/document/:oid        @controllers.api.InvoiceApiController.getPdfByInvoice(oid: String)
+POST        /api/invoice                              @controllers.api.InvoiceApiController.createAndPushInvoice
+GET         /api/invoices                             @controllers.api.InvoiceApiController.findByStatus(status: Option[String], exclude: Option[Boolean])
+POST        /api/invoices/:oid/status/:status         @controllers.api.InvoiceApiController.addStatusToInvoice(oid: String, status: String)
+POST        /api/invoices/:oid/affect/:account        @controllers.api.InvoiceApiController.affectToAccount(oid: String, account: String)
+GET         /api/invoices/document/:oid               @controllers.api.InvoiceApiController.getPdfByInvoice(oid: String)
 
 # account resources
-GET         /api/accounts                      @controllers.api.AccountApiController.findAll
-POST        /api/accounts                      @controllers.api.AccountApiController.add
+GET         /api/accounts                             @controllers.api.AccountApiController.findAll
+POST        /api/accounts                             @controllers.api.AccountApiController.add
 
 # invoice number resources
-GET         /api/invoice/numbers/last          @controllers.api.InvoiceApiController.getLastInvoiceNumber
-POST        /api/invoice/numbers/reset         @controllers.api.InvoiceApiController.reset(value: Int)
+GET         /api/invoice/numbers/last                 @controllers.api.InvoiceApiController.getLastInvoiceNumber
+POST        /api/invoice/numbers/reset                @controllers.api.InvoiceApiController.reset(value: Int)
 
 # cra resources
-POST        /api/cra                           @controllers.api.ActivityApiController.createAndPushCRA
-GET         /api/cra/document/:oid             @controllers.api.ActivityApiController.getPdfByCRA(oid: String)
+POST        /api/cra                                  @controllers.api.ActivityApiController.createAndPushCRA
+GET         /api/cra/document/:oid                    @controllers.api.ActivityApiController.getPdfByCRA(oid: String)
 
+# config resources
+POST        /api/config                               @controllers.api.ConfigurationApiController.agoraCallback
+GET         /api/config                               @controllers.api.ConfigurationApiController.getCurrentConfiguration
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file                      controllers.Assets.at(path="/public", file)
+GET         /assets/*file                             controllers.Assets.at(path="/public", file)
 
-->          /auth                              securesocial.Routes
+->          /auth                                     securesocial.Routes
