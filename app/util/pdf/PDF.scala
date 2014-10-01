@@ -10,7 +10,7 @@ import org.xhtmlrenderer.pdf.{ITextFSImage, ITextFontResolver, ITextOutputDevice
 import org.xhtmlrenderer.resource.{CSSResource, ImageResource, XMLResource}
 import play.Logger
 import play.api.Play
-import play.api.templates.Html
+import play.twirl.api.Html
 
 object PDF {
 
