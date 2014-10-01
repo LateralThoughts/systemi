@@ -21,7 +21,9 @@ angular.module('businesspoints', ['ui.bootstrap', 'ngResource', 'ngRoute'])
 
     })
     .controller('CreateCtrl', function($scope) {
-
+        $http.get("/api/members").success(function(data) {
+            $scope.members = data;
+        })
     })
     .controller('DistribCtrl', function($scope) {
 

@@ -9,10 +9,6 @@ angular.module('members', ['ui.bootstrap', 'ngResource', 'ngRoute'])
                 controller:'CreateCtrl',
                 templateUrl:'/assets/javascripts/angular/modules/members/templates/create.html'
             })
-            .when('/distrib', {
-                controller:'DistribCtrl',
-                templateUrl:'/assets/javascripts/angular/modules/members/templates/distrib.html'
-            })
             .otherwise({
                 redirectTo:'/dashboard'
             });
@@ -23,9 +19,6 @@ angular.module('members', ['ui.bootstrap', 'ngResource', 'ngRoute'])
         });
     })
     .controller('CreateCtrl', function($scope) {
-
-    })
-    .controller('DistribCtrl', function($scope) {
 
     })
     .controller("HeaderCtrl", function($scope, $location) {
