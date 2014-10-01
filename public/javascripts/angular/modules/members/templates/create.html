@@ -1,0 +1,36 @@
+<h2>Ajouter une contribution</h2>
+<div id="contribution_page" data-ng-controller="CreateCtrl" class="row">
+    <form action="/api/contribution" method="POST" role="form">
+        <div class="col-md-12">
+            <div class="form-group">
+                <label for="selectedContribution">Pré-remplir avec :
+                    <select id="selectedContribution" name="selectedContribution" ng-model="selectedContribution"
+                            ng-options="contribution.id as contribution.name for contribution in prefilledContributions">
+                        <option value="">---- Je m'en tape -----</option>
+                    </select>
+                </label>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="form-group form-inline">
+                <label for="member">Pour qui ? pour toi ? </label>
+                <select id="member" name="member" ng-model="memberList"
+                    ng-options="member._id.$oid as member.name for member in members">
+                </select>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="form-group form-inline">
+                <label for="title">Pourquoi tu veux des points ?</label>
+                <input type="text" class="form-control" name="title" id="title" placeholder="Qu'as-tu fait mec ?">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="points">Bon ok combien ?</label>
+                <input type="number" class="form-control" name="points" id="points">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-success">Vas y balance les points !</button>
+    </form>
+</div>

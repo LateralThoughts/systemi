@@ -39,9 +39,16 @@
                     <li @if(request.uri == routes.Application.index.url){class="active"}><a href="@routes.Application.index">Home</a></li>
                     <li @if(request.uri == routes.InvoiceController.index.url){class="active"}><a href="@routes.InvoiceController.index">Invoice</a></li>
                     <li @if(request.uri == routes.InvoiceController.cra.url){class="active"}><a href="@routes.InvoiceController.cra">Cra</a></li>
-                    <li @if(request.uri == routes.ClientController.clientsView.url){class="active"}><a href="@routes.ClientController.clientsView">Clients</a></li>
                     <li @if(request.uri == routes.BusinessPointsController.index.url){class="active"}><a href="@routes.BusinessPointsController.index">Biz Points</a></li>
-                    <li @if(request.uri == routes.ConfigurationController.index.url){class="active"}><a href="@routes.ConfigurationController.index">Config</a></li>
+                    <li class="dropdown @if(List(routes.ClientController.clientsView.url, routes.MembersController.index.url, routes.ConfigurationController.index.url).contains(request.uri)){active} ">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Intendance<span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li @if(request.uri == routes.ClientController.clientsView.url){class="active"}><a href="@routes.ClientController.clientsView">Clients</a></li>
+                            <li @if(request.uri == routes.MembersController.index.url){class="active"}><a href="@routes.MembersController.index">Membres</a></li>
+                            <li @if(request.uri == routes.ConfigurationController.index.url){class="active"}><a href="@routes.ConfigurationController.index">Config</a></li>
+                        </ul>
+                    </li>
                     <li>@if(user != null) {
                         <button class="btn btn-default dropdown-toggle" type="button" id="userMenu" data-toggle="dropdown">
                             <img src="@user.avatarUrl.getOrElse("")" alt="@user.firstName.getOrElse("")" width="40px" height="40px"/>
