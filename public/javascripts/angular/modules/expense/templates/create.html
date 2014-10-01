@@ -1,0 +1,35 @@
+<h2>Créer une nouvelle Dépense</h2>
+<div id="facture_page" class="row">
+    <form action="/api/expenses" method="POST" role="form" enctype="multipart/form-data">
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <input type="text" class="form-control" name="expenseValue" id="value" placeholder="Montant de la dépense">
+                </div>
+
+                <div class="form-group">
+                    <input type="file" class="form-control" name="expenseDocument" id="pdf">
+                </div>
+            </div>
+
+            <div class="client_form col-md-6">
+                <div class="form-group">
+                    <select name="accountId" ng-model="selectedAccount" ng-options="account.name for account in accounts track by account._id.$oid">
+                        <option value="">---- Non affecté ----</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <input type="text" class="form-control" name="expenseType" id="type" placeholder="Type de dépense">
+                </div>
+
+                <div class="form-group">
+                    <input type="text" class="form-control" name="description" id="description" placeholder="Description de la dépense">
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-success">Générer la Dépense &amp; Upload</button>
+    </form>
+</div>

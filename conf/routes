@@ -10,6 +10,7 @@ GET         /config                                   @controllers.Configuration
 GET         /members                                  @controllers.MembersController.index
 GET         /activity                                 @controllers.ActivityController.index
 GET         /client                                   @controllers.ClientController.clientsView
+GET         /expense                                  @controllers.ExpenseController.index
 
 # client resources
 GET         /api/clients                              @controllers.api.ClientApiController.search(q: Option[String])
@@ -23,6 +24,11 @@ POST        /api/invoices/:oid/status/:status         @controllers.api.InvoiceAp
 POST        /api/invoices/:oid/affect/:account        @controllers.api.InvoiceApiController.affectToAccount(oid: String, account: String)
 GET         /api/invoices/document/:oid               @controllers.api.InvoiceApiController.getPdfByInvoice(oid: String)
 
+# expense resources
+POST        /api/expenses                             @controllers.api.ExpenseApiController.createExpense
+GET         /api/expenses                             @controllers.api.ExpenseApiController.findAll
+GET         /api/expenses/document/:oid                @controllers.api.ExpenseApiController.getAttachment(oid: String)
+
 # account resources
 GET         /api/accounts                             @controllers.api.AccountApiController.findAll
 POST        /api/accounts                             @controllers.api.AccountApiController.add
@@ -32,8 +38,8 @@ GET         /api/invoice/numbers/last                 @controllers.api.InvoiceAp
 POST        /api/invoice/numbers/reset                @controllers.api.InvoiceApiController.reset(value: Int)
 
 # cra resources
-POST        /api/activity                                  @controllers.api.ActivityApiController.createAndPushCRA
-GET         /api/activity/document/:oid                    @controllers.api.ActivityApiController.getPdfByCRA(oid: String)
+POST        /api/activity                             @controllers.api.ActivityApiController.createAndPushCRA
+GET         /api/activity/document/:oid               @controllers.api.ActivityApiController.getPdfByCRA(oid: String)
 
 # config resources
 POST        /api/config                               @controllers.api.ConfigurationApiController.agoraCallback

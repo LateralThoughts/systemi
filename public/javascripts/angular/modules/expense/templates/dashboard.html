@@ -1,0 +1,24 @@
+<h2>Liste des factures non-affectées *complètement*</h2>
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>Source</th>
+        <th>Montant</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr data-ng-repeat="item in expenses">
+
+        <td>Depuis "{{ item.account.name }}", créé le {{ item.createdAt }}</td>
+        <td>{{ item.expenseValue }}€</td>
+        <td>{{ item.expenseType }}</td>
+        <td>{{ item.description }}</td>
+        <td>
+            <a href="/api/expenses/document/{{ item._id.$oid }}">Voir la facture (PDF)</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
