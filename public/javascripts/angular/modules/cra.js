@@ -10,7 +10,7 @@ facstemi.controller('CraController', function($scope, $modal, $log, $http, Clien
         var days = [];
         var currentDayOfWeek = 0;
         var currentWeek = [];
-        moment().range(start, end).by('days', function(day) {
+        moment().utc().range(start, end).by('days', function(day) {
             if (currentDayOfWeek == 0) {
                 var count = day.isoWeekday();
                 while (--count != 0 ){
@@ -73,10 +73,10 @@ facstemi.controller('CraController', function($scope, $modal, $log, $http, Clien
     }
 
     var optionSet1 = {
-        startDate: moment().subtract('days', 29),
-        endDate: moment(),
-        minDate: moment().subtract('year', 1),
-        maxDate: moment().add('year', 1),
+        startDate: moment().utc().subtract('days', 29),
+        endDate: moment().utc(),
+        minDate: moment().utc().subtract('year', 1),
+        maxDate: moment().utc().add('year', 1),
         dateLimit: { days: 60 },
         showDropdowns: true,
         showWeekNumbers: true,
@@ -84,12 +84,12 @@ facstemi.controller('CraController', function($scope, $modal, $log, $http, Clien
         timePickerIncrement: 1,
         timePicker12Hour: true,
         ranges: {
-            'Today': [moment(), moment()],
-            'Yesterday': [moment().subtract('days', 1), moment().subtract('days', 1)],
-            'Last 7 Days': [moment().subtract('days', 6), moment()],
-            'Last 30 Days': [moment().subtract('days', 29), moment()],
-            'This Month': [moment().startOf('month'), moment().endOf('month')],
-            'Last Month': [moment().subtract('month', 1).startOf('month'), moment().subtract('month', 1).endOf('month')]
+            'Today': [moment().utc(), moment().utc()],
+            'Yesterday': [moment().utc().subtract('days', 1), moment().utc().subtract('days', 1)],
+            'Last 7 Days': [moment().utc().subtract('days', 6), moment().utc()],
+            'Last 30 Days': [moment().utc().subtract('days', 29), moment().utc()],
+            'This Month': [moment().utc().startOf('month'), moment().utc().endOf('month')],
+            'Last Month': [moment().utc().subtract('month', 1).startOf('month'), moment().utc().subtract('month', 1).endOf('month')]
         },
         opens: 'left',
         buttonClasses: ['btn btn-default'],
@@ -109,7 +109,7 @@ facstemi.controller('CraController', function($scope, $modal, $log, $http, Clien
         }
     };
 
-    $('#reportrange span').html(moment().subtract('days', 29).format('MMMM D, YYYY') + ' - ' + moment().format('MMMM D, YYYY'));
+    $('#reportrange span').html(moment().utc().subtract('days', 29).format('MMMM D, YYYY') + ' - ' + moment().utc().format('MMMM D, YYYY'));
 
     $('#reportrange').daterangepicker(optionSet1, $scope.datesSelected);
 });
