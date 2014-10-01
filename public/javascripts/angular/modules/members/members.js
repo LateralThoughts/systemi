@@ -18,7 +18,9 @@ angular.module('members', ['ui.bootstrap', 'ngResource', 'ngRoute'])
             });
     })
     .controller('DashboardCtrl', function($scope, $http) {
-
+        $http.get("/api/members").success(function(data) {
+            $scope.members = data;
+        });
     })
     .controller('CreateCtrl', function($scope) {
 

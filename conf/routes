@@ -39,6 +39,9 @@ GET         /api/activity/document/:oid                    @controllers.api.Acti
 POST        /api/config                               @controllers.api.ConfigurationApiController.agoraCallback
 GET         /api/config                               @controllers.api.ConfigurationApiController.getCurrentConfiguration
 
+# members resources
+GET         /api/members                              @controllers.api.MembersApiController.findAll
+
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                             controllers.Assets.at(path="/public", file)
 

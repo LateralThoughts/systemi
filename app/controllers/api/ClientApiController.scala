@@ -1,7 +1,8 @@
 package controllers.api
 
 import domain.{Client, InvoiceSerializer}
-import play.api.libs.json.{JsError, JsResult, Json}
+import play.Logger
+import play.api.libs.json.{JsObject, JsError, JsResult, Json}
 import play.api.mvc.Controller
 import play.modules.reactivemongo.MongoController
 import play.modules.reactivemongo.json.collection.JSONCollection
@@ -9,6 +10,7 @@ import reactivemongo.bson.{BSONDocument, BSONObjectID}
 import search.SimpleSearchEngine
 import securesocial.core.{BasicProfile, RuntimeEnvironment}
 
+import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 
@@ -24,7 +26,12 @@ class ClientApiController(engine: SimpleSearchEngine)
 
   val collection = db.collection[JSONCollection]("clients")
 
-  initIndex()
+  def findAll() = {
+    collection
+      .find(Json.obj())
+      .cursor[Client]
+      .collect[List]()
+  }
 
   def search(q: Option[String]) = SecuredAction.async {
     implicit request =>
@@ -41,17 +48,24 @@ class ClientApiController(engine: SimpleSearchEngine)
           }
 
         case None =>
-          collection.find(Json.obj()).cursor[BSONDocument].collect[List]().map ( clients => Ok(Json.toJson(clients))
-          )
+          collection
+            .find(Json.obj())
+            .cursor[JsObject]
+            .collect[List]()
+            .map ( clients => Ok(Json.toJson(clients)))
       }
   }
 
-  def addClient() = SecuredAction(parse.json) { implicit request =>
+  def addClient() = SecuredAction.async(parse.json) { implicit request =>
     request.body.validate(invoiceClientFormat) match {
-      case errors:JsError => BadRequest(errors.toString).as("application/json")
+      case errors:JsError =>
+        Future(BadRequest(errors.toString).as("application/json"))
+
       case result: JsResult[Client] =>
-        saveClient(result.get)
-        Ok
+        saveClient(result.get) map {
+          case true => Ok
+          case false => InternalServerError
+        }
     }
   }
 
@@ -68,16 +82,18 @@ class ClientApiController(engine: SimpleSearchEngine)
 
 
   private def saveClient(client: Client) = {
-    collection.insert(client)
-    engine.addToIndex(client)
-  }
-
-  private def initIndex() {
+    val selector = Json.obj("name" -> Json.obj("$regex" -> client.name, "$options" -> "i"))
     collection
-      .find(Json.obj())
-      .cursor[Client]
-      .collect[List]()
-      .map(engine.initWithDocuments)
+      .update(selector, Json.toJson(client), upsert = true)
+      .map(errors => if (errors.inError) {
+
+      Logger.error(s"Failed to upsert client $client")
+      false
+    } else {
+      Logger.info("Successfully upserted client - add to index")
+      engine.addToIndex(client)
+      true
+    })
   }
 
 }

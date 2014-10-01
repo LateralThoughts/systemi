@@ -17,6 +17,7 @@ import org.apache.lucene.analysis.miscellaneous.SetKeywordMarkerFilter
 import org.apache.lucene.analysis.Analyzer.TokenStreamComponents
 import org.apache.lucene.analysis.ngram.EdgeNGramTokenFilter
 import play.api.libs.json.Json
+import resource._
 
 
 trait SearchEngineFields {
@@ -32,41 +33,41 @@ case class SimpleSearchEngine() extends ClientDefinitionIndexation with SearchEn
   val docAnalyzer = new LateralThoughtsClientAnalyzer(luceneVersion)
 
   def initWithDocuments(clients : List[Client]) {
-    val writer = openWriter
-    clients.map( client => writeDocument(writer, client))
-    writer.close(true)
+    for (writer <- managed(openWriter)) {
+      clients.map(client => writeDocument(writer, client))
+    }
   }
 
   def addToIndex(client : Client) {
-    val writer = openWriter
-    writeDocument(writer, client)
-    writer.close(true)
+    for (writer <- managed(openWriter)) {
+      writeDocument(writer, client)
+    }
   }
 
   def update(id: String, client : Client) {
-    val writer = openWriter
-    writer.deleteDocuments(new Term(ID_FIELD, id.toString))
-    writeDocument(writer, client)
-    writer.close(true)
+    for (writer <- managed(openWriter)) {
+      writer.deleteDocuments(new Term(ID_FIELD, id.toString))
+      writeDocument(writer, client)
+    }
   }
 
   def createSearchQuery(q: String) = {
     val query = new PhraseQuery()
     query.setSlop(10)
 
-    val tokenStream = docAnalyzer.tokenStream("text", q)
-    val offsetAttribute = tokenStream.addAttribute(classOf[OffsetAttribute])
-    val charTermAttribute = tokenStream.addAttribute(classOf[CharTermAttribute])
+    for (tokenStream <- managed(docAnalyzer.tokenStream("text", q))) {
+      val offsetAttribute = tokenStream.addAttribute(classOf[OffsetAttribute])
+      val charTermAttribute = tokenStream.addAttribute(classOf[CharTermAttribute])
 
-    tokenStream.reset()
-    while (tokenStream.incrementToken()) {
-      val startOffset = offsetAttribute.startOffset()
-      val endOffset = offsetAttribute.endOffset()
+      tokenStream.reset()
+      while (tokenStream.incrementToken()) {
+        val startOffset = offsetAttribute.startOffset()
+        val endOffset = offsetAttribute.endOffset()
 
-      val term = charTermAttribute.toString
-      query.add(new Term("text", term))
+        val term = charTermAttribute.toString
+        query.add(new Term("text", term))
+      }
     }
-    tokenStream.close()
 
     query
   }
@@ -74,23 +75,15 @@ case class SimpleSearchEngine() extends ClientDefinitionIndexation with SearchEn
   def search(q: String) : List[String] = {
 
     val searchQuery = createSearchQuery(q)
-    val dirReader = DirectoryReader.open(directory)
-    val searcher = new IndexSearcher(dirReader)
-    val results = searcher.search(searchQuery, MAX_NUMBER_OF_DOCS)
+    managed(DirectoryReader.open(directory)) acquireAndGet { dirReader =>
+      val searcher = new IndexSearcher(dirReader)
+      val results = searcher.search(searchQuery, MAX_NUMBER_OF_DOCS)
 
-    val resultClients = results.scoreDocs.map(
-      resultDoc => searcher.doc(resultDoc.doc).get(ID_FIELD)
-    ).toList
-
-    dirReader.close()
-    resultClients
+      results.scoreDocs.map(
+        resultDoc => searcher.doc(resultDoc.doc).get(ID_FIELD)
+      ).toList
+    }
   }
-
-
-  /**
-   * Close directory after search is done
-   */
-  def close() { directory.close() }
 
   private def writeDocument(writer: IndexWriter, client: Client) {
     createDocFromClient(client) map ( writer.addDocument(_) )
