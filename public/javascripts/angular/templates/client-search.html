@@ -1,8 +1,4 @@
-<div class="form-group">
-    <label for="client">Sélectionner un client</label>
-    <input type="text" class="form-control" name="client" id="client" placeholder="Nom de votre client"
-           ng-model="client"
-           placeholder="Locations loaded via $http"
-           typeahead="client as client.name for client in search($viewValue)"
-           typeahead-template-url="/assets/javascripts/angular/templates/client-autocomplete.html"/>
-</div>
+<input type="text" class="form-control" name="clientNameSearch" id="clientNameSearch" placeholder="Nom de votre client"
+       ng-model="client"
+       typeahead="client as client.name for client in search($viewValue)"
+       typeahead-template-url="/assets/javascripts/angular/templates/client-autocomplete.html"/>

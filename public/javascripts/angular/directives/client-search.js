@@ -1,5 +1,5 @@
 
-facstemi
+angular.module("client-search", ['customer'])
     .directive('ltClientSearch', function ($modal, $log, Client) {
         return {
             templateUrl:'/assets/javascripts/angular/templates/client-search.html',

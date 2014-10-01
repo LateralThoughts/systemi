@@ -89,7 +89,7 @@ trait InvoiceSerializer extends AttachmentSerializer {
       body.get("paymentDelay").get.headOption.get.toInt,
       Client(
         body.get("clientId").flatMap(_.headOption.map(BSONObjectID(_))),
-        body.get("clientName").get.headOption.get,
+        body.get("clientNameSearch").get.headOption.get,
         body.get("clientAddress").get.headOption.get,
         body.get("clientPostalCode").get.headOption.get,
         body.get("clientCity").get.headOption.get,

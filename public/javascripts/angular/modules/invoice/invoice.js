@@ -1,4 +1,4 @@
-angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute'])
+angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-search'])
     .config(function($routeProvider) {
         $routeProvider
             .when('/pending', {
@@ -110,6 +110,9 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute'])
             $scope.tasklines[$scope.tasklines.length - 1]['addButtonVisible'] = true;
             $scope.tasklines[$scope.tasklines.length - 1]['deleteButtonVisible'] = ($scope.tasklines.length>1);
         }
+
+        $scope.client = null;
+
     }).controller("HeaderCtrl", function($scope, $location) {
 
         $scope.isActive = function (viewLocation) {
