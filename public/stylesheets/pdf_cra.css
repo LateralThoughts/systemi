@@ -32,6 +32,7 @@
     border-collapse: collapse;
     border: 1px solid #000000;
     margin-bottom: 10px;
+    table-layout: fixed;
 }
 
 .days_table .trhead {
@@ -54,7 +55,7 @@
 }
 
 .consultant_footer {
-    margin-bottom: 10px;
+    margin-bottom: 30px;
  }
 
 .consultant_footer .title {
@@ -66,21 +67,21 @@
     margin-bottom: 5px;
 }
 
-.consultant_footer .signature {
+.consultant_footer .table {
+    display: table;
     width: 100%;
 }
 
-.consultant_footer .name {
-    float: left;
+.consultant_footer .row {
+    display: table-row;
 }
 
-.consultant_footer .date {
-    float: right;
+.consultant_footer .cell {
+    display: table-cell;
 }
 
-
-.consultant_footer .sign {
-    clear: both;
+.consultant_footer .cell .first {
+    width: 10cm;
 }
 
 .days_table .tr {

@@ -79,29 +79,37 @@
                         Je confirme que les heures mentionnées ci-dessus sont conformes aux heures effectivement travaillées par mes soins</div>
                 </div>
 
-                <div class="consultant_footer signature">
-                    <div class="consultant_footer name">Nom : </div>
-                    <div class="consultant_footer date">Date : @{
-                        org.joda.time.LocalDate.now().toString("dd/MM/yyyy")
-                    }</div>
+                <div class="consultant_footer table">
+                    <div class="consultant_footer row">
+                        <div class="consultant_footer cell">Nom : </div>
+                        <div class="consultant_footer cell">Date : @{
+                            org.joda.time.LocalDate.now().toString("dd/MM/yyyy")
+                        }</div>
+                    </div>
+                    <div class="consultant_footer row">
+                        <div class="consultant_footer cell">Signature :</div>
+                    </div>
                 </div>
-                <div class="consultant_footer sign">Signature :</div>
             </div>
 
-            <div>
+            <div class="consultant_footer">
                 <div>
-                    <div>Déclaration du client :</div>
-                    <div>
+                    <div class="consultant_footer title">Déclaration du client :</div>
+                    <div class="consultant_footer content">
                         Je confirme que les heures mentionnées ci-dessus sont conformes aux heures effectivement travaillées par le consultant</div>
                 </div>
 
-                <div>
-                    Signature :
-                    Date :
-                    Nom :
-                    Pour la société : @{
-                    client.name
-                }
+                <div class="consultant_footer table">
+                    <div class="consultant_footer row">
+                        <div class="consultant_footer cell first">Nom :</div>
+                        <div class="consultant_footer cell">Pour la société : @{
+                            client.name
+                        }</div>
+                        <div class="consultant_footer cell">Date : .../.../......</div>
+                    </div>
+                    <div class="consultant_footer row">
+                        <div class="consultant_footer cell">Signature :</div>
+                    </div>
                 </div>
             </div>
         </div>
