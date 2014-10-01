@@ -69,7 +69,7 @@ facstemi.controller('CraController', function($scope, $modal, $log, $http, Clien
         };
 
         $scope.cra.numberOfDays = _.reduce($scope.cra.days, accumulator, 0);
-        $http.post("/api/cra", JSON.stringify($scope.cra)).success(function() { }).error(function (){ })
+        $http.post("/api/activity", JSON.stringify($scope.cra)).success(function() { }).error(function (){ })
     }
 
     var optionSet1 = {

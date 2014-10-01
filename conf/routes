@@ -8,7 +8,7 @@ GET         /invoice                                  @controllers.InvoiceContro
 GET         /business                                 @controllers.BusinessPointsController.index
 GET         /config                                   @controllers.ConfigurationController.index
 GET         /members                                  @controllers.MembersController.index
-GET         /cra                                      @controllers.InvoiceController.cra
+GET         /activity                                 @controllers.ActivityController.index
 GET         /client                                   @controllers.ClientController.clientsView
 
 # client resources
@@ -32,8 +32,8 @@ GET         /api/invoice/numbers/last                 @controllers.api.InvoiceAp
 POST        /api/invoice/numbers/reset                @controllers.api.InvoiceApiController.reset(value: Int)
 
 # cra resources
-POST        /api/cra                                  @controllers.api.ActivityApiController.createAndPushCRA
-GET         /api/cra/document/:oid                    @controllers.api.ActivityApiController.getPdfByCRA(oid: String)
+POST        /api/activity                                  @controllers.api.ActivityApiController.createAndPushCRA
+GET         /api/activity/document/:oid                    @controllers.api.ActivityApiController.getPdfByCRA(oid: String)
 
 # config resources
 POST        /api/config                               @controllers.api.ConfigurationApiController.agoraCallback

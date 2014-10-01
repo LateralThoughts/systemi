@@ -46,6 +46,7 @@ class ProductionModule {
   lazy val searchEngine = wire[SimpleSearchEngine]
   lazy val invoiceApiController = wire[InvoiceApiController]
   lazy val clientApiController = wire[ClientApiController]
+  lazy val activityController = wire[ActivityController]
   lazy val activityApiController = wire[ActivityApiController]
   lazy val accountApiController = wire[AccountApiController]
   lazy val configurationApiController = wire[ConfigurationApiController]
