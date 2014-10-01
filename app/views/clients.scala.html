@@ -34,6 +34,11 @@
                             <input type="text" class="form-control" name="clientPostalCode" id="clientPostalcode" ng-model="client.postalCode" placeholder="Code postal du client">
                         </div>
 
+                        <div class="form-group">
+                            <label for="clientCountry">Pays du client</label>
+                            <input type="text" class="form-control" name="clientCountry" id="clientCountry" ng-model="client.country" placeholder="Pays du client">
+                        </div>
+
                         <button type="submit" ng-if="client._id" class="btn btn-success">Sauver les modifications</button>
                         <button type="submit" ng-if="!client._id" class="btn btn-success">Ajouter un nouveau client</button>
                     </form>
