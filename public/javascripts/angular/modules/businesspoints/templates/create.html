@@ -4,7 +4,7 @@
         <div class="col-md-12">
             <div class="form-group">
                 <label for="selectedContribution">Pré-remplir avec :
-                    <select id="selectedContribution" name="selectedContribution" ng-model="selectedContribution"
+                    <select ng-model="selectedContribution"
                             ng-options="contribution.id as contribution.name for contribution in prefilledContributions">
                         <option value="">---- Je m'en tape -----</option>
                     </select>
@@ -14,8 +14,8 @@
         <div class="col-md-12">
             <div class="form-group form-inline">
                 <label for="member">Pour qui ? pour toi ? </label>
-                <select id="member" name="member" ng-model="memberList"
-                    ng-options="member._id.$oid as member.name for member in members">
+                <select ng-model="selectedMember"
+                    ng-options="member._id.$oid as (member.fullName +' ('+member.email+')') for member in members">
                 </select>
             </div>
         </div>
