@@ -17,9 +17,14 @@ angular.module('members', ['ui.bootstrap', 'ngResource', 'ngRoute'])
         $http.get("/api/members").success(function(data) {
             $scope.members = data;
         });
+        $http.get("/api/accounts").success(function(data) {
+            $scope.accounts = data;
+        });
     })
-    .controller('CreateCtrl', function($scope) {
-
+    .controller('CreateCtrl', function($scope, $http) {
+        $http.get("/api/members").success(function(data) {
+            $scope.members = data;
+        });
     })
     .controller("HeaderCtrl", function($scope, $location) {
 

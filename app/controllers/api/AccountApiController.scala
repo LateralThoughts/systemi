@@ -1,12 +1,16 @@
 package controllers.api
 
-import domain.{Human, Account, AccountSerializer, InvoiceSerializer}
+import domain._
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, Controller}
 import play.modules.reactivemongo.MongoController
+import securesocial.core.{AuthenticationMethod, RuntimeEnvironment, BasicProfile}
+import domain.Account
 import play.modules.reactivemongo.json.collection.JSONCollection
-import securesocial.core.{BasicProfile, RuntimeEnvironment}
-import util.pdf.GoogleDriveInteraction
+import play.api.libs.json.JsObject
+import domain.Human
+import scala.concurrent.Future
+import play.Logger
 
 class AccountApiController(override implicit val env: RuntimeEnvironment[BasicProfile])
   extends Controller
@@ -27,9 +31,33 @@ class AccountApiController(override implicit val env: RuntimeEnvironment[BasicPr
       .map(accounts => Ok(Json.toJson(accounts)))
   }
 
-  def add = SecuredAction.async(parse.json) { implicit request =>
-    val name = (request.body \ "name").as[String]
-    val account = Account(name, Human(request.user))
+  def add = SecuredAction.async(parse.urlFormEncoded) { implicit request =>
+
+    val form = request.body
+
+    form.get("memberId") match {
+        case Some(userId) =>
+            db
+                .collection[JSONCollection]("users")
+                .find(Json.obj("_id" -> Json.obj("$oid" -> userId.head)))
+                .one[BasicProfile]
+                .flatMap {
+                case Some(user) =>
+                    val accounts = for {
+                            accountName <- form.get("accountName")
+                            name = accountName.head
+                        } yield Account(name, Human(user))
+                    accounts match {
+                        case Some(account) => saveAccount(account)
+                        case None => Future(BadRequest)
+                    }
+                case None => Future(BadRequest)
+            }
+        case None => Future(BadRequest)
+    }
+  }
+
+  def saveAccount(account: Account) = {
     db
       .collection[JSONCollection](ACCOUNT)
       .save(Json.toJson(account))
