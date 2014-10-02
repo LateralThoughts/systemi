@@ -4,6 +4,7 @@ import org.joda.time.LocalDate
 import play.api.libs.json.{Reads, Json}
 import org.joda.time.format.ISODateTimeFormat
 import util.pdf.PDF
+import reactivemongo.bson.BSONObjectID
 
 
 case class ActivityDay(day: LocalDate, halfUp : Boolean, halfDown: Boolean)
@@ -23,9 +24,10 @@ case class ActivityRequest(tjm : Double,
   }
 }
 
-case class Activity(activity: ActivityRequest, pdfDocument: Attachment)
+case class Activity(_id: BSONObjectID, activity: ActivityRequest, pdfDocument: Attachment)
 
 trait ActivitySerializer extends InvoiceSerializer {
+  import play.modules.reactivemongo.json.BSONFormats._
 
   implicit val readsJodaLocalDateTime = Reads[LocalDate](js =>
     js.validate[String].map[LocalDate](dtString =>
@@ -37,7 +39,7 @@ trait ActivitySerializer extends InvoiceSerializer {
   implicit val activityReqFormat = Json.reads[ActivityRequest]
 
   implicit val activityDayWrites = Json.writes[ActivityDay]
-  implicit val activityWrites = Json.writes[ActivityRequest]
+  implicit val activityReqWrites = Json.writes[ActivityRequest]
 
   implicit val activityFormat = Json.format[Activity]
 
