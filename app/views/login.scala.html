@@ -1,4 +1,4 @@
-@(loginForm: Form[(String,String)], errorMsg: Option[String] = None)(implicit request: RequestHeader, lang: Lang, env: securesocial.core.RuntimeEnvironment[securesocial.core.BasicProfile])
+@(loginForm: Form[(String,String)], errorMsg: Option[String] = None)(implicit request: RequestHeader, lang: Lang, env: securesocial.core.RuntimeEnvironment[securesocial.core.BasicProfile], flash: Flash)
 
 @main() {
     @errorMsg.map { msg =>

@@ -9,7 +9,7 @@ sealed trait Member
 case class Human(user: BasicProfile) extends Member
 case class LT(underlying: String) extends Member
 
-case class Account(name: String, stakeholder: Member)
+case class Account(name: String, stakeholder: Member, affectable: Boolean = false)
 
 trait BasicProfileSerializer {
   implicit val passwordInfoFormatter = Json.format[PasswordInfo]

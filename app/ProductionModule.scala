@@ -3,12 +3,12 @@ import controllers._
 import controllers.api._
 import play.api.data.Form
 import play.api.i18n.Lang
-import play.api.mvc.RequestHeader
+import play.api.mvc.{Flash, RequestHeader}
 import search.SimpleSearchEngine
 import securesocial.controllers._
 import securesocial.core._
 import securesocial.core.providers._
-import service.InMemoryUserService
+import service.MongoBasedUserService
 
 import scala.collection.immutable.ListMap
 
@@ -16,7 +16,7 @@ import scala.collection.immutable.ListMap
 class ProductionModule {
 
   object ProductionRuntimeEnvironment extends RuntimeEnvironment.Default[BasicProfile] {
-    override lazy val userService = new InMemoryUserService
+    override lazy val userService = new MongoBasedUserService
     //override lazy val eventListeners = List(new MyEventListener())
     override lazy val providers = ListMap(
       // oauth 2 client providers
@@ -24,7 +24,7 @@ class ProductionModule {
     )
     override lazy val viewTemplates = new ViewTemplates.Default(this){
       override def getLoginPage(form: Form[(String, String)], msg: Option[String])(implicit request: RequestHeader, lang: Lang)= {
-        views.html.login(form, msg)(request, lang, env)
+        views.html.login(form, msg)(request, lang, env, request.flash)
       }
     }
   }

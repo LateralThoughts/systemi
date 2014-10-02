@@ -5,14 +5,12 @@ import engine.AffectationEngine
 import org.bouncycastle.util.encoders.Base64
 import org.joda.time.DateTime
 import play.Logger
-import play.api.libs.concurrent.Promise
-import play.api.libs.json.{JsError, JsObject, JsResult, Json}
-import play.api.mvc.{AnyContent, Action, Controller}
+import play.api.libs.json._
+import play.api.mvc.{Action, AnyContent, Controller}
 import play.libs.Akka
 import play.modules.reactivemongo.MongoController
 import play.modules.reactivemongo.json.collection.JSONCollection
 import securesocial.core.{BasicProfile, RuntimeEnvironment}
-import util.pdf.GoogleDriveInteraction
 
 import scala.concurrent.Future
 
@@ -100,42 +98,36 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
   }
 
   def addStatusToInvoice(oid: String, status: String) = SecuredAction { implicit request =>
-    setStatusToInvoice(oid, status, request)
+    setStatusToInvoice(oid, status, request.user.email.get)
 
     Ok
   }
 
-  def affectToAccount(oid: String, account: String) = SecuredAction.async { implicit request =>
-    val futureMayBeInvoice = db
+  def affectToAccount(oid: String) = SecuredAction.async(parse.json) { implicit request =>
+    db
       .collection[JSONCollection]("invoices")
       .find(Json.obj("_id" -> Json.obj("$oid" -> oid)))
       .one[Invoice]
+      .flatMap {
+      case (mayBeInvoice: Option[Invoice]) =>
+        (for (invoice <- mayBeInvoice) yield {
+          Logger.info("Loaded invoice, creating affectations...")
+          val futures = request.body.as[JsArray].value.map { affectation =>
+            Logger.info(affectation.toString())
+            db
+              .collection[JSONCollection]("affectations")
+              .save(affectation)
+              .map(errors => errors.inError)
+          }
 
-    val futureMayBeAccount = db
-      .collection[JSONCollection]("accounts")
-      .find(Json.obj("_id" -> Json.obj("$oid" -> account)))
-      .one[Account]
+          val futureHasAtLeastOneFailure = Future.sequence(futures)
+            .map(_.foldLeft(false)((acc, current) => acc || current))
 
-    Logger.info(s"Going to load invoice $oid and account $account, saving affectation")
-    val future = for {
-      mayBeInvoice: Option[Invoice] <- futureMayBeInvoice
-      mayBeAccount: Option[Account] <- futureMayBeAccount
-    } yield (mayBeAccount, mayBeInvoice)
-
-    future.flatMap {
-      case (mayBeAccount: Option[Account], mayBeInvoice: Option[Invoice]) =>
-        (for (account <- mayBeAccount; invoice <- mayBeInvoice) yield {
-          Logger.info("Loaded invoice and account, creating multiple affectations...")
-          computeAffectationsFromConfiguration(invoice, account).map {
-            isInError => {
-              if (isInError)
-                InternalServerError
-              else {
-                Logger.info(s"Affectation completed - setting status to affected for invoice $invoice")
-                setStatusToInvoice(oid, "affected", request)
-                Ok
-              }
-            }
+          futureHasAtLeastOneFailure.map {
+            case true => InternalServerError
+            case false =>
+              setStatusToInvoice(oid, "affected", request.user.email.get)
+              Ok
           }
         }).getOrElse(Future(InternalServerError))
       case _ => Future(BadRequest)
@@ -157,9 +149,9 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
   }
 
 
-  private def setStatusToInvoice(oid: String, status: String, request: SecuredRequest[AnyContent]) = {
+  private def setStatusToInvoice(oid: String, status: String, email: String) = {
     val selector = Json.obj("_id" -> Json.obj("$oid" -> oid))
-    val lastStatus = Json.toJson(domain.Status(status, DateTime.now(), request.user.email.get))
+    val lastStatus = Json.toJson(domain.Status(status, DateTime.now(), email))
 
     val setterObj = if (List("paid", "unpaid") contains status)
       Json.obj("lastStatus" -> lastStatus, "paymentStatus" -> status)

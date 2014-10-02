@@ -26,9 +26,12 @@ trait AffectationEngine
       .collection[JSONCollection]("configuration")
       .find(Json.obj())
       .one[RatioConfiguration]
-      .flatMap {
+      .map {
       case Some(config) =>
-        val futures = createAffectationByRatioAndReturnRemainder(config, invoice, account) . map { affectation =>
+        IncomeAffectation(invoice, account,                               invoice.totalHT)
+
+      //createAffectationByRatioAndReturnRemainder(config, invoice, account, status)
+      /* . map { affectation =>
           Logger.debug(s"creating affectation of invoice for : $affectation")
           db
             .collection[JSONCollection]("affectations")
@@ -38,27 +41,37 @@ trait AffectationEngine
         val futureHasAtLeastOneFailure = Future.sequence(futures)
           .map(_.foldLeft(false)((acc, current) => acc || current))
 
-        futureHasAtLeastOneFailure
-
-      case None => Future(true)
+        futureHasAtLeastOneFailure*/
     }
   }
 
-  private def createAffectationByRatioAndReturnRemainder(config: RatioConfiguration, invoice: Invoice, account: Account) = {
+  private def createAffectationByRatioAndReturnRemainder(config: RatioConfiguration, invoice: Invoice, account: Account, status: String) = {
     val (remainderAfterExpenses, commonExpensesAffectedValue) = computeAffectedFromValueFromRatio(invoice.totalHT, config.commonExpensesRatio)
     val (remainderAfterBizPoints, bizPointsAffectedValue) = computeAffectedFromValueFromRatio(remainderAfterExpenses, config.bizPointsRatio)
     val (remainderAfterEarnings, earningsAffectedValue) = computeAffectedFromValueFromRatio(remainderAfterBizPoints, config.earningsRatio)
-    val (remainderAfterIndividuals, individualExpensesAffectedValue) = computeAffectedFromValueFromRatio(remainderAfterEarnings, config.individualExpensesRatio)
-    val (remainderAfterAll, timeoffAffectedValue) = computeAffectedFromValueFromRatio(remainderAfterIndividuals, config.timeoffExpensesRatio)
-    val ltAccount = LT("LT")
-    List(
-      IncomeAffectation(invoice, account,                               invoice.totalHT - remainderAfterAll),
-      IncomeAffectation(invoice, Account("Budget Commun", ltAccount),    commonExpensesAffectedValue),
-      IncomeAffectation(invoice, Account("Timeoff", ltAccount),          timeoffAffectedValue),
-      IncomeAffectation(invoice, account.copy(name = "Frais persos"),   individualExpensesAffectedValue),
-      IncomeAffectation(invoice, Account("Bénéfice", ltAccount),         earningsAffectedValue),
-      IncomeAffectation(invoice, Account("Points business", ltAccount),  bizPointsAffectedValue)
-    )
+    if (status == "salary") {
+      val (remainderAfterIndividuals, individualExpensesAffectedValue) = computeAffectedFromValueFromRatio(remainderAfterEarnings, config.individualExpensesRatio)
+      val (remainderAfterAll, timeoffAffectedValue) = computeAffectedFromValueFromRatio(remainderAfterIndividuals, config.timeoffExpensesRatio)
+      val ltAccount = LT("LT")
+      List(
+        IncomeAffectation(invoice, account,                               invoice.totalHT - remainderAfterAll),
+        IncomeAffectation(invoice, Account("Budget Commun", ltAccount),    commonExpensesAffectedValue),
+        IncomeAffectation(invoice, Account("Timeoff", ltAccount),          timeoffAffectedValue),
+        IncomeAffectation(invoice, account.copy(name = "Frais persos"),   individualExpensesAffectedValue),
+        IncomeAffectation(invoice, Account("Bénéfice", ltAccount),         earningsAffectedValue),
+        IncomeAffectation(invoice, Account("Points business", ltAccount),  bizPointsAffectedValue)
+      )
+    } else {
+      val (remainderAfterAll, timeoffAffectedValue) = computeAffectedFromValueFromRatio(remainderAfterEarnings, config.timeoffExpensesRatio)
+      val ltAccount = LT("LT")
+      List(
+        IncomeAffectation(invoice, account,                               invoice.totalHT - remainderAfterAll),
+        IncomeAffectation(invoice, Account("Budget Commun", ltAccount),    commonExpensesAffectedValue),
+        IncomeAffectation(invoice, Account("Timeoff", ltAccount),          timeoffAffectedValue),
+        IncomeAffectation(invoice, Account("Bénéfice", ltAccount),         earningsAffectedValue),
+        IncomeAffectation(invoice, Account("Points business", ltAccount),  bizPointsAffectedValue)
+      )
+    }
   }
 
   private def computeAffectedFromValueFromRatio(initialValue: Double, ratio: Ratio) = {

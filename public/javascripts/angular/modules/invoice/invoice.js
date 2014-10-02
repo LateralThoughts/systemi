@@ -28,15 +28,41 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sear
     .controller('ListCtrl', function($scope, $http) {
         var reload = function(scope) {
             $http.get("/api/invoices?status=affected&exclude=true").success(function (data) {
+                _.map(data, function(item) {
+                    item.totalHT = function() {
+                        var lines = this.invoice.invoice;
+                        var value = _.reduce(lines, function(sum, line) { sum += line.dailyRate * line.days; return sum}, 0);
+                        return value;
+                    }
+                });
                 scope.invoices = data;
             });
             $http.get("/api/accounts").success(function(data){
+                _.map(data, function(item) {
+                    if (item.stakeholder.user.fullName) {
+                        item.fullName = item.name + " (" + item.stakeholder.user.fullName + ")";
+                    } else {
+                        item.fullName = item.name + " (" + item.stakeholder.underlying + ")";
+                    }
+                });
                 scope.accounts = data;
             });
         };
         reload($scope);
-        $scope.affect = function(invoice, accountOid) {
-          $http.post("/api/invoices/" + invoice._id.$oid + "/affect/" + accountOid).success(function() { reload($scope) })
+        $scope.open = function(invoice) {
+            $scope.affectations = [{
+                value: invoice.totalHT()
+            }];
+            $scope.invoice = invoice;
+            $('#affectationModal').modal('show');
+        };
+        $scope.affect = function(affectations, invoice) {
+            _.map(affectations, function(item) { delete item.$$hashKey; });
+            $http.post("/api/affectations/" + invoice._id.$oid, JSON.stringify(affectations))
+                .success(function(data) {
+                    reload($scope);
+                    $('#affectationModal').modal('hide');
+                });
         };
     })
     .controller('InProgressCtrl', function($scope, $http) {

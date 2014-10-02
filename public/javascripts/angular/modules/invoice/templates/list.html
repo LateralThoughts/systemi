@@ -19,12 +19,63 @@
         <td>
             <a href="/api/invoices/document/{{ item._id.$oid }}">Voir la facture (PDF)</a>
             <div>
-                <select ng-model="selectedAccount" ng-options="account._id.$oid as account.name for account in accounts">
-                    <option value="">---- Non affecté -----</option>
-                </select>
-                <button class="btn" ng-click="affect(item, selectedAccount)">Affecter la facture</button>
+                <button class="btn btn-primary" ng-click="open(item)">Affecter la facture</button>
             </div>
         </td>
     </tr>
     </tbody>
 </table>
+
+<!-- Modal -->
+<div class="modal fade" id="affectationModal" tabindex="-1" role="dialog" aria-labelledby="affectationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="affectationModalLabel">Propositions d'affectations à un budget</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Budget</th>
+                        <th>Propriétaire</th>
+                        <th>Montant</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr data-ng-repeat="item in affectations">
+                        <td>
+                            <select ng-model="item.account" ng-options="account.fullName for account in accounts">
+                                <option value="">---- Non affecté -----</option>
+                            </select>
+                        </td>
+                        <td>
+                            <span ng-show="item.account.stakeholder.user.fullName">{{ item.account.stakeholder.user.fullName }}</span>
+                            <span ng-show="item.account.stakeholder.underlying">{{ item.account.stakeholder.underlying }}</span>
+                        </td>
+                        <td><input type="number" ng-model="item.value"/></td>
+                        <td>
+                            <div class="col-md-1">
+                                <button type="button" class="add-task-btn btn btn-primary btn-sm" ng-click="addTask()">
+                                    <span class="glyphicon glyphicon-plus"></span>
+                                </button>
+                            </div>
+                            <div class="col-md-1">
+                                <button type="button" class="delete-task-btn btn btn-danger btn-sm" ng-click="deleteTask()">
+                                    <span class="glyphicon glyphicon-minus"></span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" ng-click="affect(affectations, invoice)">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>

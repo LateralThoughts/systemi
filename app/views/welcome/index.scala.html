@@ -1,0 +1,26 @@
+@(user: securesocial.core.BasicProfile)(implicit request: RequestHeader, env: securesocial.core.RuntimeEnvironment[securesocial.core.BasicProfile], flash: Flash)
+
+@main(user) {
+    <div class="container">
+    <h3>Bienvenue chez Lateral Thoughts !<br/>
+        <small>Nous avons besoin de quelques informations pour finaliser ton inscription à la république</small>
+    </h3>
+    <form class="form-horizontal">
+        <fieldset>
+            <div class="control-group">
+                <label class="control-label" for="status">Tu es rentré chez LT en tant que :</label>
+                <div class="controls">
+                    <label class="radio" for="status-0">
+                        <input type="radio" name="status" id="status-0" value="Salarié" checked="checked">
+                        Salarié
+                    </label>
+                    <label class="radio" for="status-1">
+                        <input type="radio" name="status" id="status-1" value="Freelance">
+                        Freelance
+                    </label>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+    </div>
+}

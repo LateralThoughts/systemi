@@ -11,6 +11,7 @@ GET         /members                                  @controllers.MembersContro
 GET         /activity                                 @controllers.ActivityController.index
 GET         /client                                   @controllers.ClientController.clientsView
 GET         /expense                                  @controllers.ExpenseController.index
+GET         /welcome                                  @controllers.WelcomeController.index
 
 # client resources
 GET         /api/clients                              @controllers.api.ClientApiController.search(q: Option[String])
@@ -21,7 +22,7 @@ PUT         /api/clients/:id                          @controllers.api.ClientApi
 POST        /api/invoice                              @controllers.api.InvoiceApiController.createAndPushInvoice
 GET         /api/invoices                             @controllers.api.InvoiceApiController.findByStatus(status: Option[String], exclude: Option[Boolean])
 POST        /api/invoices/:oid/status/:status         @controllers.api.InvoiceApiController.addStatusToInvoice(oid: String, status: String)
-POST        /api/invoices/:oid/affect/:account        @controllers.api.InvoiceApiController.affectToAccount(oid: String, account: String)
+POST        /api/affectations/:oid                     @controllers.api.InvoiceApiController.affectToAccount(oid: String)
 GET         /api/invoices/document/:oid               @controllers.api.InvoiceApiController.getPdfByInvoice(oid: String)
 
 # expense resources

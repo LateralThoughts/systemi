@@ -2,6 +2,7 @@ package service
 
 import play.Logger
 import play.api.Play.current
+import reactivemongo.api.DefaultDB
 import securesocial.core._
 import securesocial.core.services._
 import securesocial.core.providers.{MailToken}
@@ -9,16 +10,17 @@ import securesocial.core.providers.{MailToken}
 import scala.concurrent.Future
 import play.modules.reactivemongo.json.collection.JSONCollection
 import play.modules.reactivemongo.ReactiveMongoPlugin
-import domain.BasicProfileSerializer
+import domain._
 import play.api.libs.json.Json
 
 
-class InMemoryUserService() extends UserService[BasicProfile]
-with BasicProfileSerializer {
+class MongoBasedUserService()
+  extends UserService[BasicProfile]
+  with BasicProfileSerializer {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   /**
-   * Finds a SocialUser that maches the specified id
+   * Finds a SocialUser that matches the specified id
    *
    * @param providerId the provider id
    * @param userId the user id
@@ -57,8 +59,9 @@ with BasicProfileSerializer {
       .map {errors =>
       if (errors.inError)
         Logger.warn(s"Failed to save user '${profile.email} when logged")
-      else
+      else {
         Logger.info(s"Successfully saved user '${profile.email}' as log in happened")
+      }
     }
 
     Future(profile)
@@ -129,4 +132,5 @@ with BasicProfileSerializer {
    *
    */
   def deleteExpiredTokens() {}
+
 }

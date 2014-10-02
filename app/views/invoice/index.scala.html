@@ -1,4 +1,4 @@
-@(user: securesocial.core.BasicProfile)(implicit request: play.api.mvc.RequestHeader, env: securesocial.core.RuntimeEnvironment[securesocial.core.BasicProfile])
+@(user: securesocial.core.BasicProfile)(implicit request: play.api.mvc.RequestHeader, env: securesocial.core.RuntimeEnvironment[securesocial.core.BasicProfile], flash: Flash)
 
 @main(user, "invoice") {
     <ul class="nav nav-tabs" role="tablist" data-ng-controller="HeaderCtrl">
