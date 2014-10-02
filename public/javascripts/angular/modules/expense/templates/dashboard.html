@@ -1,7 +1,8 @@
 <h2>Liste des factures non-affectées *complètement*</h2>
 
-<select id="accountSelector" name="accountId" ng-model="search.account" ng-options="account.name for account in accounts">
-    <option value="all">Tous</option>
+<select id="accountSelector" ng-model="search.account" >
+    <option value="">Tous</option>
+    <option ng-repeat="account in accounts" value="{{account.name}}">{{account.name}}</option>
 </select>
 
 <table class="table table-bordered">
