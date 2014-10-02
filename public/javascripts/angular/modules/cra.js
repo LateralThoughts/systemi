@@ -113,7 +113,11 @@ facstemi.controller('CraController', function($scope, $modal, $log, $http, Clien
         }
     };
 
-    $('#reportrange span').html(moment().utc().startOf('month').format('MMMM D, YYYY') + ' - ' + moment().utc().endOf('month').format('MMMM D, YYYY'));
-
     $('#reportrange').daterangepicker(optionSet1, $scope.datesSelected);
+
+    // workaround to default select current month at page loading
+    $('#reportrange').click();
+    setTimeout(function() {
+        $('.daterangepicker .ranges li')[4].click();
+    }, 0);
 });
