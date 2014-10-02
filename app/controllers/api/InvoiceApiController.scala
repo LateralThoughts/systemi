@@ -48,7 +48,11 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
 
           if (shouldUpload) {
             val status = domain.Status("created", DateTime.now(), request.user.email.get)
-            invoiceActor ! Invoice(invoiceRequest, Attachment("application/pdf", stub = false, generatedPdfDocument), List(status), status)
+            val accessToken: String = request.user.oAuth2Info.map( _.accessToken ).get
+            invoiceActor ! (
+              Invoice(invoiceRequest, Attachment("application/pdf", stub = false, generatedPdfDocument), List(status), status),
+              accessToken
+            )
           }
 
           Ok(generatedPdfDocument).as("application/pdf")
