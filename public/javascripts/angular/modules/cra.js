@@ -1,5 +1,6 @@
-facstemi.controller('CraController', function($scope, $modal, $log, $http, Client) {
-    $scope.cra = { days : [] };
+facstemi.controller('CraController', ['$scope', '$modal', '$log', '$http', 'Client', 'default_contractor',
+    function($scope, $modal, $log, $http, Client, default_contractor) {
+    $scope.cra = { days : [], contractor : default_contractor};
 
     $scope.datesSelected = function(start, end, label) {
         $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
@@ -120,4 +121,4 @@ facstemi.controller('CraController', function($scope, $modal, $log, $http, Clien
     setTimeout(function() {
         $('.daterangepicker .ranges li')[4].click();
     }, 0);
-});
+}]);
