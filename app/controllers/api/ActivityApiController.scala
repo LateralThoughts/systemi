@@ -2,7 +2,7 @@ package controllers.api
 
 import securesocial.core.RuntimeEnvironment
 import play.api.mvc.Controller
-import play.modules.reactivemongo.{ReactiveMongoPlugin, MongoController}
+import play.modules.reactivemongo.MongoController
 import domain._
 import util.pdf.GoogleDriveInteraction
 import play.api.libs.json.{JsObject, Json, JsResult, JsError}
@@ -13,7 +13,6 @@ import play.modules.reactivemongo.json.collection.JSONCollection
 import org.bouncycastle.util.encoders.Base64
 import play.api.mvc.Action
 import scala.concurrent.Future
-import play.api.Play.current
 import reactivemongo.bson.BSONObjectID
 import play.libs.Akka
 
@@ -33,7 +32,8 @@ class ActivityApiController(override implicit val env: RuntimeEnvironment[BasicP
     request.body.validate(activityReqFormat) match {
 
       case errors: JsError =>
-        Future(BadRequest(errors.toString).as("application/json"))
+        val errorMessage = "La requête ne peut être traitée à cause de données non valides, merci de corriger le formulaire"
+        Future(Ok(controllers.routes.ActivityController.index().absoluteURL()).flashing(("error",errorMessage)))
 
       case result: JsResult[ActivityRequest] =>
         val generatedPdfDocument = activityToPdfBytes(result.get)
