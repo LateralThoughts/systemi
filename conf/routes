@@ -5,7 +5,7 @@
 # Home page
 GET         /                                         @controllers.Application.index
 GET         /invoice                                  @controllers.InvoiceController.index
-GET         /business                                 @controllers.BusinessPointsController.index
+GET         /contribution                            @controllers.ContributionsController.index
 GET         /config                                   @controllers.ConfigurationController.index
 GET         /members                                  @controllers.MembersController.index
 GET         /activity                                 @controllers.ActivityController.index
@@ -47,6 +47,11 @@ GET         /api/config                               @controllers.api.Configura
 
 # members resources
 GET         /api/members                              @controllers.api.MembersApiController.findAll
+
+# contributions ressources
+GET         /api/contributions                        @controllers.api.ContributionsApiController.findByType(contributionType : Option[String])
+POST        /api/contributions                        @controllers.api.ContributionsApiController.createContribution
+
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                             controllers.Assets.at(path="/public", file)

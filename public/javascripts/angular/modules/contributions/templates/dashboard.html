@@ -17,11 +17,11 @@
     </tr>
     </thead>
     <tbody>
-    <tr data-ng-repeat="item in contributions | limit:10 ">
-        <td>{{ item.contribution.date }}</td>
-        <td>{{ item.contribution.title }}</td>
-        <td>{{ item.contribution.member }}</td>
-        <td>{{ item.contribution.points }}</td>
+    <tr data-ng-repeat="contribution in contributions | limit:10 ">
+        <td>{{ contribution.date }}</td>
+        <td>{{ contribution.title }}</td>
+        <td>{{ contribution.member }}</td>
+        <td>{{ contribution.points }}</td>
     </tr>
     </tbody>
 </table>
@@ -37,11 +37,11 @@
     </tr>
     </thead>
     <tbody>
-    <tr data-ng-repeat="item in distributions | limit:10 ">
-        <td>{{ item.distribution.date }}</td>
-        <td>{{ item.distribution.points }}</td>
-        <td>{{ item.contribution.pointValue }}</td>
-        <td>{{ item.contribution.total }}</td>
+    <tr data-ng-repeat="distribution in distributions | limit:10 ">
+        <td>{{ distribution.date }}</td>
+        <td>{{ distribution.points }}</td>
+        <td>{{ contribution.pointValue }}</td>
+        <td>{{ contribution.total }}</td>
     </tr>
     </tbody>
 </table>

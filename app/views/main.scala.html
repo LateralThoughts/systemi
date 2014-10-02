@@ -23,7 +23,7 @@
         <script src="@routes.Assets.at("javascripts/angular/modules/customer/customer.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/angular/modules/invoice/invoice.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/angular/modules/expense/expense.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascripts/angular/modules/businesspoints/businesspoints.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/angular/modules/contributions/contributions.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/angular/modules/members/members.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/angular/modules/configurations/configurations.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/angular/modules.js")" type="text/javascript"></script>
@@ -45,11 +45,11 @@
                     <li @if(request.uri == routes.InvoiceController.index.url){class="active"}><a href="@routes.InvoiceController.index">Factures</a></li>
                     <li @if(request.uri == routes.ActivityController.index.url){class="active"}><a href="@routes.ActivityController.index">Cra</a></li>
                     <li @if(request.uri == routes.ExpenseController.index.url){class="active"}><a href="@routes.ExpenseController.index">Sorties</a></li>
-                    <li class="dropdown @if(List(routes.ClientController.clientsView.url, routes.MembersController.index.url, routes.ConfigurationController.index.url, routes.BusinessPointsController.index.url).contains(request.uri)){active} ">
+                    <li class="dropdown @if(List(routes.ClientController.clientsView.url, routes.MembersController.index.url, routes.ConfigurationController.index.url, routes.ContributionsController.index.url).contains(request.uri)){active} ">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Intendance<span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu" role="menu">
-                            <li @if(request.uri == routes.BusinessPointsController.index.url){class="active"}><a href="@routes.BusinessPointsController.index">Biz Points</a></li>
+                            <li @if(request.uri == routes.ContributionsController.index.url){class="active"}><a href="@routes.ContributionsController.index">Biz Points</a></li>
                             <li @if(request.uri == routes.ClientController.clientsView.url){class="active"}><a href="@routes.ClientController.clientsView">Clients</a></li>
                             <li @if(request.uri == routes.MembersController.index.url){class="active"}><a href="@routes.MembersController.index">Membres</a></li>
                             <li @if(request.uri == routes.ConfigurationController.index.url){class="active"}><a href="@routes.ConfigurationController.index">Config</a></li>
