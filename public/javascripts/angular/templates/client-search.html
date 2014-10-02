@@ -1,4 +1,5 @@
-<input type="text" class="form-control" name="clientNameSearch" id="clientNameSearch" placeholder="Nom de votre client"
+<input type="text" class="form-control" name="clientNameSearch" id="clientNameSearch" placeholder="Rechercher un client"
+       autocomplete="off"
        ng-model="client"
        typeahead="client as client.name for client in search($viewValue)"
        typeahead-template-url="/assets/javascripts/angular/templates/client-autocomplete.html"/>
