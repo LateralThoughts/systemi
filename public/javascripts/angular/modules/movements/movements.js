@@ -1,13 +1,13 @@
-angular.module('expense', ['ui.bootstrap', 'ngResource', 'ngRoute'])
+angular.module('movements', ['ui.bootstrap', 'ngResource', 'ngRoute'])
     .config(function($routeProvider) {
         $routeProvider
             .when('/create', {
                 controller:'CreateCtrl',
-                templateUrl:'/assets/javascripts/angular/modules/expense/templates/create.html'
+                templateUrl:'/assets/javascripts/angular/modules/movements/templates/create.html'
             })
             .when('/dashboard', {
                 controller:'DashboardCtrl',
-                templateUrl:'/assets/javascripts/angular/modules/expense/templates/dashboard.html'
+                templateUrl:'/assets/javascripts/angular/modules/movements/templates/dashboard.html'
             })
             .otherwise({
                 redirectTo:'/dashboard'
@@ -27,8 +27,8 @@ angular.module('expense', ['ui.bootstrap', 'ngResource', 'ngRoute'])
                 });
             };
             reload($scope);
-        $http.get("/api/expenses").success(function(data){
-            $scope.expenses = data;
+        $http.get("/api/movements").success(function(data){
+            $scope.movements = data;
         })
     })
     .controller('CreateCtrl', function($scope, $http) {

@@ -1,0 +1,29 @@
+<h2>Liste des mouvements</h2>
+
+<select id="accountSelector" ng-model="search.account" >
+    <option value="">Tous</option>
+    <option ng-repeat="account in accounts" value="{{account.name}}">{{account.fullName}}</option>
+</select>
+
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>Source</th>
+        <th>Destination</th>
+        <th>Montant</th>
+        <th>Créé le</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    <tr data-ng-repeat="item in movements | filter: search">
+
+        <td>{{ item.from.name }} ({{ item.from.stakeholder.user.fullName }})</td>
+        <td>{{ item.to.name }} ({{ item.to.stakeholder.user.fullName }})</td>
+        <td>{{ item.value }}€</td>
+        <td>{{ item.createdAt }}</td>
+        <td></td>
+    </tr>
+    </tbody>
+</table>

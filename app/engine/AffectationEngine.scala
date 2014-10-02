@@ -21,28 +21,13 @@ trait AffectationEngine
    *  - x% for timeoff
    *  - etc.
    */
-  def computeAffectationsFromConfiguration(invoice: Invoice, account: Account) = {
-    db
-      .collection[JSONCollection]("configuration")
-      .find(Json.obj())
-      .one[RatioConfiguration]
-      .map {
-      case Some(config) =>
-        IncomeAffectation(invoice, account,                               invoice.totalHT)
-
-      //createAffectationByRatioAndReturnRemainder(config, invoice, account, status)
-      /* . map { affectation =>
-          Logger.debug(s"creating affectation of invoice for : $affectation")
-          db
-            .collection[JSONCollection]("affectations")
-            .save(Json.toJson(affectation))
-            .map(errors => errors.inError)
-        }
-        val futureHasAtLeastOneFailure = Future.sequence(futures)
-          .map(_.foldLeft(false)((acc, current) => acc || current))
-
-        futureHasAtLeastOneFailure*/
-    }
+  def computeAffectationsFromConfiguration(invoice: Invoice, account: Account) = db
+    .collection[JSONCollection]("configuration")
+    .find(Json.obj())
+    .one[RatioConfiguration]
+    .map {
+    case Some(config) =>
+      IncomeAffectation(invoice, account,                               invoice.totalHT)
   }
 
   private def createAffectationByRatioAndReturnRemainder(config: RatioConfiguration, invoice: Invoice, account: Account, status: String) = {

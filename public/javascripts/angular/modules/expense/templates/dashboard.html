@@ -2,7 +2,7 @@
 
 <select id="accountSelector" ng-model="search.account.user" >
     <option value="">Tous</option>
-    <option ng-repeat="account in accounts" value="{{account.user.name}}">{{account.user.name}}</option>
+    <option ng-repeat="account in accounts" value="{{account.user.name}}">{{account.fullName}}</option>
 </select>
 
 <table class="table table-bordered">
@@ -19,7 +19,7 @@
 
     <tr data-ng-repeat="item in expenses | filter: search">
 
-        <td>Depuis "{{ item.account.name }}", créé le {{ item.createdAt }}</td>
+        <td>Depuis "{{ item.account.name }} ({{ item.account.stakeholder.user.fullName }})", créé le {{ item.createdAt }}</td>
         <td>{{ item.expenseValue }}€</td>
         <td>{{ item.expenseType }}</td>
         <td>{{ item.description }}</td>

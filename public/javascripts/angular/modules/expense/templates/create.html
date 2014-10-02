@@ -15,7 +15,7 @@
 
             <div class="client_form col-md-6">
                 <div class="form-group">
-                    <select name="accountId" ng-model="selectedAccount" ng-options="account.name for account in accounts track by account._id.$oid">
+                    <select name="accountId" ng-model="selectedAccount" ng-options="account.fullName for account in accounts track by account._id.$oid">
                         <option value="">---- Non affecté ----</option>
                     </select>
                 </div>

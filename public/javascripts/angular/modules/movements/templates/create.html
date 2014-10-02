@@ -1,0 +1,30 @@
+<h2>Créer un nouveau mouvement</h2>
+<div id="facture_page" class="row">
+    <form action="/api/movements" method="POST" role="form">
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <select name="from" ng-model="from" ng-options="account.fullName for account in accounts track by account._id.$oid">
+                        <option value="">---- Source ----</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <select name="to" ng-model="to" ng-options="account.fullName for account in accounts track by account._id.$oid">
+                        <option value="">---- Destination ----</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="form-group">
+                    <input type="number" class="form-control" name="value" placeholder="Montant du mouvement">
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-success">Bouge ton boule</button>
+    </form>
+</div>

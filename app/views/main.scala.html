@@ -23,6 +23,7 @@
         <script src="@routes.Assets.at("javascripts/angular/modules/cra.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/angular/modules/customer/customer.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/angular/modules/invoice/invoice.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/angular/modules/movements/movements.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/angular/modules/expense/expense.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/angular/modules/contributions/contributions.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/angular/modules/members/members.js")" type="text/javascript"></script>
@@ -54,6 +55,7 @@
                             <li @if(request.uri == routes.ClientController.clientsView.url){class="active"}><a href="@routes.ClientController.clientsView">Clients</a></li>
                             <li @if(request.uri == routes.MembersController.index.url){class="active"}><a href="@routes.MembersController.index">Membres</a></li>
                             <li @if(request.uri == routes.ConfigurationController.index.url){class="active"}><a href="@routes.ConfigurationController.index">Config</a></li>
+                            <li @if(request.uri == routes.MovementsController.index.url){class="active"}><a href="@routes.MovementsController.index">Mouvements</a></li>
                         </ul>
                     </li>
                     @if(user != null) {
