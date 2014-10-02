@@ -21,7 +21,7 @@ trait GoogleDriveInteraction extends NextInvoiceNumbersParser {
 
   private val nextFolderId: String = "0B8t2tXgYCAKNRk1kcF83V2lHT2c"
 
-  def upload(token: String, invoice : InvoiceRequest, content : Array[Byte]) {
+  def uploadInvoiceToDrive(token: String, invoice : InvoiceRequest, content : Array[Byte]) {
     val credentials = createGoogleCredentials(token)
     val service = new Drive.Builder(new NetHttpTransport, new JacksonFactory, credentials).build()
     val documentFile = createDocumentFile(invoice)
@@ -58,30 +58,11 @@ trait GoogleDriveInteraction extends NextInvoiceNumbersParser {
     patchRequest.execute()
   }
 
-  def pushToGoogleDrive(invoiceRequest: InvoiceRequest, generatedInvoice: Array[Byte])(implicit request: RequestHeader) {
-    sessionTokenPair match {
-      case Some(tokens) => {
-        upload(tokens.token, invoiceRequest, generatedInvoice)
-      }
-      case _ => log.warn("no access token found - the invoice won't be uploaded to Google Drive")
-    }
-  }
-
   private def createGoogleCredentials(token: String)  = {
     val credentials = new GoogleCredential()
     credentials.setAccessToken(token)
     credentials
   }
-
-  private def sessionTokenPair(implicit request: RequestHeader): Option[RequestToken] = {
-    for {
-      token <- request.session.get("token")
-      secret <- request.session.get("secret")
-    } yield {
-      RequestToken(token, secret)
-    }
-  }
-
 
   private def createDocumentFile(invoice: InvoiceRequest) = {
     val document = new File()
