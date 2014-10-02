@@ -20,8 +20,10 @@ angular.module('businesspoints', ['ui.bootstrap', 'ngResource', 'ngRoute'])
     .controller('DashboardCtrl', function($scope, $http) {
 
     })
-    .controller('CreateCtrl', function($scope) {
-
+    .controller('CreateCtrl', function($scope, $http) {
+        $http.get("/api/members").success(function(data) {
+            $scope.members = data;
+        })
     })
     .controller('DistribCtrl', function($scope) {
 

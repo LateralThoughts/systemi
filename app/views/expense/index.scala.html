@@ -1,9 +1,9 @@
 @(user: securesocial.core.BasicProfile)(implicit request: play.api.mvc.RequestHeader, env: securesocial.core.RuntimeEnvironment[securesocial.core.BasicProfile])
 
-@main(user, "members") {
+@main(user, "expense") {
     <ul class="nav nav-tabs" role="tablist" data-ng-controller="HeaderCtrl">
-        <li ng-class="{ active: isActive('/dashboard')}"><a href="#dashboard">Dashboard</a></li>
-        <li ng-class="{ active: isActive('/create')}"><a href="#create">Ajouter un membre</a></li>
+        <li ng-class="{ active: isActive('/dashboard')}"><a href="#dashboard">DashBoard</a></li>
+        <li ng-class="{ active: isActive('/create')}"><a href="#create">Dépenser</a></li>
     </ul>
     <div ng-view class="row"/>
 }
