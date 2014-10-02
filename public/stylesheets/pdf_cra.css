@@ -75,6 +75,7 @@
 .consultant_footer .table {
     display: table;
     width: 100%;
+    table-layout: fixed;
 }
 
 .consultant_footer .row {
@@ -83,10 +84,6 @@
 
 .consultant_footer .cell {
     display: table-cell;
-}
-
-.consultant_footer .cell .first {
-    width: 10cm;
 }
 
 .days_table .tr {
