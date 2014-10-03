@@ -2,7 +2,7 @@
 <table class="table table-bordered">
     <thead>
     <tr>
-        <th>Date</th>
+        <th>Titre</th>
         <th>Prestataire</th>
         <th>Client</th>
         <th>Document</th>
@@ -12,7 +12,7 @@
     <tbody>
     <tr data-ng-repeat="item in activities">
 
-        <td>{{ item.activity.days[days.length-1].day}}</td>
+        <td>{{ item.activity.title }}</td>
         <td>{{ item.activity.contractor }}</td>
         <td>{{ item.activity.client.name }}</td>
         <td>

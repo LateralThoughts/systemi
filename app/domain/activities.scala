@@ -13,6 +13,7 @@ case class ActivityRequest(tjm : Double,
                     numberOfDays : Double,
                     client: Client,
                     contractor: String,
+                    title: String,
                     days : List[ActivityDay] = List()) {
   
   def toInvoice(invoiceNumber: String) = {
@@ -49,7 +50,8 @@ trait ActivitySerializer extends InvoiceSerializer {
     val numberOfDays = activityRequest.numberOfDays
     val tjm = activityRequest.tjm
     val contractor = activityRequest.contractor
-    PDF.toBytes(views.html.activity.template(client, days, numberOfDays, tjm, contractor))
+    val subtitle = activityRequest.title
+    PDF.toBytes(views.html.activity.template(client, days, numberOfDays, tjm, contractor, subtitle))
    }
 }
 
