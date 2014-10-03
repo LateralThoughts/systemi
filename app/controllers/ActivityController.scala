@@ -8,7 +8,7 @@ with securesocial.core.SecureSocial[BasicProfile] {
 
   def index = SecuredAction {
     implicit request =>
-      Ok(views.html.cra.form(request.user))
+      Ok(views.html.activity.index(request.user))
   }
 
 }

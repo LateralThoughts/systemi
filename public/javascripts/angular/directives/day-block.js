@@ -31,7 +31,7 @@ var ModalInstanceCtrl = function ($scope, $modalInstance, day) {
   };
 };
 
-facstemi
+angular.module("day-block", [])
     .directive('ltDayBlock', function ($modal, $log) {
         return {
             templateUrl:'/assets/javascripts/angular/templates/day-block.html',

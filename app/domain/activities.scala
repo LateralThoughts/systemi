@@ -49,7 +49,7 @@ trait ActivitySerializer extends InvoiceSerializer {
     val numberOfDays = activityRequest.numberOfDays
     val tjm = activityRequest.tjm
     val contractor = activityRequest.contractor
-    PDF.toBytes(views.html.cra.template(client, days, numberOfDays, tjm, contractor))
+    PDF.toBytes(views.html.activity.template(client, days, numberOfDays, tjm, contractor))
    }
 }
 

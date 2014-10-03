@@ -1,0 +1,59 @@
+<h2>Créer une nouvelle activité</h2>
+
+<form class="form" ng-submit="submit()" ng-controller="CreateCtrl" name="activityCreationForm" novalidate>
+
+    <div class="row">
+
+        <h4>Indiquez les informations générales</h4>
+
+        <div class="form-group">
+            <label for="contractor">Nom du prestataire</label>
+            <input type="text" class="form-control" name="contractor" id="contractor" ng-model="cra.contractor">
+        </div>
+
+        <div class="form-group">
+            <label for="tjm">TJM</label>
+            <input type="number" step="any" class="form-control" ng-model="cra.tjm" name="tjm" id="tjm" placeholder="Indiquez le TJM">
+        </div>
+
+        <lt-client-search client="cra.client"></lt-client-search>
+
+        <h4>Indiquez vos nombres de jours d'activité: </h4>
+
+        <h6>Ou</h6>
+
+        <h4>Sélectionnez vos dates d'activité : </h4>
+        <div class="well" style="overflow : auto">
+            <div id="reportrange" class="pull-right" style="background : #fff ; cursor : pointer ; padding : 5 px 10 px ; border : 1 px solid #ccc">
+                <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                <span></span> <b class="caret"></b>
+            </div>
+        </div>
+        <div class="allDaysBlock">
+            <table class="table">
+                <thead>
+                <tr>
+                    <td>Mondi</td>
+                    <td>Lardi</td>
+                    <td>Credi</td>
+                    <td>Ze-dit</td>
+                    <td>Friture-Day</td>
+                    <td>Sadi</td>
+                    <td>Gromanche</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="week in weeks">
+                    <td ng-repeat="day in week">
+                        <lt-day-block ng-if="day.day" day="day"></lt-day-block>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div></div>
+
+        <button type="submit" class="btn btn-success pull-right">Soumettre</button>
+    </div>
+</form>

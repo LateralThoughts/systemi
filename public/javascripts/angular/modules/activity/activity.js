@@ -1,4 +1,22 @@
-facstemi.controller('CraController', ['$scope', '$modal', '$log', '$http', 'Client', 'default_contractor',
+angular.module('activity', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-search', 'default-values', 'day-block'])
+    .config(function($routeProvider) {
+        $routeProvider
+            .when('/list', {
+                controller:'ListCtrl',
+                templateUrl:'/assets/javascripts/angular/modules/activity/templates/list.html'
+            })
+            .when('/create', {
+                controller:'CreateCtrl',
+                templateUrl:'/assets/javascripts/angular/modules/activity/templates/create.html'
+            })
+            .otherwise({
+                redirectTo:'/list'
+            });
+    })
+    .controller('ListCtrl', function($scope, $http) {
+
+        })
+    .controller('CreateCtrl', ['$scope', '$modal', '$log', '$http', 'Client', 'default_contractor',
     function ($scope, $modal, $log, $http, Client, default_contractor) {
         $scope.cra = { days: [], contractor: default_contractor};
 
@@ -122,4 +140,10 @@ facstemi.controller('CraController', ['$scope', '$modal', '$log', '$http', 'Clie
         setTimeout(function () {
             $('.daterangepicker .ranges li')[4].click();
         }, 0);
-    }]);
+    }])
+    .controller("HeaderCtrl", function($scope, $location) {
+
+        $scope.isActive = function (viewLocation) {
+            return viewLocation === $location.path();
+        };
+    });
