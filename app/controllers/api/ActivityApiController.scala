@@ -61,4 +61,20 @@ class ActivityApiController(override implicit val env: RuntimeEnvironment[BasicP
 
   }
 
+  def findAll = SecuredAction.async {
+    db
+      .collection[JSONCollection]("activities")
+      .find(Json.obj())
+      .cursor[JsObject]
+      .collect[List]()
+      .map(users => Ok(Json.toJson(users)))
+  }
+
+  def delete(oid: String) = Action.async {
+    db
+    .collection[JSONCollection]("activities")
+    .remove(Json.obj("_id" -> Json.obj("$oid" -> oid)))
+    .map(x => Ok(x.stringify))
+  }
+
 }

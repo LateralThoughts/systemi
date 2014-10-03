@@ -6,6 +6,7 @@
         <th>Prestataire</th>
         <th>Client</th>
         <th>Document</th>
+        <th>Delete</th>
     </tr>
     </thead>
     <tbody>
@@ -16,6 +17,9 @@
         <td>{{ item.activity.client.name }}</td>
         <td>
             <a href="/api/activity/document/{{ item._id.$oid }}">Voir le CRA (Fichier PDF)</a>
+        </td>
+        <td>
+            <button ng-click="deleteActivity(item._id.$oid)">delete</button>
         </td>
     </tr>
     </tbody>

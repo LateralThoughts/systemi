@@ -14,7 +14,17 @@ angular.module('activity', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sea
             });
     })
     .controller('ListCtrl', function($scope, $http) {
+        function reloadActivities() {
+            $http.get("/api/activities").success(function (data) {
+                $scope.activities = data;
+            });
+        }
 
+        reloadActivities();
+        $scope.deleteActivity = function(id) {
+            $http.delete("/api/activity/" + id);
+            reloadActivities()
+        };
         })
     .controller('CreateCtrl', ['$scope', '$modal', '$log', '$http', 'Client', 'default_contractor',
     function ($scope, $modal, $log, $http, Client, default_contractor) {

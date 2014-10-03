@@ -3,63 +3,65 @@
 # ~~~~
 
 # Home page
-GET         /                                         @controllers.Application.index
-GET         /invoice                                  @controllers.InvoiceController.index
-GET         /contribution                             @controllers.ContributionsController.index
-GET         /config                                   @controllers.ConfigurationController.index
-GET         /members                                  @controllers.MembersController.index
-GET         /activity                                 @controllers.ActivityController.index
-GET         /client                                   @controllers.ClientController.clientsView
-GET         /expense                                  @controllers.ExpenseController.index
-GET         /welcome                                  @controllers.WelcomeController.index
-GET         /movements                                @controllers.MovementsController.index
+GET         /                                        @controllers.Application.index
+GET         /invoice                                 @controllers.InvoiceController.index
+GET         /contribution                            @controllers.ContributionsController.index
+GET         /config                                  @controllers.ConfigurationController.index
+GET         /members                                 @controllers.MembersController.index
+GET         /activity                                @controllers.ActivityController.index
+GET         /client                                  @controllers.ClientController.clientsView
+GET         /expense                                 @controllers.ExpenseController.index
+GET         /welcome                                 @controllers.WelcomeController.index
+GET         /movements                               @controllers.MovementsController.index
 
 # client resources
-GET         /api/clients                              @controllers.api.ClientApiController.search(q: Option[String])
-POST        /api/clients                              @controllers.api.ClientApiController.addClient
-PUT         /api/clients/:id                          @controllers.api.ClientApiController.modifyClient(id: String)
+GET         /api/clients                             @controllers.api.ClientApiController.search(q: Option[String])
+POST        /api/clients                             @controllers.api.ClientApiController.addClient
+PUT         /api/clients/:id                         @controllers.api.ClientApiController.modifyClient(id: String)
 
 # invoice resources
-POST        /api/invoice                              @controllers.api.InvoiceApiController.createAndPushInvoice
-GET         /api/invoices                             @controllers.api.InvoiceApiController.findByStatus(status: Option[String], exclude: Option[Boolean])
-POST        /api/invoices/:oid/status/:status         @controllers.api.InvoiceApiController.addStatusToInvoice(oid: String, status: String)
-POST        /api/affectations/:oid                     @controllers.api.InvoiceApiController.affectToAccount(oid: String)
-GET         /api/invoices/document/:oid               @controllers.api.InvoiceApiController.getPdfByInvoice(oid: String)
+POST        /api/invoice                             @controllers.api.InvoiceApiController.createAndPushInvoice
+GET         /api/invoices                            @controllers.api.InvoiceApiController.findByStatus(status: Option[String], exclude: Option[Boolean])
+POST        /api/invoices/:oid/status/:status        @controllers.api.InvoiceApiController.addStatusToInvoice(oid: String, status: String)
+POST        /api/affectations/:oid                   @controllers.api.InvoiceApiController.affectToAccount(oid: String)
+GET         /api/invoices/document/:oid              @controllers.api.InvoiceApiController.getPdfByInvoice(oid: String)
 
 # expense resources
-POST        /api/expenses                             @controllers.api.ExpenseApiController.createExpense
-GET         /api/expenses                             @controllers.api.ExpenseApiController.findAll
-GET         /api/expenses/document/:oid                @controllers.api.ExpenseApiController.getAttachment(oid: String)
+POST        /api/expenses                            @controllers.api.ExpenseApiController.createExpense
+GET         /api/expenses                            @controllers.api.ExpenseApiController.findAll
+GET         /api/expenses/document/:oid              @controllers.api.ExpenseApiController.getAttachment(oid: String)
 
 # account resources
-GET         /api/accounts                             @controllers.api.AccountApiController.findAll
-POST        /api/accounts                             @controllers.api.AccountApiController.add
+GET         /api/accounts                            @controllers.api.AccountApiController.findAll
+POST        /api/accounts                            @controllers.api.AccountApiController.add
 
 # invoice number resources
-GET         /api/invoice/numbers/last                 @controllers.api.InvoiceApiController.getLastInvoiceNumber
-POST        /api/invoice/numbers/reset                @controllers.api.InvoiceApiController.reset(value: Int)
+GET         /api/invoice/numbers/last                @controllers.api.InvoiceApiController.getLastInvoiceNumber
+POST        /api/invoice/numbers/reset               @controllers.api.InvoiceApiController.reset(value: Int)
 
 # cra resources
-POST        /api/activity                             @controllers.api.ActivityApiController.createAndPushCRA
-GET         /api/activity/document/:oid               @controllers.api.ActivityApiController.getPdfByCRA(oid: String)
+DELETE      /api/activity/:oid                       @controllers.api.ActivityApiController.delete(oid: String)
+POST        /api/activity                            @controllers.api.ActivityApiController.createAndPushCRA
+GET         /api/activities                          @controllers.api.ActivityApiController.findAll
+GET         /api/activity/document/:oid              @controllers.api.ActivityApiController.getPdfByCRA(oid: String)
 
 # config resources
-POST        /api/config                               @controllers.api.ConfigurationApiController.agoraCallback
-GET         /api/config                               @controllers.api.ConfigurationApiController.getCurrentConfiguration
+POST        /api/config                              @controllers.api.ConfigurationApiController.agoraCallback
+GET         /api/config                              @controllers.api.ConfigurationApiController.getCurrentConfiguration
 
 # members resources
-GET         /api/members                              @controllers.api.MembersApiController.findAll
+GET         /api/members                             @controllers.api.MembersApiController.findAll
 
 # contributions ressources
-GET         /api/contributions                        @controllers.api.ContributionsApiController.findByType(contributionType : Option[String])
-POST        /api/contributions                        @controllers.api.ContributionsApiController.createContribution
+GET         /api/contributions                       @controllers.api.ContributionsApiController.findByType(contributionType : Option[String])
+POST        /api/contributions                       @controllers.api.ContributionsApiController.createContribution
 
 # contributions ressources
-GET         /api/movements                            @controllers.api.MovementsApiController.findAll
-POST        /api/movements                            @controllers.api.MovementsApiController.create
+GET         /api/movements                           @controllers.api.MovementsApiController.findAll
+POST        /api/movements                           @controllers.api.MovementsApiController.create
 
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file                             controllers.Assets.at(path="/public", file)
+GET         /assets/*file                            controllers.Assets.at(path="/public", file)
 
-->          /auth                                     securesocial.Routes
+->          /auth                                    securesocial.Routes
