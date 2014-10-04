@@ -39,7 +39,7 @@ POST        /api/accounts                            @controllers.api.AccountApi
 GET         /api/invoice/numbers/last                @controllers.api.InvoiceApiController.getLastInvoiceNumber
 POST        /api/invoice/numbers/reset               @controllers.api.InvoiceApiController.reset(value: Int)
 
-# cra resources
+# activity/cra resources
 DELETE      /api/activity/:oid                       @controllers.api.ActivityApiController.delete(oid: String)
 POST        /api/activity                            @controllers.api.ActivityApiController.createAndPushCRA
 GET         /api/activities                          @controllers.api.ActivityApiController.findAll

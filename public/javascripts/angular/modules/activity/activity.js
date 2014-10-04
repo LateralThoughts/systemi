@@ -13,7 +13,7 @@ angular.module('activity', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sea
                 redirectTo:'/list'
             });
     })
-    .controller('ListCtrl', function($scope, $http) {
+    .controller('ListCtrl', ['$scope','$http',function($scope, $http) {
         function reloadActivities() {
             $http.get("/api/activities").success(function (data) {
                 $scope.activities = data;
@@ -22,10 +22,9 @@ angular.module('activity', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sea
 
         reloadActivities();
         $scope.deleteActivity = function(id) {
-            $http.delete("/api/activity/" + id);
-            reloadActivities()
+            $http.delete("/api/activity/" + id).success(function(){ reloadActivities()});
         };
-        })
+        }])
     .controller('CreateCtrl', ['$scope', '$modal', '$log', '$http', 'Client', 'default_contractor',
     function ($scope, $modal, $log, $http, Client, default_contractor) {
         $scope.cra = { days: [], contractor: default_contractor};
@@ -151,9 +150,9 @@ angular.module('activity', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sea
             $('.daterangepicker .ranges li')[4].click();
         }, 0);
     }])
-    .controller("HeaderCtrl", function($scope, $location) {
+    .controller("HeaderCtrl", ['$scope','$location', function($scope, $location) {
 
         $scope.isActive = function (viewLocation) {
             return viewLocation === $location.path();
         };
-    });
+    }]);
