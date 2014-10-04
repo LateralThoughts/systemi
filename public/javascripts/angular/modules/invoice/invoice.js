@@ -17,10 +17,6 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sear
                 controller:'PaidCtrl',
                 templateUrl:'/assets/javascripts/angular/modules/invoice/templates/paid.html'
             })
-            .when('/accounts', {
-                controller:'AccountsCtrl',
-                templateUrl:'/assets/javascripts/angular/modules/invoice/templates/accounts.html'
-            })
             .otherwise({
                 redirectTo:'/pending'
             });
@@ -86,19 +82,6 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sear
         reload($scope);
         $scope.revert = function(invoice) {
             $http.post("/api/invoices/" + invoice._id.$oid + "/status/unpaid").success(function(){ reload($scope)})
-
-        }
-    })
-    .controller('AccountsCtrl', function($scope, $http) {
-        var reload = function(scope) {
-            $http.get("/api/accounts").success(function (data) {
-                scope.accounts = data;
-            });
-        };
-        reload($scope);
-        $scope.create = function(name) {
-            var account = {"name" : name};
-            $http.post("/api/accounts", account).success(function(){ reload($scope)})
 
         }
     })
