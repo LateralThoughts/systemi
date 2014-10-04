@@ -64,7 +64,7 @@ class ActivityApiController(override implicit val env: RuntimeEnvironment[BasicP
   def findAll = SecuredAction.async {
     db
       .collection[JSONCollection]("activities")
-      .find(Json.obj())
+      .find(Json.obj(), Json.obj("activity" -> 1, "id" -> 1))
       .cursor[JsObject]
       .collect[List]()
       .map(users => Ok(Json.toJson(users)))
