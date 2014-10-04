@@ -3,7 +3,7 @@
 <form action="/api/accounts" method="POST" role="form">
 
     <div class="form-group">
-        <select class="form-group" name="memberId" ng-model="Member" ng-options="member.fullName for member in members track by member._id.$oid">
+        <select class="form-group" name="memberId" ng-model="Member" ng-options="member.fullName +' (' + member.email + ')' for member in members track by member._id.$oid">
             <option value="">---- Sélectionner ----</option>
         </select>
     </div>
