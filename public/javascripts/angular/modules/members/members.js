@@ -14,21 +14,28 @@ angular.module('members', ['ui.bootstrap', 'ngResource', 'ngRoute'])
             });
     })
     .controller('DashboardCtrl', function($scope, $http) {
-        $http.get("/api/members").success(function(members) {
-            $scope.members = members;
-            $http.get("/api/accounts").success(function(accounts) {
 
-                // associate members with their accounts
-                for (var i=0; i<$scope.members.length; i++) {
-                    $scope.members[i].accounts = [];
-                    for (var j=0; j<accounts.length; j++) {
-                        if (accounts[j].stakeholder.user.userId == $scope.members[i].userId) {
-                            $scope.members[i].accounts.push(accounts[j]);
-                        }
-                    }
+        $http.get("/api/members").success(setupMembers);
+
+        function setupMembers(members) {
+            $scope.members = members;
+            $http.get("/api/accounts").success(associateMembersWithAccounts);
+        }
+
+        function associateMembersWithAccounts(accounts) {
+            for (var i = 0; i < $scope.members.length; i++) {
+                addAccountsToMember(i, accounts);
+            }
+        }
+
+        function addAccountsToMember(memberPosition, accounts) {
+            $scope.members[memberPosition].accounts = [];
+            for (var j = 0; j < accounts.length; j++) {
+                if (accounts[j].stakeholder.user.userId == $scope.members[memberPosition].userId) {
+                    $scope.members[memberPosition].accounts.push(accounts[j]);
                 }
-            });
-        });
+            }
+        }
     })
     .controller('CreateCtrl', function($scope, $http) {
         $http.get("/api/members").success(function(data) {
