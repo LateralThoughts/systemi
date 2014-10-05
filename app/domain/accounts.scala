@@ -2,11 +2,13 @@ package domain
 
 import securesocial.core._
 import julienrf.variants.Variants
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
 
 
 sealed trait Member
+
 case class Human(user: BasicProfile) extends Member
+
 case class LT(underlying: String) extends Member
 
 case class Account(name: String, stakeholder: Member, affectable: Boolean = false)
@@ -20,7 +22,8 @@ trait BasicProfileSerializer {
 }
 
 trait MemberSerializer extends BasicProfileSerializer {
-  implicit val memberFormatter = Variants.format[Member]
+  // Should explicitly declare Format[Member] type in order to avoid https://github.com/LateralThoughts/systemi/issues/24
+  implicit val memberFormatter: Format[Member] = Variants.format[Member]
 }
 
 trait AccountSerializer extends MemberSerializer {
