@@ -1,6 +1,6 @@
 package controllers.api
 
-import domain.{Client, InvoiceSerializer}
+import domain.{ClientRequest, Client, InvoiceSerializer}
 import play.Logger
 import play.api.libs.json.{JsObject, JsError, JsResult, Json}
 import play.api.mvc.Controller
@@ -57,12 +57,24 @@ class ClientApiController(engine: SimpleSearchEngine)
   }
 
   def addClient() = SecuredAction.async(parse.json) { implicit request =>
-    request.body.validate(invoiceClientFormat) match {
+    request.body.validate(clientRequestFormat) match {
       case errors:JsError =>
         Future(BadRequest(errors.toString).as("application/json"))
 
-      case result: JsResult[Client] =>
-        saveClient(result.get) map {
+      case result: JsResult[ClientRequest] =>
+        val clientRequest = result.get
+        val clientId = BSONObjectID.generate
+
+        val client = Client(
+          clientId,
+          clientRequest.name,
+          clientRequest.address,
+          clientRequest.postalCode,
+          clientRequest.city,
+          clientRequest.country,
+          clientRequest.extraInfo)
+
+        saveClient(client) map {
           case true => Ok
           case false => InternalServerError
         }

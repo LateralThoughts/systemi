@@ -11,7 +11,7 @@ case class ActivityDay(day: LocalDate, halfUp : Boolean, halfDown: Boolean)
 
 case class ActivityRequest(tjm : Double,
                     numberOfDays : Double,
-                    client: Client,
+                    client: ClientRequest,
                     contractor: String,
                     title: String,
                     days : List[ActivityDay] = List()) {

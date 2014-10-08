@@ -1,22 +1,22 @@
 package search
 
-import org.apache.lucene.store.RAMDirectory
-import org.apache.lucene.index._
-import org.apache.lucene.util.Version
-import org.apache.lucene.analysis.fr.{FrenchLightStemFilter, FrenchAnalyzer}
-import org.apache.lucene.document.{FieldType, Field, Document}
-import org.apache.lucene.search.{IndexSearcher, PhraseQuery}
-import org.apache.lucene.analysis.tokenattributes.{CharTermAttribute, OffsetAttribute}
-import domain.Client
-import org.apache.lucene.analysis.{TokenFilter, Analyzer}
 import java.io.Reader
-import org.apache.lucene.analysis.standard.{StandardTokenizer, StandardFilter}
-import org.apache.lucene.analysis.util.{ElisionFilter, CharArraySet}
-import org.apache.lucene.analysis.core.{StopFilter, LowerCaseFilter}
-import org.apache.lucene.analysis.miscellaneous.SetKeywordMarkerFilter
+
+import domain.Client
 import org.apache.lucene.analysis.Analyzer.TokenStreamComponents
+import org.apache.lucene.analysis.core.{LowerCaseFilter, StopFilter}
+import org.apache.lucene.analysis.fr.{FrenchAnalyzer, FrenchLightStemFilter}
+import org.apache.lucene.analysis.miscellaneous.SetKeywordMarkerFilter
 import org.apache.lucene.analysis.ngram.EdgeNGramTokenFilter
-import play.api.libs.json.Json
+import org.apache.lucene.analysis.standard.{StandardFilter, StandardTokenizer}
+import org.apache.lucene.analysis.tokenattributes.{CharTermAttribute, OffsetAttribute}
+import org.apache.lucene.analysis.util.{CharArraySet, ElisionFilter}
+import org.apache.lucene.analysis.{Analyzer, TokenFilter}
+import org.apache.lucene.document.{Document, Field, FieldType}
+import org.apache.lucene.index._
+import org.apache.lucene.search.{IndexSearcher, PhraseQuery}
+import org.apache.lucene.store.RAMDirectory
+import org.apache.lucene.util.Version
 import resource._
 
 
@@ -32,19 +32,19 @@ case class SimpleSearchEngine() extends ClientDefinitionIndexation with SearchEn
 
   val docAnalyzer = new LateralThoughtsClientAnalyzer(luceneVersion)
 
-  def initWithDocuments(clients : List[Client]) {
+  def initWithDocuments(clients: List[Client]) {
     for (writer <- managed(openWriter)) {
       clients.map(client => writeDocument(writer, client))
     }
   }
 
-  def addToIndex(client : Client) {
+  def addToIndex(client: Client) {
     for (writer <- managed(openWriter)) {
       writeDocument(writer, client)
     }
   }
 
-  def update(id: String, client : Client) {
+  def update(id: String, client: Client) {
     for (writer <- managed(openWriter)) {
       writer.deleteDocuments(new Term(ID_FIELD, id.toString))
       writeDocument(writer, client)
@@ -72,7 +72,7 @@ case class SimpleSearchEngine() extends ClientDefinitionIndexation with SearchEn
     query
   }
 
-  def search(q: String) : List[String] = {
+  def search(q: String): List[String] = {
 
     val searchQuery = createSearchQuery(q)
     managed(DirectoryReader.open(directory)) acquireAndGet { dirReader =>
@@ -86,7 +86,7 @@ case class SimpleSearchEngine() extends ClientDefinitionIndexation with SearchEn
   }
 
   private def writeDocument(writer: IndexWriter, client: Client) {
-    createDocFromClient(client) map ( writer.addDocument(_) )
+    createDocFromClient(client) map (writer.addDocument(_))
   }
 
   private def openWriter = {
@@ -122,32 +122,26 @@ trait ClientDefinitionIndexation extends SearchEngineFields {
     new Field(fieldName, value, textIndexType)
   }
 
-  protected def createDocFromClient(client: Client) : Option[Document] = {
-    client._id match  {
-      case Some(id) =>
-        val document = new Document()
-        document.add(createFieldStoredAndIndexed(ID_FIELD, id.stringify))
-        document.add(createFieldStored("name", client.name))
-        document.add(createFieldText(client))
-        Some(document)
-
-      case None => None
-    }
-
+  protected def createDocFromClient(client: Client): Option[Document] = {
+    val document = new Document()
+    document.add(createFieldStoredAndIndexed(ID_FIELD, client._id.stringify))
+    document.add(createFieldStored("name", client.name))
+    document.add(createFieldText(client))
+    Some(document)
   }
 }
 
-case class LateralThoughtsClientAnalyzer(luceneVersion : Version) extends Analyzer {
+case class LateralThoughtsClientAnalyzer(luceneVersion: Version) extends Analyzer {
   private val excludable = CharArraySet.EMPTY_SET
 
-  override def createComponents(fieldName : String, reader: Reader) = {
+  override def createComponents(fieldName: String, reader: Reader) = {
     val source = new StandardTokenizer(luceneVersion, reader)
-    var result : TokenFilter = new StandardFilter(luceneVersion, source)
+    var result: TokenFilter = new StandardFilter(luceneVersion, source)
     result = new ElisionFilter(result, FrenchAnalyzer.DEFAULT_ARTICLES)
     result = new LowerCaseFilter(luceneVersion, result)
     result = new StopFilter(luceneVersion, result, FrenchAnalyzer.getDefaultStopSet)
 
-    if(!excludable.isEmpty)
+    if (!excludable.isEmpty)
       result = new SetKeywordMarkerFilter(result, excludable)
 
     result = new FrenchLightStemFilter(result)

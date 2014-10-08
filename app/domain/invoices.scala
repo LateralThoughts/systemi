@@ -4,7 +4,6 @@ import _root_.util.pdf.PDF
 import org.bouncycastle.util.encoders.Base64
 import org.joda.time.DateTime
 import play.api.libs.json._
-import reactivemongo.bson.BSONObjectID
 
 case class InvoiceNumber(value: Int) {
   def increment = this.copy(value + 1)
@@ -15,7 +14,7 @@ case class InvoiceLine(description: String, days: Double, dailyRate: Double, tax
 case class InvoiceRequest(title: String,
                           invoiceNumber : String,
                           paymentDelay: Int,
-                          client: Client,
+                          client: ClientRequest,
                           invoice: List[InvoiceLine])
 
 
@@ -63,10 +62,8 @@ trait AttachmentSerializer {
   implicit val attachmentFormatter = Json.format[Attachment]
 }
 
-trait InvoiceSerializer extends AttachmentSerializer {
-  import play.modules.reactivemongo.json.BSONFormats._
+trait InvoiceSerializer extends AttachmentSerializer with ClientSerializer {
   implicit val invoiceStatus = Json.format[Status]
-  implicit val invoiceClientFormat = Json.format[Client]
   implicit val invoiceLineFormat = Json.format[InvoiceLine]
 
   implicit val invoiceReqFormat = Json.format[InvoiceRequest]
@@ -87,8 +84,7 @@ trait InvoiceSerializer extends AttachmentSerializer {
       body.get("title").get.headOption.get,
       body.get("invoiceNumber").get.headOption.get,
       body.get("paymentDelay").get.headOption.get.toInt,
-      Client(
-        body.get("clientId").flatMap(_.headOption.map(BSONObjectID(_))),
+      ClientRequest(
         body.get("clientName").get.headOption.get,
         body.get("clientAddress").get.headOption.get,
         body.get("clientPostalCode").get.headOption.get,
