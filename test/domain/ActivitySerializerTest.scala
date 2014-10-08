@@ -1,9 +1,8 @@
 package domain
 
-import org.scalatest.{Matchers, FunSuite}
-import reactivemongo.bson.BSONObjectID
-import play.api.libs.json.Json
 import org.joda.time.LocalDate
+import org.scalatest.{FunSuite, Matchers}
+import play.api.libs.json.Json
 
 class ActivitySerializerTest extends FunSuite
                      with Matchers
@@ -90,7 +89,7 @@ class ActivitySerializerTest extends FunSuite
       ActivityDay(new LocalDate(2014,9,28), true, true)
     )
 
-    val activity = ActivityRequest(450.0, 5, Client(Some(BSONObjectID("532afca061ce6a2db986839f")), "VIDAL", "27 rue camille desmoulins", "94550", "chevilly", "France"), "Vincent Doba", "Octobre 2014", days)
+    val activity = ActivityRequest(450.0, 5, ClientRequest("VIDAL", "27 rue camille desmoulins", "94550", "chevilly", "France"), "Vincent Doba", "Octobre 2014", days)
 
     Json.parse(data).validate(activityReqFormat).get should be (activity)
 
