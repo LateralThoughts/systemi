@@ -6,6 +6,7 @@ def deploy(artifact):
 
     # push artifact
     put(artifact, TEMP_DEPLOY_PATH)
+    sudo("chmod 770 %s" % TEMP_DEPLOY_PATH)
 
     # stop service via supervisord
     sudo('supervisorctl stop invoice_play')
