@@ -13,7 +13,7 @@ module.exports = function (config) {
             '../../public/javascripts/jquery-1.9.0.min.js',
             '../../public/javascripts/angular.min.js',
             '../../public/javascripts/angular-mocks.js',
-            '../../public/javascripts/moment.min.js',
+            '../../public/javascripts/moment-with-langs.min.js',
             '../../public/javascripts/moment-range.js',
             '../../public/javascripts/*.js',
             '../../public/javascripts/angular/*.js',

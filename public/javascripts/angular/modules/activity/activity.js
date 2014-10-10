@@ -27,10 +27,12 @@ angular.module('activity', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sea
         }])
     .controller('CreateCtrl', ['$scope', '$modal', '$log', '$http', 'Client', 'default_contractor',
     function ($scope, $modal, $log, $http, Client, default_contractor) {
+        moment.lang("fr");
+
         $scope.cra = { days: [], contractor: default_contractor};
 
         $scope.datesSelected = function (start, end, label) {
-            $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+            $('#reportrange span').html(start.format('D MMMM YYYY') + ' - ' + end.format('D MMMM YYYY'));
             $scope.startDate = start;
             $scope.endDate = end;
             // generate blocks
@@ -117,27 +119,27 @@ angular.module('activity', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sea
             timePickerIncrement: 1,
             timePicker12Hour: true,
             ranges: {
-                'Today': [moment().utc(), moment().utc()],
-                'Yesterday': [moment().utc().subtract('days', 1), moment().utc().subtract('days', 1)],
-                'Last 7 Days': [moment().utc().subtract('days', 6), moment().utc()],
-                'Last 30 Days': [moment().utc().subtract('days', 29), moment().utc()],
-                'This Month': [moment().utc().startOf('month'), moment().utc().endOf('month')],
-                'Last Month': [moment().utc().subtract('month', 1).startOf('month'), moment().utc().subtract('month', 1).endOf('month')]
+                'Aujourd\'hui': [moment().utc(), moment().utc()],
+                'Hier': [moment().utc().subtract('days', 1), moment().utc().subtract('days', 1)],
+                '7 Derniers Jours': [moment().utc().subtract('days', 6), moment().utc()],
+                '30 Derniers Jours': [moment().utc().subtract('days', 29), moment().utc()],
+                'Ce Mois-ci': [moment().utc().startOf('month'), moment().utc().endOf('month')],
+                'Le Mois Dernier': [moment().utc().subtract('month', 1).startOf('month'), moment().utc().subtract('month', 1).endOf('month')]
             },
             opens: 'left',
             buttonClasses: ['btn btn-default'],
             applyClass: 'btn-small btn-primary',
             cancelClass: 'btn-small',
-            format: 'MM/DD/YYYY',
-            separator: ' to ',
+            format: 'DD/MM/YYYY',
+            separator: ' à ',
             locale: {
-                applyLabel: 'Submit',
-                cancelLabel: 'Clear',
-                fromLabel: 'From',
-                toLabel: 'To',
-                customRangeLabel: 'Custom',
-                daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
-                monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                applyLabel: 'Ok',
+                cancelLabel: 'Effacer',
+                fromLabel: 'Du',
+                toLabel: 'Au',
+                customRangeLabel: 'Personnalisé',
+                daysOfWeek: ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'],
+                monthNames: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
                 firstDay: 1
             }
         };
