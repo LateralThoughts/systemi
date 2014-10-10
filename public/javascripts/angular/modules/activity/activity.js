@@ -106,8 +106,8 @@ angular.module('activity', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sea
         }
 
         var optionSet1 = {
-            startDate: moment().utc().subtract('days', 29),
-            endDate: moment().utc(),
+            startDate: moment().utc().startOf('month'),
+            endDate: moment().utc().endOf('month'),
             minDate: moment().utc().subtract('year', 1),
             maxDate: moment().utc().add('year', 1),
             dateLimit: { days: 60 },
@@ -145,9 +145,8 @@ angular.module('activity', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sea
         $('#reportrange').daterangepicker(optionSet1, $scope.datesSelected);
 
         // workaround to default select current month at page loading
-        $('#reportrange').click();
         setTimeout(function () {
-            $('.daterangepicker .ranges li')[4].click();
+            $scope.datesSelected(moment().utc().startOf('month'), moment().utc().endOf('month').startOf('day'), 'This Month');
         }, 0);
     }])
     .controller("HeaderCtrl", ['$scope','$location', function($scope, $location) {
