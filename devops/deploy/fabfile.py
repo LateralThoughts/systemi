@@ -12,12 +12,13 @@ def deploy(artifact):
 
     # destroy old old version/save old version
     with cd('/opt/invoice.lateral-thoughts.com/'):
-        sudo('tar -cf /tmp/old.invoice.lateral-thoughts.com.tar *')
-        sudo('rm -rf *')
+        run('tar -cf /tmp/old.invoice.lateral-thoughts.com.tar *')
+        run('rm -rf *')
         # unzip l'artefact
-        sudo('tar -xvf %s' % TEMP_DEPLOY_PATH)
+        run('tar -xvf %s' % TEMP_DEPLOY_PATH)
         # re-set les droits
-        sudo('chown -R systemi .')
+        sudo('chown -R systemi:deployer .')
+        run('rm -rf %s' % TEMP_DEPLOY_PATH)
 
     # restart service supervisord
     sudo('supervisorctl start invoice_play')
