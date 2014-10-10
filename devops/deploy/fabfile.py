@@ -2,25 +2,25 @@ from fabric.api import *
 
 
 def deploy(artifact):
-    TEMP_DEPLOY_PATH = '/tmp/invoice.lateralthoughts.com.zip'
+    TEMP_DEPLOY_PATH = '/tmp/invoice.lateralthoughts.com.tar'
 
     # push artifact
     put(artifact, TEMP_DEPLOY_PATH)
 
     # stop service via supervisord
-    run('supervisorctl stop invoice_play')
+    sudo('supervisorctl stop invoice_play')
 
     # destroy old old version/save old version
     with cd('/opt/invoice.lateral-thoughts.com/'):
-        run('tar -cf /tmp/old.invoice.lateral-thoughts.com.tar *')
-        run('rm -rf *')
+        sudo('tar -cf /tmp/old.invoice.lateral-thoughts.com.tar *')
+        sudo('rm -rf *')
         # unzip l'artefact
-        run('tar -xvf %s' % TEMP_DEPLOY_PATH)
+        sudo('tar -xvf %s' % TEMP_DEPLOY_PATH)
         # re-set les droits
-        run('chown -R systemi .')
+        sudo('chown -R systemi .')
 
     # restart service supervisord
-    run('supervisorctl start invoice_play')
+    sudo('supervisorctl start invoice_play')
 
     # check running/status supervisord
     # TODO
