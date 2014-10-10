@@ -18,6 +18,7 @@ def deploy(artifact):
         run('tar -xvf %s' % TEMP_DEPLOY_PATH)
         # re-set les droits
         sudo('chown -R systemi:deployer .')
+        sudo('chmod -R 770 .')
         run('rm -rf %s' % TEMP_DEPLOY_PATH)
 
     # restart service supervisord
