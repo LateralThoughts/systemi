@@ -29,12 +29,9 @@ angular.module('members', ['ui.bootstrap', 'ngResource', 'ngRoute'])
         }
 
         function addAccountsToMember(memberPosition, accounts) {
-            $scope.members[memberPosition].accounts = [];
-            for (var j = 0; j < accounts.length; j++) {
-                if (accounts[j].stakeholder.user.userId == $scope.members[memberPosition].userId) {
-                    $scope.members[memberPosition].accounts.push(accounts[j]);
-                }
-            }
+            $scope.members[memberPosition].accounts = accounts.filter(function(account) {
+                return account.stakeholder.user.userId === $scope.members[memberPosition].userId;
+            })
         }
     })
     .controller('CreateCtrl', function($scope, $http) {
