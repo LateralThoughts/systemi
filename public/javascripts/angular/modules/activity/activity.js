@@ -1,4 +1,4 @@
-angular.module('activity', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-search', 'default-values', 'day-block'])
+angular.module('activity', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-select','default-values', 'day-block'])
     .config(function($routeProvider) {
         $routeProvider
             .when('/list', {

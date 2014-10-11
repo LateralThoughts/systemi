@@ -4,10 +4,12 @@
 
         <div class="facture_info_form col-md-6">
             <div class="form-group">
+                <label>Numéro de Facture</label>
                 <input type="text" class="form-control" name="invoiceNumber" id="number" placeholder="Numéro de facture">
             </div>
 
             <div class="form-group">
+                <label>Titre de la Facture</label>
                 <input type="text" class="form-control" name="title" id="title" placeholder="Titre de la facture">
             </div>
 
@@ -17,41 +19,8 @@
             </div>
         </div>
 
-        <div class="client_form col-md-6">
-            <div class="form-group">
-                <lt-client-search client="client"></lt-client-search>
-            </div>
-
-            <div class="panel panel-primary">
-                <div class="panel-heading">Coordonnées du client</div>
-
-                <div class="panel-body">
-                    <div class="form-group">
-                        <input type="text" class="form-control" name="clientName" id="clientName" placeholder="Nom du client" ng-readonly="client._id" ng-model="client.name">
-                    </div>
-
-                    <div class="form-group">
-                        <input type="text" class="form-control" name="clientAddress" id="clientAddress" placeholder="Adresse du client" ng-readonly="client._id" ng-model="client.address">
-                    </div>
-
-                    <div class="form-group row">
-                        <div class="col-md-5">
-                            <input type="text" class="form-control" name="clientPostalCode" id="clientPostalcode" placeholder="Code postal" ng-readonly="client._id" ng-model="client.postalCode">
-                        </div>
-                        <div class="col-md-7">
-                            <input type="text" class="form-control" name="clientCity" id="clientCity" placeholder="Ville du client" ng-readonly="client._id" ng-model="client.city">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <input type="text" class="form-control" name="clientCountry" id="clientCountry" placeholder="Pays du client" value="France" ng-readonly="client._id" ng-model="client.country">
-                    </div>
-
-                    <div class="form-group">
-                        <input type="text" class="form-control" name="clientExtraInfo" id="clientExtraInfo" placeholder="Mentions supplémentaires (facultatif)">
-                    </div>
-                </div>
-            </div>
+        <div class=" client_form col-md-6">
+            <lt-client-select client="client"></lt-client-select>
         </div>
 
         <div class="col-md-12 item_line row" ng-repeat="taskline in tasklines">

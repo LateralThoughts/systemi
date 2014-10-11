@@ -1,4 +1,4 @@
-angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-search'])
+angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-select'])
     .config(function($routeProvider) {
         $routeProvider
             .when('/pending', {

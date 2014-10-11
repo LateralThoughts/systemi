@@ -6,26 +6,36 @@
 
         <h4>Indiquez les informations générales :</h4>
 
-        <div class="form-group">
-            <label for="title">Titre</label>
-            <input type="text" step="any" class="form-control" ng-model="cra.title" name="title" id="title" placeholder="Indiquez le titre de l'activité">
+        <div class="facture_info_form col-md-6">
+
+            <div class="form-group">
+                <label for="title">Titre</label>
+                <input type="text" step="any" class="form-control" ng-model="cra.title" name="title" id="title"
+                       placeholder="Indiquez le titre de l'activité">
+            </div>
+
+            <div class="form-group">
+                <label for="contractor">Nom du prestataire</label>
+                <input type="text" class="form-control" name="contractor" id="contractor" ng-model="cra.contractor"
+                       placeholder="Indiquez le prestataire qui a effectué l'activité">
+            </div>
+
+            <div class="form-group">
+                <label for="tjm">TJM</label>
+                <input type="number" step="any" class="form-control" ng-model="cra.tjm" name="tjm" id="tjm"
+                       placeholder="Indiquez le Taux Journalier Moyen">
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="contractor">Nom du prestataire</label>
-            <input type="text" class="form-control" name="contractor" id="contractor" ng-model="cra.contractor" placeholder="Indiquez le prestataire qui a effectué l'activité">
+        <div class="client_form col-md-6">
+            <lt-client-select client="cra.client"></lt-client-select>
         </div>
-
-        <div class="form-group">
-            <label for="tjm">TJM</label>
-            <input type="number" step="any" class="form-control" ng-model="cra.tjm" name="tjm" id="tjm" placeholder="Indiquez le Taux Journalier Moyen">
-        </div>
-
-        <lt-client-search client="cra.client"></lt-client-search>
 
         <h4>Sélectionnez vos dates d'activité : </h4>
+
         <div class="well" style="overflow : auto">
-            <div id="reportrange" class="pull-right" style="background : #fff ; cursor : pointer ; padding : 5 px 10 px ; border : 1 px solid #ccc">
+            <div id="reportrange" class="pull-right"
+                 style="background : #fff ; cursor : pointer ; padding : 5 px 10 px ; border : 1 px solid #ccc">
                 <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
                 <span></span> <b class="caret"></b>
             </div>
