@@ -13,7 +13,7 @@
         <td>{{ item.invoice.title }} ({{ item.invoice.invoiceNumber }})</td>
         <td>
             <ul>
-                <li data-ng-repeat="status in item.statuses"><strong>{{ status.name }}</strong> le {{ status.createdAt }}</li>
+                <li data-ng-repeat="status in item.statuses"><strong>{{ status.name }}</strong> le {{ status.createdAt | date:'dd/MM/yyyy' }}</li>
             </ul>
         </td>
         <td>
