@@ -19,7 +19,7 @@
 
     <tr data-ng-repeat="item in expenses | filter: search">
 
-        <td>Depuis "{{ item.account.name }} ({{ item.account.stakeholder.user.fullName }})", créé le {{ item.createdAt }}</td>
+        <td>Depuis "{{ item.account.name }} ({{ item.account.stakeholder.user.fullName }})", créé le {{ item.createdAt | date:'dd/MM/yyyy' }}</td>
         <td>{{ item.expenseValue }}€</td>
         <td>{{ item.expenseType }}</td>
         <td>{{ item.description }}</td>

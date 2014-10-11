@@ -22,7 +22,7 @@
         <td>{{ item.from.name }} ({{ item.from.stakeholder.user.fullName }})</td>
         <td>{{ item.to.name }} ({{ item.to.stakeholder.user.fullName }})</td>
         <td>{{ item.value }}€</td>
-        <td>{{ item.createdAt }}</td>
+        <td>{{ item.createdAt | date:'dd/MM/yyyy' }}</td>
         <td></td>
     </tr>
     </tbody>
