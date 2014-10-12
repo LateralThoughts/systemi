@@ -62,8 +62,7 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
                 _.map(data, function(item) {
                     item.totalHT = function() {
                         var lines = this.invoice.invoice;
-                        var value = _.reduce(lines, function(sum, line) { sum += line.dailyRate * line.days; return sum}, 0);
-                        return value;
+                        return _.reduce(lines, function(sum, line) { sum += line.dailyRate * line.days; return sum}, 0);
                     }
                 });
                 scope.invoices = data;
@@ -90,7 +89,7 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
         $scope.affect = function(affectations, invoice) {
             _.map(affectations, function(item) { delete item.$$hashKey; });
             $http.post("/api/affectations/" + invoice._id.$oid, JSON.stringify(affectations))
-                .success(function(data) {
+                .success(function() {
                     reload($scope);
                     $('#affectationModal').modal('hide');
                 });
@@ -109,7 +108,7 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
 
         $scope.pay = function(invoice) {
             $http.post("/api/invoices/" + invoice._id.$oid + "/status/paid").success(function(){ reload($scope)})
-        }
+        };
 
         $scope.cancel = function(invoice) {
             invoicesService.cancelInvoice($scope, $http, invoice, reload)
