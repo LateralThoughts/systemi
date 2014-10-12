@@ -14,7 +14,7 @@ def deploy(artifact):
     # destroy old old version/save old version
     with cd('/opt/invoice.lateral-thoughts.com/'):
         run('tar -cf /tmp/old.invoice.lateral-thoughts.com.tar *')
-        run('rm -rf *')
+        sudo('rm -rf *')
         # unzip l'artefact
         run('tar -xvf %s' % TEMP_DEPLOY_PATH)
         # re-set les droits
