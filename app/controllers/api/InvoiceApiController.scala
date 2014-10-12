@@ -6,7 +6,7 @@ import org.bouncycastle.util.encoders.Base64
 import org.joda.time.DateTime
 import play.Logger
 import play.api.libs.json._
-import play.api.mvc.{Action, AnyContent, Controller}
+import play.api.mvc.{Action, Controller}
 import play.libs.Akka
 import play.modules.reactivemongo.MongoController
 import play.modules.reactivemongo.json.collection.JSONCollection
@@ -36,7 +36,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
           BadRequest(errors.toString).as("application/json")
 
         case result: JsResult[InvoiceRequest] =>
-          Ok(invoiceToPdfBytes(result.get)).as("application/pdf")
+          Ok(invoiceRequestToPdfBytes(result.get, DateTime.now())).as("application/pdf")
       }
       case None => request.body.asFormUrlEncoded match {
         case Some(body) =>
@@ -44,7 +44,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
 
           val shouldUpload = body.get("shouldUpload").map(_.head).exists(_.equalsIgnoreCase("on"))
 
-          val generatedPdfDocument = invoiceToPdfBytes(invoiceRequest)
+          val generatedPdfDocument = invoiceRequestToPdfBytes(invoiceRequest, DateTime.now())
 
           if (shouldUpload) {
             val status = domain.Status("created", DateTime.now(), request.user.email.get)
@@ -76,6 +76,15 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     Ok
   }
 
+  def getCanceledInvoices() = SecuredAction.async { implicit request =>
+    db
+      .collection[JSONCollection]("invoices")
+      .find(Json.obj("canceled" -> true), Json.obj("invoice" -> 1, "statuses" -> 1))
+      .cursor[JsObject]
+      .collect[List]()
+      .map(invoices => Ok(Json.toJson(invoices)))
+  }
+
   def findByStatus(status: Option[String], exclude: Option[Boolean]) = Action.async { implicit request =>
     val selector = (status: String) => {
       val selectorField =
@@ -87,9 +96,9 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
           "lastStatus.name"
 
       if (exclude.getOrElse(false)) {
-        Json.obj(selectorField -> Json.obj("$ne" -> status))
+        Json.obj(selectorField -> Json.obj("$ne" -> status), "canceled" -> false)
       } else {
-        Json.obj(selectorField -> status)
+        Json.obj(selectorField -> status, "canceled" -> false)
       }
     }
 
@@ -105,6 +114,41 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     setStatusToInvoice(oid, status, request.user.email.get)
 
     Ok
+  }
+
+  def cancelInvoice(oid: String) = SecuredAction.async(parse.json) { implicit request =>
+    db
+      .collection[JSONCollection]("invoices")
+      .find(Json.obj("_id" -> Json.obj("$oid" -> oid)))
+      .one[Invoice]
+      .flatMap {
+      case (mayBeInvoice: Option[Invoice]) => mayBeInvoice match {
+        case Some(invoice) => {
+          Logger.info("Loaded invoice, canceling...")
+          val selector = Json.obj("_id" -> Json.obj("$oid" -> oid))
+          val lastStatus = Json.toJson(domain.Status("canceled", DateTime.now(), request.user.email.get))
+
+          val generatedPdfDocument = invoiceRequestToPdfWithCanceledWatermarkBytes(invoice.invoice, invoice.creationDate)
+
+          val generatedPdfJson = Json.toJson(Attachment("application/pdf", stub = false, generatedPdfDocument))
+          val updateObject = Json.obj("pdfDocument" -> generatedPdfJson,"lastStatus" -> lastStatus, "canceled" -> true)
+          val updateFieldRequest = Json.obj(
+            "$push" ->
+              Json.obj(
+                "statuses" -> lastStatus
+              ),
+            "$set" -> updateObject)
+
+          db
+            .collection[JSONCollection]("invoices")
+            .update(selector, updateFieldRequest)
+
+          Future(Ok)
+        }
+        case None => Future(InternalServerError)
+      }
+      case _ => Future(BadRequest)
+    }
   }
 
   def affectToAccount(oid: String) = SecuredAction.async(parse.json) { implicit request =>
@@ -176,4 +220,5 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
       .collection[JSONCollection]("invoices")
       .update(selector, pushToStatesAndLastStatus)
   }
+
 }

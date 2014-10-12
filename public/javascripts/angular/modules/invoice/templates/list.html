@@ -17,10 +17,9 @@
             </ul>
         </td>
         <td>
-            <a href="/api/invoices/document/{{ item._id.$oid }}">Voir la facture (PDF)</a>
-            <div>
-                <button class="btn btn-primary" ng-click="open(item)">Affecter la facture</button>
-            </div>
+            <p><a href="/api/invoices/document/{{ item._id.$oid }}">Voir la facture (PDF)</a></p>
+            <p><button class="btn btn-primary" ng-click="open(item)">Affecter la facture</button></p>
+            <p><button class="btn btn-primary" ng-click="cancel(item)" ng-confirm-click="Êtes-vous sur de vouloir annuler votre facture ?">Annuler la facture</button></p>
         </td>
     </tr>
     </tbody>

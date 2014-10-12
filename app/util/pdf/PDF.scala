@@ -1,10 +1,11 @@
 package util.pdf
 
+import java.awt.Color
 import java.io.{ByteArrayOutputStream, File, IOException, InputStream, OutputStream, StringReader, StringWriter}
 import java.net.{MalformedURLException, URL}
 
-import com.lowagie.text.Image
-import com.lowagie.text.pdf.BaseFont
+import com.lowagie.text.{Element, Image}
+import com.lowagie.text.pdf.{PdfGState, PdfStamper, PdfReader, BaseFont}
 import org.w3c.tidy.Tidy
 import org.xhtmlrenderer.pdf.{ITextFSImage, ITextFontResolver, ITextOutputDevice, ITextRenderer, ITextUserAgent}
 import org.xhtmlrenderer.resource.{CSSResource, ImageResource, XMLResource}
@@ -104,6 +105,31 @@ object PDF {
         }
 
         def toBytes(html: Html) : Array[Byte] = toBytes(tidify(html.body))
+
+        def toBytesWithWatermark(html: Html, watermark: String, color: Color) = {
+          val generatedPdfDocument = toBytes(html)
+          // Read the existing PDF document
+          val pdfReader = new PdfReader(generatedPdfDocument)
+          val pdfOutputStream = new ByteArrayOutputStream()
+          // Get the PdfStamper object
+          val pdfStamper = new PdfStamper(pdfReader, pdfOutputStream)
+          // Get the PdfContentByte type by pdfStamper.
+          val underContent = pdfStamper.getUnderContent(1)
+
+          val bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.WINANSI, BaseFont.EMBEDDED)
+          val gs = new PdfGState()
+          gs.setFillOpacity(0.8f)
+          underContent.setGState(gs)
+          underContent.beginText()
+          underContent.setFontAndSize(bf, 35)
+          underContent.setColorFill(color)
+          underContent.showTextAligned(Element.ALIGN_CENTER, watermark, 300, 700, 45)
+          underContent.endText()
+
+          pdfStamper.close()
+
+          pdfOutputStream.toByteArray
+        }
 
         private def toBytes(string: String) : Array[Byte] = toBytes(string, PLAY_DEFAULT_URL)
 

@@ -1,11 +1,11 @@
-@(message: String, number: String, paymentDelay: Int, client: domain.ClientRequest, items: List[domain.InvoiceLine])
+@(message: String, number: String, paymentDelay: Int, client: domain.ClientRequest, items: List[domain.InvoiceLine], date: org.joda.time.DateTime)
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/invoice_pdf.css")"/>
     <title>Facture n°@number (@{
-      new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date())
+        date.toString("dd/MM/yyyy")
     })</title>
   </head>
   <body>
@@ -17,7 +17,7 @@
           <span class="address">37, rue des Mathurins<br/> 75008 Paris</span>
         </p>
         <p class="invoice-number">Facture n°@number (@{
-          new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date())
+            date.toString("dd/MM/yyyy")
         })</p>
       </div>
     </div>

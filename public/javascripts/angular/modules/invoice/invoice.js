@@ -17,11 +17,32 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
                 controller:'PaidCtrl',
                 templateUrl:'/assets/javascripts/angular/modules/invoice/templates/paid.html'
             })
+            .when('/canceled', {
+                controller:'CanceledCtrl',
+                templateUrl:'/assets/javascripts/angular/modules/invoice/templates/canceled.html'
+            })
             .otherwise({
                 redirectTo:'/pending'
             });
     })
-    .controller('ListCtrl', function($scope, $http) {
+    .directive('ngConfirmClick', [
+        function(){
+            return {
+                priority: -1,
+                restrict: 'A',
+                link: function(scope, element, attrs){
+                    element.bind('click', function(e){
+                        var message = attrs.ngConfirmClick;
+                        if(message && !confirm(message)){
+                            e.stopImmediatePropagation();
+                            e.preventDefault();
+                        }
+                    });
+                }
+            }
+        }
+    ])
+    .controller('ListCtrl', ['$scope','$http','InvoicesService',function($scope, $http, invoicesService) {
         var reload = function(scope) {
             $http.get("/api/invoices?status=affected&exclude=true").success(function (data) {
                 _.map(data, function(item) {
@@ -60,8 +81,11 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
                     $('#affectationModal').modal('hide');
                 });
         };
-    })
-    .controller('InProgressCtrl', function($scope, $http) {
+        $scope.cancel = function(invoice) {
+            invoicesService.cancelInvoice($scope, $http, invoice, reload)
+        }
+    }])
+    .controller('InProgressCtrl', ['$scope','$http','InvoicesService',function($scope, $http, invoicesService) {
         var reload = function(scope) {
             $http.get("/api/invoices?status=paid&exclude=true").success(function (data) {
                 scope.invoices = data;
@@ -72,7 +96,11 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
         $scope.pay = function(invoice) {
             $http.post("/api/invoices/" + invoice._id.$oid + "/status/paid").success(function(){ reload($scope)})
         }
-    })
+
+        $scope.cancel = function(invoice) {
+            invoicesService.cancelInvoice($scope, $http, invoice, reload)
+        }
+    }])
     .controller('PaidCtrl', function($scope, $http) {
         var reload = function(scope) {
             $http.get("/api/invoices?status=paid").success(function (data) {
@@ -84,6 +112,14 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
             $http.post("/api/invoices/" + invoice._id.$oid + "/status/unpaid").success(function(){ reload($scope)})
 
         }
+    })
+    .controller('CanceledCtrl', function($scope, $http) {
+        var reload = function(scope) {
+            $http.get("/api/invoices/canceled").success(function (data) {
+                scope.invoices = data;
+            });
+        };
+        reload($scope);
     })
     .controller('CreateCtrl', function($scope) {
         $scope.shouldUpload = true;
@@ -118,13 +154,22 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
             $scope.tasklines.pop();
             $scope.tasklines[$scope.tasklines.length - 1]['addButtonVisible'] = true;
             $scope.tasklines[$scope.tasklines.length - 1]['deleteButtonVisible'] = ($scope.tasklines.length>1);
-        }
+        };
 
         $scope.client = null;
 
-    }).controller("HeaderCtrl", function($scope, $location) {
+    })
+    .controller("HeaderCtrl", function($scope, $location) {
 
         $scope.isActive = function (viewLocation) {
             return viewLocation === $location.path();
+        };
+    })
+    .factory("InvoicesService", function() {
+
+        return {
+            cancelInvoice: function($scope, $http, invoice, callback) {
+                $http.post("/api/invoices/" + invoice._id.$oid + "/cancel", "{}").success(function(){ callback($scope)})
+            }
         };
     });

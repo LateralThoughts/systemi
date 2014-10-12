@@ -1,5 +1,7 @@
 package domain
 
+import java.awt.Color
+
 import _root_.util.pdf.PDF
 import org.bouncycastle.util.encoders.Base64
 import org.joda.time.DateTime
@@ -98,13 +100,26 @@ trait InvoiceSerializer extends AttachmentSerializer with ClientSerializer {
     invoiceRequest
   }
 
-  def invoiceToPdfBytes(invoiceRequest : InvoiceRequest) :Array[Byte] = {
+  def invoiceRequestToPdfBytes(invoiceRequest : InvoiceRequest, date: DateTime) :Array[Byte] = {
     val client = invoiceRequest.client
     val title = invoiceRequest.title
     val id = invoiceRequest.invoiceNumber
     val delay = invoiceRequest.paymentDelay
     val invoiceLines = invoiceRequest.invoice
 
-    PDF.toBytes(views.html.invoice.template(title, id, delay, client, invoiceLines))
+    PDF.toBytes(views.html.invoice.template(title, id, delay, client, invoiceLines, date))
+  }
+
+  def invoiceRequestToPdfWithCanceledWatermarkBytes(invoiceRequest : InvoiceRequest, date: DateTime): Array[Byte] = {
+    val client = invoiceRequest.client
+    val title = invoiceRequest.title
+    val id = invoiceRequest.invoiceNumber
+    val delay = invoiceRequest.paymentDelay
+    val invoiceLines = invoiceRequest.invoice
+
+    val watermark = "ANNULÉE"
+    val watermarkColor = Color.RED
+
+    PDF.toBytesWithWatermark(views.html.invoice.template(title, id, delay, client, invoiceLines, date), watermark, watermarkColor)
   }
 }
