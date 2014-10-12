@@ -18,20 +18,20 @@ class InvoiceLinesAnalyzerTest extends FunSuite with Matchers with InvoiceLinesA
 
 	test("should compute total properly for multiple lines with taxes") {
 		val items = List(InvoiceLine("blabla", 25.0, 450.0), InvoiceLine("blabla", 12.0, 350.0))
-		computeTotal(items) should be ((25.0 * 450.0 + 12.0 * 350) * (1.196))
+		computeTotal(items) should be ((25.0 * 450.0 + 12.0 * 350) * (1.20))
 	}
 
 	test("should compute tva properly for multiple lines with rounding on two decimals") {
 		val items = List(InvoiceLine("blabla", 25.0, 450.0), InvoiceLine("blabla", 12.0, 350.0))
 		computeTva(items) should be (Map(
-      ("19.6%" -> 3028.20)
+      ("20.0%" -> 3090.0)
     ))
 	}
 
 
   test("should compute tva properly for multiple lines with different tvas rounding on two decimals") {
- 		val items = List(InvoiceLine("blabla", 25.0, 450.0), InvoiceLine("blabla", 12.0, 350.0, 20.0))
- 		computeTva(items) should be (Map(("19.6%" -> 2205.0), ("20.0%" -> 840.0)))
+ 		val items = List(InvoiceLine("blabla", 25.0, 450.0), InvoiceLine("blabla", 12.0, 350.0, 21.5))
+ 		computeTva(items) should be (Map(("20.0%" -> 2250.0), ("21.5%" -> 903.0)))
  	}
 }
 
