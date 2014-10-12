@@ -96,9 +96,9 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
           "lastStatus.name"
 
       if (exclude.getOrElse(false)) {
-        Json.obj(selectorField -> Json.obj("$ne" -> status), "canceled" -> false)
+        Json.obj(selectorField -> Json.obj("$ne" -> status), "canceled" -> Json.obj("$ne" -> true))
       } else {
-        Json.obj(selectorField -> status, "canceled" -> false)
+        Json.obj(selectorField -> status, "canceled" -> Json.obj("$ne" -> true))
       }
     }
 
