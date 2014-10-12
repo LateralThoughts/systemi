@@ -17,6 +17,20 @@
                 <div class="col-md-9"><label for="paymentDelay">Délai de paiement (en jours) :</label></div>
                 <div class="col-md-3"><input class="form-control" type="text" class="form-control" name="paymentDelay" id="paymentDelay" placeholder="Délai de paiement" value="30"></div>
             </div>
+
+            <div class="form-group row">
+                <div class="col-md-8"><label>Avec ou sans taxes :</label></div>
+                <div class="col-md-4">
+                    <div class="btn-group raw" data-toggle="buttons">
+                        <label class="btn btn-primary active col-md-6">
+                            <input type="radio" ng-model="taxes" radio-detect-change name="paymentTaxesIncluded" value="true" checked> TTC
+                        </label>
+                        <label class="btn btn-primary col-md-6">
+                            <input type="radio" ng-model="taxes" radio-detect-change name="paymentTaxesIncluded" value="false" > HT
+                        </label>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class=" client_form col-md-6">
@@ -27,7 +41,7 @@
             <div class="col-md-7"><input type="text" name="invoiceDescription" placeholder="Description" data-ng-model="taskline.invoiceDescription"></div>
             <div class="col-md-1"><input type="text" name="invoiceDays" placeholder="Jours" data-ng-model="taskline.invoiceDays"></div>
             <div class="col-md-1"><input type="text" name="invoiceDailyRate" placeholder="TJM" data-ng-model="taskline.invoiceDailyRate"></div>
-            <div class="col-md-1"><input type="text" name="invoiceTaxRate" placeholder="TVA" data-ng-model="taskline.invoiceTaxRate"></div>
+            <div class="col-md-1"><input type="text" ng-readonly="$eval(taxes) == false" name="invoiceTaxRate" placeholder="TVA" data-ng-model="taskline.invoiceTaxRate"></div>
             <div class="col-md-1" ng-show="taskline.addButtonVisible">
                 <button type="button" class="add-task-btn btn btn-primary btn-sm" ng-click="addTask()">
                     <span class="glyphicon glyphicon-plus"></span>

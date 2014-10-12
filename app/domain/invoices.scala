@@ -5,17 +5,19 @@ import java.awt.Color
 import _root_.util.pdf.PDF
 import org.bouncycastle.util.encoders.Base64
 import org.joda.time.DateTime
+import play.Logger
 import play.api.libs.json._
 
 case class InvoiceNumber(value: Int) {
   def increment = this.copy(value + 1)
 }
 
-case class InvoiceLine(description: String, days: Double, dailyRate: Double, taxRate: Double = 19.6)
+case class InvoiceLine(description: String, days: Double, dailyRate: Double, taxRate: Double = 20)
 
 case class InvoiceRequest(title: String,
                           invoiceNumber : String,
                           paymentDelay: Int,
+                          withTaxes: Boolean,
                           client: ClientRequest,
                           invoice: List[InvoiceLine])
 
@@ -82,10 +84,16 @@ trait InvoiceSerializer extends AttachmentSerializer with ClientSerializer {
       (((description, day), dailyRate), rate) <- descriptions zip days zip dailyRates zip rates
     } yield InvoiceLine(description, day.toDouble, dailyRate.toDouble, rate.toDouble)).toList
 
+    val withTaxes = body.get("paymentTaxesIncluded").map(_.head) match {
+      case Some(element) => element.equalsIgnoreCase("true")
+      case None => true
+    }
+
     val invoiceRequest = InvoiceRequest(
       body.get("title").get.headOption.get,
       body.get("invoiceNumber").get.headOption.get,
       body.get("paymentDelay").get.headOption.get.toInt,
+      withTaxes,
       ClientRequest(
         body.get("clientName").get.headOption.get,
         body.get("clientAddress").get.headOption.get,
@@ -108,7 +116,7 @@ trait InvoiceSerializer extends AttachmentSerializer with ClientSerializer {
     val invoiceLines = invoiceRequest.invoice
     val date = DateTime.now()
 
-    PDF.toBytes(views.html.invoice.template(title, id, delay, client, invoiceLines, date))
+    PDF.toBytes(views.html.invoice.template(title, id, delay, client, invoiceLines, date, invoiceRequest.withTaxes))
   }
 
   def addCanceledWatermark(pdfBytes: Array[Byte]): Array[Byte] = {

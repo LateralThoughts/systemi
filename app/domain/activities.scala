@@ -17,7 +17,7 @@ case class ActivityRequest(tjm : Double,
                     days : List[ActivityDay] = List()) {
   
   def toInvoice(invoiceNumber: String) = {
-    InvoiceRequest(s"${invoiceNumber} - facture", invoiceNumber, 30, client,
+    InvoiceRequest(s"${invoiceNumber} - facture", invoiceNumber, 30, true,client,
       List(
         InvoiceLine("Prestation de développement", numberOfDays, tjm)
       )

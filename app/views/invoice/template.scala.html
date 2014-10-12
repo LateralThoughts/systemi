@@ -1,4 +1,4 @@
-@(message: String, number: String, paymentDelay: Int, client: domain.ClientRequest, items: List[domain.InvoiceLine], date: org.joda.time.DateTime)
+@(message: String, number: String, paymentDelay: Int, client: domain.ClientRequest, items: List[domain.InvoiceLine], date: org.joda.time.DateTime, withTaxes: Boolean)
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">
   <head>
@@ -25,7 +25,7 @@
     <div class="lt-row">
       <div class="invoice-customer">
         <span class="name">@client.name</span> <br/>
-        @if(!client.extraInfo.isEmpty) {
+        @if(client.extraInfo.nonEmpty) {
           <span><em class="extra">@client.extraInfo</em></span> <br/>
         }
         <span class="address">@client.address</span> <br/>
@@ -48,7 +48,9 @@
             <th>Prix Unitaire</th>
             <th>Quantité</th>
             <th>Montant (EUR)</th>
-            <th>TVA (%)</th>
+              @if(withTaxes) {
+                  <th>TVA (%)</th>
+              }
           </tr>
         </thead>
         <tbody>
@@ -60,30 +62,42 @@
               <td>@{
                 line.dailyRate * line.days
               }</td>
-              <td>@{
-                line.taxRate
-              }</td>
+                @if(withTaxes) {
+                    <td>@{
+                        line.taxRate
+                    }</td>
+                }
             </tr>
           }
 
-        <tr class="end">
-          <td colspan="4">Total HT</td>
-          <td>@domain.InvoiceLinesAnalyzer.computeTotalHT(items)</td>
-        </tr>
+            @if(withTaxes) {
+                <tr class="end">
+                    <td colspan="4">Total HT</td>
+                    <td>@domain.InvoiceLinesAnalyzer.computeTotalHT(items)</td>
+                </tr>
 
-          @for((label, tva) <- domain.InvoiceLinesAnalyzer.computeTva(items)) {
-            <tr class="tva">
-              <td colspan="4">TVA @label</td>
-              <td>@tva</td>
-            </tr>
-          }
-        <tr class="end">
-          <td colspan="5"></td>
-        </tr>
-        <tr class="total">
-          <td colspan="4">Total TTC </td>
-          <td>@domain.InvoiceLinesAnalyzer.computeTotal(items)</td>
-        </tr>
+                @for((label, tva) <- domain.InvoiceLinesAnalyzer.computeTva(items)) {
+                    <tr class="tva">
+                        <td colspan="4">TVA @label</td>
+                        <td>@tva</td>
+                    </tr>
+                }
+                <tr class="end">
+                    <td colspan="5"></td>
+                </tr>
+                <tr class="total">
+                    <td colspan="4">Total TTC </td>
+                    <td>@domain.InvoiceLinesAnalyzer.computeTotal(items)</td>
+                </tr>
+            } else {
+                <tr class="end">
+                    <td colspan="4"></td>
+                </tr>
+                <tr class="total">
+                    <td colspan="3">Total HT</td>
+                    <td>@domain.InvoiceLinesAnalyzer.computeTotalHT(items)</td>
+                </tr>
+            }
         </tbody>
       </table>
     </div>

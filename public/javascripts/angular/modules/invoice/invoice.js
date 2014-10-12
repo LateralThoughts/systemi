@@ -42,6 +42,20 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
             }
         }
     ])
+    .directive('radioDetectChange', [function radioDetectChange() {
+
+        return {
+            replace: false,
+            require: 'ngModel',
+            scope: false,
+            link: function (scope, element, attrs, ngModelCtrl) {
+                element.on('change', function () {
+                    scope.$apply(function () {
+                        ngModelCtrl.$setViewValue(element[0].type.toLowerCase() == 'radio' ? element[0].value : element[0].checked);                    });
+                });
+            }
+        };
+    }])
     .controller('ListCtrl', ['$scope','$http','InvoicesService',function($scope, $http, invoicesService) {
         var reload = function(scope) {
             $http.get("/api/invoices?status=affected&exclude=true").success(function (data) {
@@ -158,6 +172,7 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
 
         $scope.client = null;
 
+        $scope.taxes = true;
     })
     .controller("HeaderCtrl", function($scope, $location) {
 
