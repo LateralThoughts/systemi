@@ -14,7 +14,6 @@ case class Invoice(invoice: InvoiceRequest,
                    pdfDocument: Attachment,
                    statuses: List[Status],
                    lastStatus: Status,
-                   creationDate: DateTime = DateTime.now(),
                    paymentStatus: String = "unpaid",
                    canceled:Boolean = false,
                    affectationStatus: String = "unaffected") extends AccountOperation(Plus) {

@@ -36,7 +36,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
           BadRequest(errors.toString).as("application/json")
 
         case result: JsResult[InvoiceRequest] =>
-          Ok(invoiceRequestToPdfBytes(result.get, DateTime.now())).as("application/pdf")
+          Ok(invoiceRequestToPdfBytes(result.get)).as("application/pdf")
       }
       case None => request.body.asFormUrlEncoded match {
         case Some(body) =>
@@ -44,7 +44,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
 
           val shouldUpload = body.get("shouldUpload").map(_.head).exists(_.equalsIgnoreCase("on"))
 
-          val generatedPdfDocument = invoiceRequestToPdfBytes(invoiceRequest, DateTime.now())
+          val generatedPdfDocument = invoiceRequestToPdfBytes(invoiceRequest)
 
           if (shouldUpload) {
             val status = domain.Status("created", DateTime.now(), request.user.email.get)
@@ -76,7 +76,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     Ok
   }
 
-  def getCanceledInvoices() = SecuredAction.async { implicit request =>
+  def getCanceledInvoices = SecuredAction.async { implicit request =>
     db
       .collection[JSONCollection]("invoices")
       .find(Json.obj("canceled" -> true), Json.obj("invoice" -> 1, "statuses" -> 1))
@@ -117,18 +117,18 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
   }
 
   def cancelInvoice(oid: String) = SecuredAction.async(parse.json) { implicit request =>
+    val selector = Json.obj("_id" -> Json.obj("$oid" -> oid))
     db
       .collection[JSONCollection]("invoices")
-      .find(Json.obj("_id" -> Json.obj("$oid" -> oid)))
+      .find(selector)
       .one[Invoice]
       .flatMap {
       case (mayBeInvoice: Option[Invoice]) => mayBeInvoice match {
         case Some(invoice) => {
           Logger.info("Loaded invoice, canceling...")
-          val selector = Json.obj("_id" -> Json.obj("$oid" -> oid))
           val lastStatus = Json.toJson(domain.Status("canceled", DateTime.now(), request.user.email.get))
 
-          val generatedPdfDocument = invoiceRequestToPdfWithCanceledWatermarkBytes(invoice.invoice, invoice.creationDate)
+          val generatedPdfDocument = addCanceledWatermark(invoice.pdfDocument.data)
 
           val generatedPdfJson = Json.toJson(Attachment("application/pdf", stub = false, generatedPdfDocument))
           val updateObject = Json.obj("pdfDocument" -> generatedPdfJson,"lastStatus" -> lastStatus, "canceled" -> true)

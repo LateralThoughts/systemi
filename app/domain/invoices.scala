@@ -100,26 +100,22 @@ trait InvoiceSerializer extends AttachmentSerializer with ClientSerializer {
     invoiceRequest
   }
 
-  def invoiceRequestToPdfBytes(invoiceRequest : InvoiceRequest, date: DateTime) :Array[Byte] = {
+  def invoiceRequestToPdfBytes(invoiceRequest : InvoiceRequest) :Array[Byte] = {
     val client = invoiceRequest.client
     val title = invoiceRequest.title
     val id = invoiceRequest.invoiceNumber
     val delay = invoiceRequest.paymentDelay
     val invoiceLines = invoiceRequest.invoice
+    val date = DateTime.now()
 
     PDF.toBytes(views.html.invoice.template(title, id, delay, client, invoiceLines, date))
   }
 
-  def invoiceRequestToPdfWithCanceledWatermarkBytes(invoiceRequest : InvoiceRequest, date: DateTime): Array[Byte] = {
-    val client = invoiceRequest.client
-    val title = invoiceRequest.title
-    val id = invoiceRequest.invoiceNumber
-    val delay = invoiceRequest.paymentDelay
-    val invoiceLines = invoiceRequest.invoice
+  def addCanceledWatermark(pdfBytes: Array[Byte]): Array[Byte] = {
 
     val watermark = "ANNULÉE"
     val watermarkColor = Color.RED
 
-    PDF.toBytesWithWatermark(views.html.invoice.template(title, id, delay, client, invoiceLines, date), watermark, watermarkColor)
+    PDF.addWatermarkToPdf(pdfBytes: Array[Byte], watermark, watermarkColor)
   }
 }

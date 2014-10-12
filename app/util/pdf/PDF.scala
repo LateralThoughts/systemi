@@ -106,10 +106,9 @@ object PDF {
 
         def toBytes(html: Html) : Array[Byte] = toBytes(tidify(html.body))
 
-        def toBytesWithWatermark(html: Html, watermark: String, color: Color) = {
-          val generatedPdfDocument = toBytes(html)
+        def addWatermarkToPdf(pdfBytes: Array[Byte], watermark: String, color: Color) = {
           // Read the existing PDF document
-          val pdfReader = new PdfReader(generatedPdfDocument)
+          val pdfReader = new PdfReader(pdfBytes)
           val pdfOutputStream = new ByteArrayOutputStream()
           // Get the PdfStamper object
           val pdfStamper = new PdfStamper(pdfReader, pdfOutputStream)
