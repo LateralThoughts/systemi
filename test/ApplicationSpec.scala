@@ -19,7 +19,7 @@ class ApplicationSpec extends PlaySpecification {
     }
 
     "render the invoice form page" in new WithApplication(app) {
-      val creds1 = cookies(route(FakeRequest(POST, "/authenticate/naive").withTextBody("user")).get)
+      val creds1 = cookies(route(FakeRequest(POST, "/auth/authenticate/test").withTextBody("user")).get)
 
       val home = route(FakeRequest(GET, "/").withCookies(creds1.get("id").get)).get
 
