@@ -5,8 +5,7 @@
         <th>Titre</th>
         <th>Prestataire</th>
         <th>Client</th>
-        <th>Document</th>
-        <th>Delete</th>
+        <th>Actions</th>
     </tr>
     </thead>
     <tbody>
@@ -16,10 +15,8 @@
         <td>{{ item.activity.contractor }}</td>
         <td>{{ item.activity.client.name }}</td>
         <td>
-            <a href="/api/activity/document/{{ item._id.$oid }}">Voir le CRA (Fichier PDF)</a>
-        </td>
-        <td>
-            <button ng-click="deleteActivity(item._id.$oid)">delete</button>
+            <p><a href="/api/activity/document/{{ item._id.$oid }}">Voir le CRA (Fichier PDF)</a></p>
+            <p><button class="btn btn-primary" ng-click="deleteActivity(item._id.$oid)">Supprimer l'activité</button></p>
         </td>
     </tr>
     </tbody>
