@@ -2,6 +2,7 @@ package controllers.api
 
 import java.io.{BufferedInputStream, FileInputStream, File}
 
+import auth.WithDomain
 import domain._
 import org.bouncycastle.util.encoders.Base64
 import org.joda.time.DateTime
@@ -24,7 +25,7 @@ class ExpenseApiController(override implicit val env: RuntimeEnvironment[BasicPr
 
   implicit val context = scala.concurrent.ExecutionContext.Implicits.global
 
-  def createExpense = SecuredAction.async(parse.multipartFormData) { implicit request =>
+  def createExpense = SecuredAction(WithDomain()).async(parse.multipartFormData) { implicit request =>
     request.body.asFormUrlEncoded.get("accountId") match {
       case Some(accountList) =>
         val accountId = accountList.head
@@ -42,7 +43,7 @@ class ExpenseApiController(override implicit val env: RuntimeEnvironment[BasicPr
 
   }
 
-  def findAll = SecuredAction.async {
+  def findAll = SecuredAction(WithDomain()).async {
     db
       .collection[JSONCollection]("expenses")
       .find(Json.obj(), Json.obj())
@@ -51,7 +52,7 @@ class ExpenseApiController(override implicit val env: RuntimeEnvironment[BasicPr
       .map(expenses => Ok(Json.toJson(expenses)))
   }
 
-  def getAttachment(oid: String) = SecuredAction.async { implicit request =>
+  def getAttachment(oid: String) = SecuredAction(WithDomain()).async { implicit request =>
     db
       .collection[JSONCollection]("expenses")
       .find(Json.obj("_id" -> Json.obj("$oid" -> oid)))

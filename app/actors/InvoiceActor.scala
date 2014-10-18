@@ -17,7 +17,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
     case (invoice: Invoice, accessToken: String) => {
       saveInvoice(invoice)
-      uploadInvoiceToDrive(accessToken, invoice.invoice, invoice.pdfDocument.data)
+      //uploadInvoiceToDrive(accessToken, invoice.invoice, invoice.pdfDocument.data)
     }
 
   }

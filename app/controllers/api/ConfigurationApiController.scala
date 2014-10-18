@@ -1,5 +1,6 @@
 package controllers.api
 
+import auth.WithDomain
 import domain.{RatioConfiguration, RatioConfigurationSerializer}
 import play.api.libs.json.{JsError, JsSuccess, JsObject, Json}
 import play.api.mvc.{Action, Controller}
@@ -17,7 +18,7 @@ class ConfigurationApiController(override implicit val env: RuntimeEnvironment[B
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  def getCurrentConfiguration = SecuredAction.async {
+  def getCurrentConfiguration = SecuredAction(WithDomain()).async {
     db
       .collection[JSONCollection]("configuration")
       .find(Json.obj())
@@ -26,7 +27,7 @@ class ConfigurationApiController(override implicit val env: RuntimeEnvironment[B
       .map(configs => Ok(Json.toJson(configs)))
   }
 
-  def agoraCallback = Action.async(parse.json) { implicit request =>
+  def agoraCallback = SecuredAction(WithDomain()).async(parse.json) { implicit request =>
     request.body.validate(ratioConfigFormatter) match {
       case obj: JsSuccess[RatioConfiguration] =>
         db

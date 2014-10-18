@@ -1,5 +1,6 @@
 package controllers.api
 
+import auth.WithDomain
 import domain._
 import play.api.libs.json.Json
 import play.api.mvc.Controller
@@ -21,7 +22,7 @@ class AccountApiController(override implicit val env: RuntimeEnvironment[BasicPr
 
   val ACCOUNT = "accounts"
 
-  def findAll = SecuredAction.async {
+  def findAll = SecuredAction(WithDomain()).async {
     db
       .collection[JSONCollection](ACCOUNT)
       .find(Json.obj(), Json.obj())
@@ -30,7 +31,7 @@ class AccountApiController(override implicit val env: RuntimeEnvironment[BasicPr
       .map(accounts => Ok(Json.toJson(accounts)))
   }
 
-  def add = SecuredAction.async(parse.urlFormEncoded) { implicit request =>
+  def add = SecuredAction(WithDomain()).async(parse.urlFormEncoded) { implicit request =>
 
     val form = request.body
 

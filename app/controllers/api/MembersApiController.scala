@@ -1,5 +1,6 @@
 package controllers.api
 
+import auth.WithDomain
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Controller
 import play.modules.reactivemongo.MongoController
@@ -13,7 +14,7 @@ class MembersApiController(override implicit val env: RuntimeEnvironment[BasicPr
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  def findAll = SecuredAction.async {
+  def findAll = SecuredAction(WithDomain()).async {
     db
       .collection[JSONCollection]("users")
       .find(Json.obj())

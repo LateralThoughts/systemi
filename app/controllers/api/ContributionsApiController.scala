@@ -1,5 +1,6 @@
 package controllers.api
 
+import auth.WithDomain
 import domain.{Contribution, ContributionSerializer, Client}
 import play.Logger
 import play.api.libs.json.{JsResult, JsError, JsObject, Json}
@@ -18,7 +19,7 @@ class ContributionsApiController(override implicit val env: RuntimeEnvironment[B
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  def findByType(mayContributionType: Option[String]) = SecuredAction.async {
+  def findByType(mayContributionType: Option[String]) = SecuredAction(WithDomain()).async {
     db
       .collection[JSONCollection]("contributions")
       .find(mayContributionType.map(contributionType => Json.obj("type" -> contributionType)).getOrElse(Json.obj()))
@@ -27,7 +28,7 @@ class ContributionsApiController(override implicit val env: RuntimeEnvironment[B
       .map(contributions => Ok(Json.toJson(contributions)))
   }
 
-  def createContribution() = SecuredAction.async(parse.json) { implicit request =>
+  def createContribution() = SecuredAction(WithDomain()).async(parse.json) { implicit request =>
     request.body.validate(contributionFormatter) match {
       case errors:JsError =>
         Future(BadRequest(errors.toString).as("application/json"))

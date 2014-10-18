@@ -26,6 +26,10 @@ class ProductionModule {
       override def getLoginPage(form: Form[(String, String)], msg: Option[String])(implicit request: RequestHeader, lang: Lang)= {
         views.html.login(form, msg)(request, lang, env, request.flash)
       }
+
+      override def getNotAuthorizedPage(implicit request : RequestHeader, lang : Lang) = {
+        views.html.unauthorized()(request, lang, env, request.flash)
+      }
     }
   }
 

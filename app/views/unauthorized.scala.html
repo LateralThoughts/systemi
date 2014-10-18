@@ -1,0 +1,23 @@
+@()(implicit request: RequestHeader, lang: Lang, env: securesocial.core.RuntimeEnvironment[securesocial.core.BasicProfile], flash: Flash)
+
+@main() {
+
+    @request.flash.get("success").map { msg =>
+        <div class="alert alert-info">
+            @msg
+        </div>
+    }
+
+    @request.flash.get("error").map { msg =>
+        <div class="alert alert-error">
+            @msg
+        </div>
+    }
+
+    <form class="form-signin text-center">
+        <h2 class="form-signin-heading">Page non accessible</h2>
+        <div class="center">
+            <a class="btn btn-large btn-primary" href="/auth/authenticate/google">Se connecter avec Google</a>
+        </div>
+    </form>
+}

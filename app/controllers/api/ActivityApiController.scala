@@ -1,5 +1,6 @@
 package controllers.api
 
+import auth.WithDomain
 import securesocial.core.RuntimeEnvironment
 import play.api.mvc.Controller
 import play.modules.reactivemongo.MongoController
@@ -28,7 +29,7 @@ class ActivityApiController(override implicit val env: RuntimeEnvironment[BasicP
   private val akkaSystem = Akka.system
   private lazy val activityActor = akkaSystem.actorSelection(akkaSystem / "activity")
 
-  def createAndPushCRA = SecuredAction.async(parse.json) { implicit request =>
+  def createAndPushCRA = SecuredAction(WithDomain()).async(parse.json) { implicit request =>
     request.body.validate(activityReqFormat) match {
 
       case errors: JsError =>
@@ -46,7 +47,7 @@ class ActivityApiController(override implicit val env: RuntimeEnvironment[BasicP
   }
 
 
-  def getPdfByCRA(oid: String) = Action.async {
+  def getPdfByCRA(oid: String) = SecuredAction(WithDomain()).async {
     db
       .collection[JSONCollection]("activities")
       .find(Json.obj("_id" -> Json.obj("$oid" -> oid)), Json.obj("pdfDocument" -> 1))
@@ -61,7 +62,7 @@ class ActivityApiController(override implicit val env: RuntimeEnvironment[BasicP
 
   }
 
-  def findAll = SecuredAction.async {
+  def findAll = SecuredAction(WithDomain()).async {
     db
       .collection[JSONCollection]("activities")
       .find(Json.obj(), Json.obj("activity" -> 1, "id" -> 1))
@@ -70,7 +71,7 @@ class ActivityApiController(override implicit val env: RuntimeEnvironment[BasicP
       .map(users => Ok(Json.toJson(users)))
   }
 
-  def delete(oid: String) = Action.async {
+  def delete(oid: String) = SecuredAction(WithDomain()).async {
     db
     .collection[JSONCollection]("activities")
     .remove(Json.obj("_id" -> Json.obj("$oid" -> oid)))

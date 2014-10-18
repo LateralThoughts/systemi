@@ -1,5 +1,6 @@
 package controllers.api
 
+import auth.WithDomain
 import domain._
 import engine.AffectationEngine
 import org.bouncycastle.util.encoders.Base64
@@ -28,7 +29,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
   private val akkaSystem = Akka.system
   private lazy val invoiceActor = akkaSystem.actorSelection(akkaSystem / "invoice")
 
-  def createAndPushInvoice = SecuredAction { implicit request =>
+  def createAndPushInvoice = SecuredAction(WithDomain()) { implicit request =>
     request.body.asJson match {
       case Some(json) => json.validate(invoiceReqFormat) match {
 
@@ -62,21 +63,21 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     }
   }
 
-  def getLastInvoiceNumber = Action.async {
+  def getLastInvoiceNumber = SecuredAction(WithDomain()).async {
     db.collection[JSONCollection]("invoiceNumber")
       .find(Json.obj())
       .one[InvoiceNumber]
       .map(mayBeObj => Ok(Json.toJson(mayBeObj.get)))
   }
 
-  def reset(value: Int) = Action {
+  def reset(value: Int) = SecuredAction(WithDomain()) {
     Logger.info(s"reset value of invoiceNumber to $value")
     db.collection[JSONCollection]("invoiceNumber")
       .update(Json.obj(), Json.toJson(InvoiceNumber(value)))
     Ok
   }
 
-  def getCanceledInvoices = SecuredAction.async { implicit request =>
+  def getCanceledInvoices = SecuredAction(WithDomain()).async { implicit request =>
     db
       .collection[JSONCollection]("invoices")
       .find(Json.obj("canceled" -> true), Json.obj("invoice" -> 1, "statuses" -> 1))
@@ -85,7 +86,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
       .map(invoices => Ok(Json.toJson(invoices)))
   }
 
-  def findByStatus(status: Option[String], exclude: Option[Boolean]) = Action.async { implicit request =>
+  def findByStatus(status: Option[String], exclude: Option[Boolean]) = SecuredAction(WithDomain()).async { implicit request =>
     val selector = (status: String) => {
       val selectorField =
         if(List("paid", "unpaid") contains status)
@@ -110,13 +111,13 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
       .map(invoices => Ok(Json.toJson(invoices)))
   }
 
-  def addStatusToInvoice(oid: String, status: String) = SecuredAction { implicit request =>
+  def addStatusToInvoice(oid: String, status: String) = SecuredAction(WithDomain()) { implicit request =>
     setStatusToInvoice(oid, status, request.user.email.get)
 
     Ok
   }
 
-  def cancelInvoice(oid: String) = SecuredAction.async(parse.json) { implicit request =>
+  def cancelInvoice(oid: String) = SecuredAction(WithDomain()).async(parse.json) { implicit request =>
     val selector = Json.obj("_id" -> Json.obj("$oid" -> oid))
     db
       .collection[JSONCollection]("invoices")
@@ -151,7 +152,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     }
   }
 
-  def affectToAccount(oid: String) = SecuredAction.async(parse.json) { implicit request =>
+  def affectToAccount(oid: String) = SecuredAction(WithDomain()).async(parse.json) { implicit request =>
     db
       .collection[JSONCollection]("invoices")
       .find(Json.obj("_id" -> Json.obj("$oid" -> oid)))
@@ -182,7 +183,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     }
   }
 
-  def getPdfByInvoice(oid: String) = Action.async {
+  def getPdfByInvoice(oid: String) = SecuredAction(WithDomain()).async {
     db
       .collection[JSONCollection]("invoices")
       .find(Json.obj("_id" -> Json.obj("$oid" -> oid)), Json.obj("pdfDocument" -> 1))

@@ -1,5 +1,6 @@
 package controllers
 
+import auth.WithDomain
 import domain.{LT, Human, Account}
 import play.api.libs.json.Json
 import play.api.mvc.{Controller, Action}
@@ -12,7 +13,7 @@ class WelcomeController(override implicit val env: RuntimeEnvironment[BasicProfi
   extends Controller
   with securesocial.core.SecureSocial[BasicProfile] {
 
-  def index = SecuredAction { implicit request =>
+  def index = SecuredAction(WithDomain()) { implicit request =>
     Ok(views.html.welcome.index(request.user))
   }
 

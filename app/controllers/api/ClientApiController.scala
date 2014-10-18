@@ -1,5 +1,6 @@
 package controllers.api
 
+import auth.WithDomain
 import domain.{ClientRequest, Client, InvoiceSerializer}
 import play.Logger
 import play.api.libs.json.{JsObject, JsError, JsResult, Json}
@@ -33,7 +34,7 @@ class ClientApiController(engine: SimpleSearchEngine)
       .collect[List]()
   }
 
-  def search(q: Option[String]) = SecuredAction.async {
+  def search(q: Option[String]) = SecuredAction(WithDomain()).async {
     implicit request =>
       q match {
         case Some(query) =>
@@ -56,7 +57,7 @@ class ClientApiController(engine: SimpleSearchEngine)
       }
   }
 
-  def addClient() = SecuredAction.async(parse.json) { implicit request =>
+  def addClient() = SecuredAction(WithDomain()).async(parse.json) { implicit request =>
     request.body.validate(clientRequestFormat) match {
       case errors:JsError =>
         Future(BadRequest(errors.toString).as("application/json"))
@@ -81,7 +82,7 @@ class ClientApiController(engine: SimpleSearchEngine)
     }
   }
 
-  def modifyClient(id: String) = SecuredAction(parse.json) {
+  def modifyClient(id: String) = SecuredAction(WithDomain())(parse.json) {
     implicit request =>
       val clientJsonModified = request.body
       val idSelector = Json.obj("_id" -> BSONObjectID(id))

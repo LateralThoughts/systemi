@@ -1,5 +1,6 @@
 package controllers
 
+import auth.WithDomain
 import domain._
 import play.api.mvc._
 import securesocial.core.{BasicProfile, RuntimeEnvironment}
@@ -15,7 +16,7 @@ class ClientController(override implicit val env: RuntimeEnvironment[BasicProfil
               with MongoController
               with securesocial.core.SecureSocial[BasicProfile] {
 
-  def clientsView = SecuredAction {
+  def clientsView = SecuredAction(WithDomain()) {
     implicit request =>
       Ok(views.html.clients(request.user))
   }

@@ -1,5 +1,6 @@
 package controllers.api
 
+import auth.WithDomain
 import domain.{Account, AccountSerializer, Movement, MovementsSerializer}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Controller
@@ -18,7 +19,7 @@ class MovementsApiController(override implicit val env: RuntimeEnvironment[Basic
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  def findAll = SecuredAction.async {
+  def findAll = SecuredAction(WithDomain()).async {
     db
       .collection[JSONCollection]("movements")
       .find(Json.obj())
