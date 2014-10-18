@@ -22,22 +22,20 @@ trait GoogleDriveInteraction extends NextInvoiceNumbersParser {
   private val nextFolderId: String = "0B8t2tXgYCAKNRk1kcF83V2lHT2c"
 
   def uploadInvoiceToDrive(token: String, invoice : InvoiceRequest, content : Array[Byte]) {
-    val credentials = createGoogleCredentials(token)
-    val service = new Drive.Builder(new NetHttpTransport, new JacksonFactory, credentials).build()
+    val service: Drive = initDriveService(token)
     val documentFile = createDocumentFile(invoice)
     val mediaContent = new ByteArrayContent("application/pdf", content)
     try {
       service.files().insert(documentFile, mediaContent).execute()
       log.info(s"Invoice successfully uploaded to Google Drive : ${documentFile.getTitle}")
     } catch {
-      case error :Throwable => log.warn("an error occured while trying to upload invoice to Google Drive : " + error)/* nothing to do it failed, it failed... */
+      case error :Throwable => log.warn("an error occurred while trying to upload invoice to Google Drive : " + error)/* nothing to do it failed, it failed... */
     }
   }
 
   def getNextInvoiceNameAndIncrement(token :String)  = {
-    val credentials = createGoogleCredentials(token)
+    val service: Drive = initDriveService(token)
 
-    val service = new Drive.Builder(new NetHttpTransport, new JacksonFactory, credentials).build()
     val nextFolder = service.files().get(nextFolderId).execute
     val title: String = nextFolder.getTitle
     
@@ -56,6 +54,13 @@ trait GoogleDriveInteraction extends NextInvoiceNumbersParser {
     val patchRequest = service.files().patch(nextFolderId, file)
     patchRequest.setFields("title")
     patchRequest.execute()
+  }
+
+
+  def initDriveService(token: String): Drive = {
+    val credentials = createGoogleCredentials(token)
+    val service = new Drive.Builder(new NetHttpTransport, new JacksonFactory, credentials).build()
+    service
   }
 
   private def createGoogleCredentials(token: String)  = {
