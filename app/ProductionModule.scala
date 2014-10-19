@@ -14,6 +14,7 @@ import play.api.Play
 import play.api.Play.current
 import search.SimpleSearchEngine
 import service.MongoBasedUserService
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 class ProductionModule {

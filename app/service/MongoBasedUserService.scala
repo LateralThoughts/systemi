@@ -2,6 +2,7 @@ package service
 
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.api.services.IdentityService
+import com.mohiva.play.silhouette.impl.providers.{CommonSocialProfileBuilder, SocialProvider, CommonSocialProfile}
 import domain._
 import play.Logger
 import play.api.Play.current
@@ -15,6 +16,18 @@ import scala.concurrent.Future
 class MongoBasedUserService()
   extends IdentityService[User]
   with UserSerializer {
+
+  def save(profile: CommonSocialProfile):Future[User] = {
+    val user = User(
+      profile.loginInfo,
+      profile.firstName,
+      profile.lastName,
+      profile.fullName,
+      profile.email,
+      profile.avatarURL)
+    save(user)
+  }
+
   import scala.concurrent.ExecutionContext.Implicits.global
 
   /**
