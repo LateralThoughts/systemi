@@ -1,28 +1,25 @@
 package controllers.api
 
-import auth.WithDomain
-import domain._
-import play.api.libs.json.Json
-import play.api.mvc.Controller
+import com.mohiva.play.silhouette.api.{Environment, Silhouette}
+import com.mohiva.play.silhouette.impl.authenticators.SessionAuthenticator
+import domain.{Account, Human, _}
+import play.api.libs.json.{JsObject, Json}
 import play.modules.reactivemongo.MongoController
-import securesocial.core.{RuntimeEnvironment, BasicProfile}
-import domain.Account
 import play.modules.reactivemongo.json.collection.JSONCollection
-import play.api.libs.json.JsObject
-import domain.Human
+
 import scala.concurrent.Future
 
-class AccountApiController(override implicit val env: RuntimeEnvironment[BasicProfile])
-  extends Controller
+class AccountApiController(override implicit val env: Environment[User, SessionAuthenticator])
+  extends Silhouette[User, SessionAuthenticator]
   with MongoController
   with AccountSerializer
-  with securesocial.core.SecureSocial[BasicProfile] {
+   {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
   val ACCOUNT = "accounts"
 
-  def findAll = SecuredAction(WithDomain()).async {
+  def findAll = SecuredAction.async {
     db
       .collection[JSONCollection](ACCOUNT)
       .find(Json.obj(), Json.obj())
@@ -31,7 +28,7 @@ class AccountApiController(override implicit val env: RuntimeEnvironment[BasicPr
       .map(accounts => Ok(Json.toJson(accounts)))
   }
 
-  def add = SecuredAction(WithDomain()).async(parse.urlFormEncoded) { implicit request =>
+  def add = SecuredAction.async(parse.urlFormEncoded) { implicit request =>
 
     val form = request.body
 
@@ -40,7 +37,7 @@ class AccountApiController(override implicit val env: RuntimeEnvironment[BasicPr
             db
                 .collection[JSONCollection]("users")
                 .find(Json.obj("_id" -> Json.obj("$oid" -> userId.head)))
-                .one[BasicProfile]
+                .one[User]
                 .flatMap {
                 case Some(user) =>
                     val accounts = for {

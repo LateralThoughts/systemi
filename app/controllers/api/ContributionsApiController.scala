@@ -1,25 +1,24 @@
 package controllers.api
 
-import auth.WithDomain
-import domain.{Contribution, ContributionSerializer, Client}
+import com.mohiva.play.silhouette.api.{Environment, Silhouette}
+import com.mohiva.play.silhouette.impl.authenticators.SessionAuthenticator
+import domain.{Contribution, ContributionSerializer, User}
 import play.Logger
-import play.api.libs.json.{JsResult, JsError, JsObject, Json}
-import play.api.mvc.Controller
+import play.api.libs.json.{JsError, JsObject, JsResult, Json}
 import play.modules.reactivemongo.MongoController
 import play.modules.reactivemongo.json.collection.JSONCollection
-import securesocial.core.{BasicProfile, RuntimeEnvironment}
 
 import scala.concurrent.Future
 
-class ContributionsApiController(override implicit val env: RuntimeEnvironment[BasicProfile])
-  extends Controller
+class ContributionsApiController(override implicit val env: Environment[User, SessionAuthenticator])
+  extends Silhouette[User, SessionAuthenticator]
   with MongoController
   with ContributionSerializer
-  with securesocial.core.SecureSocial[BasicProfile] {
+   {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  def findByType(mayContributionType: Option[String]) = SecuredAction(WithDomain()).async {
+  def findByType(mayContributionType: Option[String]) = SecuredAction.async {
     db
       .collection[JSONCollection]("contributions")
       .find(mayContributionType.map(contributionType => Json.obj("type" -> contributionType)).getOrElse(Json.obj()))
@@ -28,7 +27,7 @@ class ContributionsApiController(override implicit val env: RuntimeEnvironment[B
       .map(contributions => Ok(Json.toJson(contributions)))
   }
 
-  def createContribution() = SecuredAction(WithDomain()).async(parse.json) { implicit request =>
+  def createContribution() = SecuredAction.async(parse.json) { implicit request =>
     request.body.validate(contributionFormatter) match {
       case errors:JsError =>
         Future(BadRequest(errors.toString).as("application/json"))

@@ -1,4 +1,4 @@
-@(user: securesocial.core.BasicProfile)(implicit request: play.api.mvc.RequestHeader, env: securesocial.core.RuntimeEnvironment[securesocial.core.BasicProfile], flash: Flash)
+@(user: domain.User)(implicit request: play.api.mvc.RequestHeader, env: com.mohiva.play.silhouette.api.Environment[domain.User, com.mohiva.play.silhouette.impl.authenticators.SessionAuthenticator], flash: Flash)
 
 @main(user, "configurations") {
     <ul class="nav nav-tabs" role="tablist" data-ng-controller="HeaderCtrl">

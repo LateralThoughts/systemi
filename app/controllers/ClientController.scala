@@ -1,9 +1,8 @@
 package controllers
 
-import auth.WithDomain
+import com.mohiva.play.silhouette.api.{Environment, Silhouette}
+import com.mohiva.play.silhouette.impl.authenticators.SessionAuthenticator
 import domain._
-import play.api.mvc._
-import securesocial.core.{BasicProfile, RuntimeEnvironment}
 
 // Reactive Mongo imports
 
@@ -11,13 +10,13 @@ import securesocial.core.{BasicProfile, RuntimeEnvironment}
 import play.modules.reactivemongo.MongoController
 
 
-class ClientController(override implicit val env: RuntimeEnvironment[BasicProfile]) extends Controller
+class ClientController(override implicit val env: Environment[User, SessionAuthenticator]) extends Silhouette[User, SessionAuthenticator]
               with InvoiceSerializer
               with MongoController
-              with securesocial.core.SecureSocial[BasicProfile] {
+               {
 
-  def clientsView = SecuredAction(WithDomain()) {
+  def clientsView = SecuredAction {
     implicit request =>
-      Ok(views.html.clients(request.user))
+      Ok(views.html.clients(request.identity))
   }
 }

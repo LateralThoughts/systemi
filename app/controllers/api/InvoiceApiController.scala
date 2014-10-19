@@ -1,35 +1,34 @@
 package controllers.api
 
-import auth.WithDomain
+import com.mohiva.play.silhouette.api.{Environment, Silhouette}
+import com.mohiva.play.silhouette.impl.authenticators.SessionAuthenticator
 import domain._
 import engine.AffectationEngine
 import org.bouncycastle.util.encoders.Base64
 import org.joda.time.DateTime
 import play.Logger
 import play.api.libs.json._
-import play.api.mvc.{Action, Controller}
 import play.libs.Akka
 import play.modules.reactivemongo.MongoController
 import play.modules.reactivemongo.json.collection.JSONCollection
-import securesocial.core.{BasicProfile, RuntimeEnvironment}
 
 import scala.concurrent.Future
 
-class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicProfile])
-  extends Controller
+class InvoiceApiController(override implicit val env: Environment[User, SessionAuthenticator])
+  extends Silhouette[User, SessionAuthenticator]
   with MongoController
   with InvoiceSerializer
   with AccountSerializer
   with AffectationSerializer
   with AffectationEngine
-  with securesocial.core.SecureSocial[BasicProfile] {
+   {
 
   implicit val context = scala.concurrent.ExecutionContext.Implicits.global
 
   private val akkaSystem = Akka.system
   private lazy val invoiceActor = akkaSystem.actorSelection(akkaSystem / "invoice")
 
-  def createAndPushInvoice = SecuredAction(WithDomain()) { implicit request =>
+  def createAndPushInvoice = SecuredAction { implicit request =>
     request.body.asJson match {
       case Some(json) => json.validate(invoiceReqFormat) match {
 
@@ -48,8 +47,8 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
           val generatedPdfDocument = invoiceRequestToPdfBytes(invoiceRequest)
 
           if (shouldUpload) {
-            val status = domain.Status("created", DateTime.now(), request.user.email.get)
-            val accessToken: String = request.user.oAuth2Info.map( _.accessToken ).get
+            val status = domain.Status("created", DateTime.now(), request.identity.email.get)
+            val accessToken: String = request.identity.oAuth2Info.map( _.accessToken ).get
             invoiceActor ! (
               Invoice(invoiceRequest, Attachment("application/pdf", stub = false, generatedPdfDocument), List(status), status),
               accessToken
@@ -63,21 +62,21 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     }
   }
 
-  def getLastInvoiceNumber = SecuredAction(WithDomain()).async {
+  def getLastInvoiceNumber = SecuredAction.async {
     db.collection[JSONCollection]("invoiceNumber")
       .find(Json.obj())
       .one[InvoiceNumber]
       .map(mayBeObj => Ok(Json.toJson(mayBeObj.get)))
   }
 
-  def reset(value: Int) = SecuredAction(WithDomain()) {
+  def reset(value: Int) = SecuredAction {
     Logger.info(s"reset value of invoiceNumber to $value")
     db.collection[JSONCollection]("invoiceNumber")
       .update(Json.obj(), Json.toJson(InvoiceNumber(value)))
     Ok
   }
 
-  def getCanceledInvoices = SecuredAction(WithDomain()).async { implicit request =>
+  def getCanceledInvoices = SecuredAction.async { implicit request =>
     db
       .collection[JSONCollection]("invoices")
       .find(Json.obj("canceled" -> true), Json.obj("invoice" -> 1, "statuses" -> 1))
@@ -86,7 +85,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
       .map(invoices => Ok(Json.toJson(invoices)))
   }
 
-  def findByStatus(status: Option[String], exclude: Option[Boolean]) = SecuredAction(WithDomain()).async { implicit request =>
+  def findByStatus(status: Option[String], exclude: Option[Boolean]) = SecuredAction.async { implicit request =>
     val selector = (status: String) => {
       val selectorField =
         if(List("paid", "unpaid") contains status)
@@ -111,13 +110,13 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
       .map(invoices => Ok(Json.toJson(invoices)))
   }
 
-  def addStatusToInvoice(oid: String, status: String) = SecuredAction(WithDomain()) { implicit request =>
-    setStatusToInvoice(oid, status, request.user.email.get)
+  def addStatusToInvoice(oid: String, status: String) = SecuredAction { implicit request =>
+    setStatusToInvoice(oid, status, request.identity.email.get)
 
     Ok
   }
 
-  def cancelInvoice(oid: String) = SecuredAction(WithDomain()).async(parse.json) { implicit request =>
+  def cancelInvoice(oid: String) = SecuredAction.async(parse.json) { implicit request =>
     val selector = Json.obj("_id" -> Json.obj("$oid" -> oid))
     db
       .collection[JSONCollection]("invoices")
@@ -127,7 +126,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
       case (mayBeInvoice: Option[Invoice]) => mayBeInvoice match {
         case Some(invoice) => {
           Logger.info("Loaded invoice, canceling...")
-          val lastStatus = Json.toJson(domain.Status("canceled", DateTime.now(), request.user.email.get))
+          val lastStatus = Json.toJson(domain.Status("canceled", DateTime.now(), request.identity.email.get))
 
           val generatedPdfDocument = addCanceledWatermark(invoice.pdfDocument.data)
 
@@ -152,7 +151,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     }
   }
 
-  def affectToAccount(oid: String) = SecuredAction(WithDomain()).async(parse.json) { implicit request =>
+  def affectToAccount(oid: String) = SecuredAction.async(parse.json) { implicit request =>
     db
       .collection[JSONCollection]("invoices")
       .find(Json.obj("_id" -> Json.obj("$oid" -> oid)))
@@ -175,7 +174,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
           futureHasAtLeastOneFailure.map {
             case true => InternalServerError
             case false =>
-              setStatusToInvoice(oid, "affected", request.user.email.get)
+              setStatusToInvoice(oid, "affected", request.identity.email.get)
               Ok
           }
         }).getOrElse(Future(InternalServerError))
@@ -183,7 +182,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     }
   }
 
-  def getPdfByInvoice(oid: String) = SecuredAction(WithDomain()).async {
+  def getPdfByInvoice(oid: String) = SecuredAction.async {
     db
       .collection[JSONCollection]("invoices")
       .find(Json.obj("_id" -> Json.obj("$oid" -> oid)), Json.obj("pdfDocument" -> 1))

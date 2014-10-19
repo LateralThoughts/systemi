@@ -1,4 +1,4 @@
-@(user: securesocial.core.BasicProfile = null, angularModule: String = "fac-stemi")(content: Html)(implicit request: play.api.mvc.RequestHeader, env: securesocial.core.RuntimeEnvironment[securesocial.core.BasicProfile], flash: Flash)
+@(user: domain.User = null, angularModule: String = "fac-stemi")(content: Html)(implicit request: play.api.mvc.RequestHeader, env: com.mohiva.play.silhouette.api.Environment[domain.User, com.mohiva.play.silhouette.impl.authenticators.SessionAuthenticator], flash: Flash)
 
 <!DOCTYPE html>
 <html>
@@ -45,30 +45,39 @@
         <div class="container">
             <div class="header">
                 <ul class="nav nav-pills pull-right">
-                    <li @if(request.uri == routes.Application.index.url){class="active"}><a href="@routes.Application.index">Home</a></li>
-                    <li @if(request.uri == routes.InvoiceController.index.url){class="active"}><a href="@routes.InvoiceController.index">Factures</a></li>
-                    <li @if(request.uri == routes.ActivityController.index.url){class="active"}><a href="@routes.ActivityController.index">Cra</a></li>
-                    <li @if(request.uri == routes.ExpenseController.index.url){class="active"}><a href="@routes.ExpenseController.index">Sorties</a></li>
-                    <li class="dropdown @if(List(routes.ClientController.clientsView.url, routes.MembersController.index.url, routes.ConfigurationController.index.url, routes.ContributionsController.index.url).contains(request.uri)){active} ">
+                    <li @if(request.uri == routes.Application.index.url) {
+                        class="active"}><a href="@routes.Application.index">Home</a></li>
+                    <li @if(request.uri == routes.InvoiceController.index.url) {
+                        class="active"}><a href="@routes.InvoiceController.index">Factures</a></li>
+                    <li @if(request.uri == routes.ActivityController.index.url) {
+                        class="active"}><a href="@routes.ActivityController.index">Cra</a></li>
+                    <li @if(request.uri == routes.ExpenseController.index.url) {
+                        class="active"}><a href="@routes.ExpenseController.index">Sorties</a></li>
+                    <li class="dropdown @if(List(routes.ClientController.clientsView.url, routes.MembersController.index.url, routes.ConfigurationController.index.url, routes.ContributionsController.index.url).contains(request.uri)) {active} ">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Intendance<span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu" role="menu">
-                            <li @if(request.uri == routes.ContributionsController.index.url){class="active"}><a href="@routes.ContributionsController.index">Biz Points</a></li>
-                            <li @if(request.uri == routes.ClientController.clientsView.url){class="active"}><a href="@routes.ClientController.clientsView">Clients</a></li>
-                            <li @if(request.uri == routes.MembersController.index.url){class="active"}><a href="@routes.MembersController.index">Membres</a></li>
-                            <li @if(request.uri == routes.ConfigurationController.index.url){class="active"}><a href="@routes.ConfigurationController.index">Config</a></li>
-                            <li @if(request.uri == routes.MovementsController.index.url){class="active"}><a href="@routes.MovementsController.index">Mouvements</a></li>
+                            <li @if(request.uri == routes.ContributionsController.index.url) {
+                                class="active"}><a href="@routes.ContributionsController.index">Biz Points</a></li>
+                            <li @if(request.uri == routes.ClientController.clientsView.url) {
+                                class="active"}><a href="@routes.ClientController.clientsView">Clients</a></li>
+                            <li @if(request.uri == routes.MembersController.index.url) {
+                                class="active"}><a href="@routes.MembersController.index">Membres</a></li>
+                            <li @if(request.uri == routes.ConfigurationController.index.url) {
+                                class="active"}><a href="@routes.ConfigurationController.index">Config</a></li>
+                            <li @if(request.uri == routes.MovementsController.index.url) {
+                                class="active"}><a href="@routes.MovementsController.index">Mouvements</a></li>
                         </ul>
                     </li>
                     @if(user != null) {
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                <img src="@user.avatarUrl.getOrElse("")" alt="@user.firstName.getOrElse("")" width="20px" height="20px"/>
+                                <img src="@user.avatarURL.getOrElse("")" alt="@user.firstName.getOrElse("")" width="20px" height="20px"/>
                                 @user.firstName.getOrElse("") @user.lastName.getOrElse("")
                                 <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a class="btn" href="@securesocial.controllers.routes.LoginPage.logout()">
+                                <li><a class="btn" href="@routes.AuthenticationController.signOut">
                                     Logout</a></li>
                             </ul>
                         </li>
@@ -87,7 +96,10 @@
             @content
 
             <div class="footer">
-                <p>&copy; Lateral-Thoughts @{new java.text.SimpleDateFormat("YYYY").format(new java.util.Date())}</p>
+                <p>&copy; Lateral-Thoughts @{
+                    new java.text.SimpleDateFormat("YYYY").format(new java.util.Date())
+                }</p>
             </div>
+        </div>
     </body>
 </html>

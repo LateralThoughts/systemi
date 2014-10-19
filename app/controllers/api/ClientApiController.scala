@@ -1,26 +1,25 @@
 package controllers.api
 
-import auth.WithDomain
-import domain.{ClientRequest, Client, InvoiceSerializer}
+import com.mohiva.play.silhouette.api.{Environment, Silhouette}
+import com.mohiva.play.silhouette.impl.authenticators.SessionAuthenticator
+import domain.{Client, ClientRequest, InvoiceSerializer, User}
 import play.Logger
-import play.api.libs.json.{JsObject, JsError, JsResult, Json}
-import play.api.mvc.Controller
+import play.api.libs.json.{JsError, JsObject, JsResult, Json}
 import play.modules.reactivemongo.MongoController
 import play.modules.reactivemongo.json.collection.JSONCollection
-import reactivemongo.bson.{BSONDocument, BSONObjectID}
+import reactivemongo.bson.BSONObjectID
 import search.SimpleSearchEngine
-import securesocial.core.{BasicProfile, RuntimeEnvironment}
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 
 class ClientApiController(engine: SimpleSearchEngine)
-                         (override implicit val env: RuntimeEnvironment[BasicProfile])
-  extends Controller
+                         (override implicit val env: Environment[User, SessionAuthenticator])
+  extends Silhouette[User, SessionAuthenticator]
   with MongoController
   with InvoiceSerializer
-  with securesocial.core.SecureSocial[BasicProfile] {
+   {
 
   import play.modules.reactivemongo.json.BSONFormats._
   import scala.concurrent.ExecutionContext.Implicits.global
@@ -34,7 +33,7 @@ class ClientApiController(engine: SimpleSearchEngine)
       .collect[List]()
   }
 
-  def search(q: Option[String]) = SecuredAction(WithDomain()).async {
+  def search(q: Option[String]) = SecuredAction.async {
     implicit request =>
       q match {
         case Some(query) =>
@@ -57,7 +56,7 @@ class ClientApiController(engine: SimpleSearchEngine)
       }
   }
 
-  def addClient() = SecuredAction(WithDomain()).async(parse.json) { implicit request =>
+  def addClient() = SecuredAction.async(parse.json) { implicit request =>
     request.body.validate(clientRequestFormat) match {
       case errors:JsError =>
         Future(BadRequest(errors.toString).as("application/json"))
@@ -82,7 +81,7 @@ class ClientApiController(engine: SimpleSearchEngine)
     }
   }
 
-  def modifyClient(id: String) = SecuredAction(WithDomain())(parse.json) {
+  def modifyClient(id: String) = SecuredAction(parse.json) {
     implicit request =>
       val clientJsonModified = request.body
       val idSelector = Json.obj("_id" -> BSONObjectID(id))

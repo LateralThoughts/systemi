@@ -1,27 +1,24 @@
 package domain
 
-import securesocial.core._
+import com.mohiva.play.silhouette.impl.providers.OAuth2Info
 import julienrf.variants.Variants
 import play.api.libs.json.{Format, Json}
 
 
 sealed trait Member
 
-case class Human(user: BasicProfile) extends Member
+case class Human(user: User) extends Member
 
 case class LT(underlying: String) extends Member
 
 case class Account(name: String, stakeholder: Member, affectable: Boolean = false)
 
-trait BasicProfileSerializer {
-  implicit val passwordInfoFormatter = Json.format[PasswordInfo]
-  implicit val oAuth1InfoFormatter = Json.format[OAuth1Info]
+trait UserSerializer {
   implicit val oAuth2InfoFormatter = Json.format[OAuth2Info]
-  implicit val authMethodFormatter = Json.format[AuthenticationMethod]
-  implicit val basicProfileFormatter = Json.format[BasicProfile]
+  implicit val userFormatter = Json.format[User]
 }
 
-trait MemberSerializer extends BasicProfileSerializer {
+trait MemberSerializer extends UserSerializer {
   // Should explicitly declare Format[Member] type in order to avoid https://github.com/LateralThoughts/systemi/issues/24
   implicit val memberFormatter: Format[Member] = Variants.format[Member]
 }

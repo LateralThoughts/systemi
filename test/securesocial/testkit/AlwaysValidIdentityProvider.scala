@@ -12,7 +12,7 @@ class AlwaysValidIdentityProvider(app:play.api.Application) extends IdentityProv
 
 
   override def authenticate()(implicit request: Request[play.api.mvc.AnyContent]): Future[AuthenticationResult] ={
-    Future(Authenticated(BasicProfile("google", id, Some("jean"), Some("test"), Some("jean test"),Some("jean.test@lateral-thoughts.com"),None, authMethod,None, None, None)))
+    Future(Authenticated(User("google", id, Some("jean"), Some("test"), Some("jean test"),Some("jean.test@lateral-thoughts.com"),None, authMethod,None, None, None)))
   }
 
   val id: String = "test"

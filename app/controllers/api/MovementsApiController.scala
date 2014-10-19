@@ -1,25 +1,24 @@
 package controllers.api
 
-import auth.WithDomain
-import domain.{Account, AccountSerializer, Movement, MovementsSerializer}
+import com.mohiva.play.silhouette.api.{Environment, Silhouette}
+import com.mohiva.play.silhouette.impl.authenticators.SessionAuthenticator
+import domain._
 import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.Controller
 import play.modules.reactivemongo.MongoController
 import play.modules.reactivemongo.json.collection.JSONCollection
-import securesocial.core.{BasicProfile, RuntimeEnvironment}
 
 import scala.concurrent.Future
 
-class MovementsApiController(override implicit val env: RuntimeEnvironment[BasicProfile])
-  extends Controller
+class MovementsApiController(override implicit val env: Environment[User, SessionAuthenticator])
+  extends Silhouette[User, SessionAuthenticator]
   with MongoController
   with AccountSerializer
   with MovementsSerializer
-  with securesocial.core.SecureSocial[BasicProfile] {
+   {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  def findAll = SecuredAction(WithDomain()).async {
+  def findAll = SecuredAction.async {
     db
       .collection[JSONCollection]("movements")
       .find(Json.obj())

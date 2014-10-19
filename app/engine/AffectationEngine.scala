@@ -1,12 +1,9 @@
 package engine
 
 import domain._
-import play.Logger
 import play.api.libs.json.Json
 import play.modules.reactivemongo.MongoController
 import play.modules.reactivemongo.json.collection.JSONCollection
-
-import scala.concurrent.Future
 
 trait AffectationEngine
   extends RatioConfigurationSerializer

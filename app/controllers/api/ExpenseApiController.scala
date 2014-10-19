@@ -1,31 +1,30 @@
 package controllers.api
 
-import java.io.{BufferedInputStream, FileInputStream, File}
+import java.io.{BufferedInputStream, FileInputStream}
 
-import auth.WithDomain
+import com.mohiva.play.silhouette.api.{Environment, Silhouette}
+import com.mohiva.play.silhouette.impl.authenticators.SessionAuthenticator
 import domain._
 import org.bouncycastle.util.encoders.Base64
 import org.joda.time.DateTime
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.{Result, MultipartFormData, Controller}
+import play.api.mvc.{MultipartFormData, Result}
 import play.modules.reactivemongo.MongoController
 import play.modules.reactivemongo.json.collection.JSONCollection
-import securesocial.core.{BasicProfile, RuntimeEnvironment}
 
 import scala.concurrent.Future
-import scala.io.Source
 
-class ExpenseApiController(override implicit val env: RuntimeEnvironment[BasicProfile])
-  extends Controller
+class ExpenseApiController(override implicit val env: Environment[User, SessionAuthenticator])
+  extends Silhouette[User, SessionAuthenticator]
   with MongoController
   with AccountSerializer
   with ExpenseSerializer
-  with securesocial.core.SecureSocial[BasicProfile] {
+   {
 
   implicit val context = scala.concurrent.ExecutionContext.Implicits.global
 
-  def createExpense = SecuredAction(WithDomain()).async(parse.multipartFormData) { implicit request =>
+  def createExpense = SecuredAction.async(parse.multipartFormData) { implicit request =>
     request.body.asFormUrlEncoded.get("accountId") match {
       case Some(accountList) =>
         val accountId = accountList.head
@@ -43,7 +42,7 @@ class ExpenseApiController(override implicit val env: RuntimeEnvironment[BasicPr
 
   }
 
-  def findAll = SecuredAction(WithDomain()).async {
+  def findAll = SecuredAction.async {
     db
       .collection[JSONCollection]("expenses")
       .find(Json.obj(), Json.obj())
@@ -52,7 +51,7 @@ class ExpenseApiController(override implicit val env: RuntimeEnvironment[BasicPr
       .map(expenses => Ok(Json.toJson(expenses)))
   }
 
-  def getAttachment(oid: String) = SecuredAction(WithDomain()).async { implicit request =>
+  def getAttachment(oid: String) = SecuredAction.async { implicit request =>
     db
       .collection[JSONCollection]("expenses")
       .find(Json.obj("_id" -> Json.obj("$oid" -> oid)))

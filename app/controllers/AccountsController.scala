@@ -1,13 +1,14 @@
 package controllers
 
-import play.api.mvc.Controller
+import com.mohiva.play.silhouette.api.{Environment, Silhouette}
+import com.mohiva.play.silhouette.impl.authenticators.SessionAuthenticator
+import domain.User
 import play.modules.reactivemongo.MongoController
 import play.modules.reactivemongo.json.collection.JSONCollection
-import securesocial.core.{BasicProfile, RuntimeEnvironment}
 
-class AccountsController (override implicit val env: RuntimeEnvironment[BasicProfile]) extends Controller
+class AccountsController (override implicit val env: Environment[User, SessionAuthenticator]) extends Silhouette[User, SessionAuthenticator]
                             with MongoController
-                            with securesocial.core.SecureSocial[BasicProfile]{
+                            {
 
   def collection = db.collection[JSONCollection]("accounts")
 

@@ -1,17 +1,14 @@
 package util.pdf
 
-import domain.{NextInvoiceNumbersParser, InvoiceRequest}
-import com.google.api.client.http.ByteArrayContent
-import com.google.api.services.drive.model._
+import java.util.Arrays
+
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
+import com.google.api.client.http.ByteArrayContent
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson.JacksonFactory
 import com.google.api.services.drive.Drive
-import play.api.mvc.RequestHeader
-
-import play.api.libs.oauth._
-import java.util.Arrays
-
+import com.google.api.services.drive.model._
+import domain.{InvoiceRequest, NextInvoiceNumbersParser}
 import play.api._
 
 trait GoogleDriveInteraction extends NextInvoiceNumbersParser {

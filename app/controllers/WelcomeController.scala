@@ -1,23 +1,20 @@
 package controllers
 
-import auth.WithDomain
-import domain.{LT, Human, Account}
-import play.api.libs.json.Json
-import play.api.mvc.{Controller, Action}
-import play.modules.reactivemongo.json.collection.JSONCollection
+import com.mohiva.play.silhouette.api.{Environment, Silhouette}
+import com.mohiva.play.silhouette.impl.authenticators.SessionAuthenticator
+import domain.User
 import reactivemongo.api.DefaultDB
-import securesocial.core.{BasicProfile, RuntimeEnvironment}
 
 
-class WelcomeController(override implicit val env: RuntimeEnvironment[BasicProfile])
-  extends Controller
-  with securesocial.core.SecureSocial[BasicProfile] {
+class WelcomeController(override implicit val env: Environment[User, SessionAuthenticator])
+  extends Silhouette[User, SessionAuthenticator]
+   {
 
-  def index = SecuredAction(WithDomain()) { implicit request =>
-    Ok(views.html.welcome.index(request.user))
+  def index = SecuredAction { implicit request =>
+    Ok(views.html.welcome.index(request.identity))
   }
 
-  private def createDedicatedAccounts(profile: BasicProfile, db: DefaultDB) = {
+  private def createDedicatedAccounts(profile: User, db: DefaultDB) = {
     /*val account = Account("Revenue", Human(profile), affectable = true)
     val ltAccount = LT("LT")
 

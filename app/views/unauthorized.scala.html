@@ -1,4 +1,4 @@
-@()(implicit request: RequestHeader, lang: Lang, env: securesocial.core.RuntimeEnvironment[securesocial.core.BasicProfile], flash: Flash)
+@()(implicit request: RequestHeader, lang: Lang, env: com.mohiva.play.silhouette.api.Environment[domain.User, com.mohiva.play.silhouette.impl.authenticators.SessionAuthenticator], flash: Flash)
 
 @main() {
 

@@ -4,8 +4,8 @@ import java.awt.Color
 import java.io.{ByteArrayOutputStream, File, IOException, InputStream, OutputStream, StringReader, StringWriter}
 import java.net.{MalformedURLException, URL}
 
+import com.lowagie.text.pdf.{BaseFont, PdfGState, PdfReader, PdfStamper}
 import com.lowagie.text.{Element, Image}
-import com.lowagie.text.pdf.{PdfGState, PdfStamper, PdfReader, BaseFont}
 import org.w3c.tidy.Tidy
 import org.xhtmlrenderer.pdf.{ITextFSImage, ITextFontResolver, ITextOutputDevice, ITextRenderer, ITextUserAgent}
 import org.xhtmlrenderer.resource.{CSSResource, ImageResource, XMLResource}

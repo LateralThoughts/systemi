@@ -2,16 +2,16 @@ package actors
 
 import akka.actor.Actor
 import domain.{Activity, ActivitySerializer}
+import play.Logger
+import play.api.libs.json.Json
 import play.modules.reactivemongo.ReactiveMongoPlugin
 import play.modules.reactivemongo.json.collection.JSONCollection
-import play.api.libs.json.Json
-import play.Logger
 
 case class ActivityActor() extends Actor with ActivitySerializer {
 
   import play.api.Play.current
 
-  import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext.Implicits.global
 
   def receive = {
 

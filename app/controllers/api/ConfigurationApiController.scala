@@ -1,24 +1,23 @@
 package controllers.api
 
-import auth.WithDomain
-import domain.{RatioConfiguration, RatioConfigurationSerializer}
-import play.api.libs.json.{JsError, JsSuccess, JsObject, Json}
-import play.api.mvc.{Action, Controller}
+import com.mohiva.play.silhouette.api.{Environment, Silhouette}
+import com.mohiva.play.silhouette.impl.authenticators.SessionAuthenticator
+import domain.{RatioConfiguration, RatioConfigurationSerializer, User}
+import play.api.libs.json.{JsError, JsObject, JsSuccess, Json}
 import play.modules.reactivemongo.MongoController
 import play.modules.reactivemongo.json.collection.JSONCollection
-import securesocial.core.{BasicProfile, RuntimeEnvironment}
 
 import scala.concurrent.Future
 
-class ConfigurationApiController(override implicit val env: RuntimeEnvironment[BasicProfile])
-  extends Controller
+class ConfigurationApiController(override implicit val env: Environment[User, SessionAuthenticator])
+  extends Silhouette[User, SessionAuthenticator]
   with MongoController
   with RatioConfigurationSerializer
-  with securesocial.core.SecureSocial[BasicProfile] {
+   {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  def getCurrentConfiguration = SecuredAction(WithDomain()).async {
+  def getCurrentConfiguration = SecuredAction.async {
     db
       .collection[JSONCollection]("configuration")
       .find(Json.obj())
@@ -27,7 +26,7 @@ class ConfigurationApiController(override implicit val env: RuntimeEnvironment[B
       .map(configs => Ok(Json.toJson(configs)))
   }
 
-  def agoraCallback = SecuredAction(WithDomain()).async(parse.json) { implicit request =>
+  def agoraCallback = SecuredAction.async(parse.json) { implicit request =>
     request.body.validate(ratioConfigFormatter) match {
       case obj: JsSuccess[RatioConfiguration] =>
         db

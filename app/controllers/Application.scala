@@ -1,15 +1,14 @@
 package controllers
 
-import auth.WithDomain
-import play.api.mvc.Controller
-import securesocial.core.{BasicProfile, RuntimeEnvironment}
+import com.mohiva.play.silhouette.api.{Environment, Silhouette}
+import com.mohiva.play.silhouette.impl.authenticators.SessionAuthenticator
+import domain.User
 
-class Application(override implicit val env: RuntimeEnvironment[BasicProfile])
-  extends Controller
-  with securesocial.core.SecureSocial[BasicProfile] {
+class Application(override implicit val env: Environment[User, SessionAuthenticator])
+  extends Silhouette[User, SessionAuthenticator] {
 
-  def index = SecuredAction(WithDomain()) {
+  def index = SecuredAction() {
     implicit request =>
-      Ok(views.html.index(request.user)).flashing("welcome" -> "connard")
+      Ok(views.html.index(request.identity)).flashing("welcome" -> "connard")
   }
 }

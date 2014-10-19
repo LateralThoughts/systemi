@@ -14,7 +14,6 @@ libraryDependencies ++= Seq(
   jdbc,
   anorm,
   cache,
-  ws,
   "org.xhtmlrenderer"       % "flying-saucer-pdf"           % "9.0.6",
   "net.sf.jtidy"            % "jtidy"                       % "r938",
   "com.google.apis"         % "google-api-services-drive"   % "v2-rev109-1.16.0-rc",
@@ -29,7 +28,8 @@ libraryDependencies ++= Seq(
   "org.apache.lucene"       % "lucene-highlighter"      % luceneVersion,
   "com.softwaremill.macwire" %% "macros" % "0.7.1",
   "com.softwaremill.macwire" %% "runtime" % "0.7.1",
-  "ws.securesocial"          %% "securesocial" % "master-SNAPSHOT",
+  "com.mohiva"              %% "play-silhouette" % "2.0-SNAPSHOT",
+  "com.typesafe.play.plugins" %% "play-plugins-mailer" % "2.3.0",
   "org.julienrf"            %% "play-json-variants" % "1.0.0",
   "com.jsuereth"            %% "scala-arm" % "1.4",
   "org.scalatestplus"       %% "play"                   % "1.1.0" % "test"

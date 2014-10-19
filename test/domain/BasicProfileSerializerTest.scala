@@ -1,20 +1,20 @@
 package domain
 
 import org.scalatest.{Matchers, FunSuite}
-import securesocial.core.{AuthenticationMethod, BasicProfile}
+import securesocial.core.{AuthenticationMethod, User}
 import play.api.libs.json._
 
-class BasicProfileSerializerTest extends FunSuite
+class UserSerializerTest extends FunSuite
                                  with Matchers
-                                 with BasicProfileSerializer {
+                                 with UserSerializer {
 
-    val profile = new BasicProfile(providerId = "google",
+    val profile = new User(providerId = "google",
         userId = "u",
         firstName = Option("Olivier"),
         lastName = Option("Girardot"),
         fullName = Option("Olivier Girardot"),
         email = Option("ogirardot@mail.com"),
-        avatarUrl = Option("avatar.jpg"),
+        avatarURL = Option("avatar.jpg"),
         authMethod = AuthenticationMethod.OAuth2
     )
 
@@ -29,11 +29,11 @@ class BasicProfileSerializerTest extends FunSuite
         "authMethod": {"method":"oauth2"}
     }"""
 
-    test("should serialize a BasicProfile") {
-        Json.parse(dbProfile).validate(basicProfileFormatter).get should be (profile)
+    test("should serialize a User") {
+        Json.parse(dbProfile).validate(userFormatter).get should be (profile)
     }
 
-    test("should deserialize a BasicProfile") {
+    test("should deserialize a User") {
         Json.toJson(profile) should be (Json.parse(dbProfile))
     }
 }

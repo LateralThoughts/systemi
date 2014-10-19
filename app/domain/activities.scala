@@ -1,10 +1,10 @@
 package domain
 
 import org.joda.time.LocalDate
-import play.api.libs.json.{Reads, Json}
 import org.joda.time.format.ISODateTimeFormat
-import util.pdf.PDF
+import play.api.libs.json.{Json, Reads}
 import reactivemongo.bson.BSONObjectID
+import util.pdf.PDF
 
 
 case class ActivityDay(day: LocalDate, halfUp : Boolean, halfDown: Boolean)
