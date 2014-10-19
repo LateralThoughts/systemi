@@ -9,4 +9,4 @@ Pour se connecter à l'application, il faut utiliser son compte google @lateral-
 Page d'accueil
 ------
 
-![Écran d'accueil](/images/home.png?raw=true "L'écran d'accueil")
+![Écran d'accueil](/doc/images/home.png?raw=true "L'écran d'accueil")
