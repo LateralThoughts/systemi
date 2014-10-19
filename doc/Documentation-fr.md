@@ -82,8 +82,8 @@ Un budget correspond à une ligne de compte sur l'ancien tableau "compta-double"
 
 ### Facture
 
-Une facture est une rentrée d'argent pour LT. Une facture est émise de LT vers un client. Une facture est affecté à un membre, 
-c'est sur son compte que seront versé l'argent gagné lors du paiement de la facture. Une facture peut être non-affectée, 
+Une facture est une rentrée d'argent pour LT. Une facture est émise de LT vers un client. Une facture est affectée à un membre, 
+c'est sur son compte que sera versé l'argent gagné lors du paiement de la facture. Une facture peut être non-affectée, 
 en cours de payment, payée ou annulée.
 
 ### Activité
@@ -93,7 +93,7 @@ un compte rendu d'activité (justification de la prestation) et une facture (pai
 
 ### Sortie/Dépense
 
-Une sortie (Dépense) est une sortie d'argent de LT vers une autre entité. Une sortie est affecté à un membre sur un budget particulier.
+Une sortie (dépense) est une sortie d'argent de LT vers une autre entité. Une sortie est affectée à un membre sur un budget particulier.
 Par exemple, on peut imaginer affecter la location d'une maison pour un timeoff au budget "timeoff" du membre "LT"
 
 ### Mouvement
