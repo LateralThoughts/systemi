@@ -36,7 +36,7 @@ or
 ```bash
 $ git clone https://github.com/LateralThoughts/systemi.git
 ``` 
-* go to systemi repository
+* Go to systemi repository
 ```bash
 $ cd systemi
 ```
@@ -46,8 +46,7 @@ $ activator run
 ```
 * You can now go to http://localhost:9000 with your favorite browser to log in !
 
-How to run test
-------
+### How to run test
 
 In the cloned repository, run the following command :
 ```bash
