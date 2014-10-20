@@ -16,7 +16,9 @@
         <td>{{ item.activity.client.name }}</td>
         <td>
             <p><a href="/api/activity/document/{{ item._id.$oid }}">Voir le CRA (Fichier PDF)</a></p>
+            <p ng-show="item.invoiceId"><a href="/api/invoices/document/{{ item.invoiceId.$oid }}">Voir la facture associée (Fichier PDF)</a></p>
             <p><button class="btn btn-primary" ng-click="deleteActivity(item._id.$oid)">Supprimer l'activité</button></p>
+            <p ng-hide="item.invoiceId"><button class="btn btn-primary" ng-click="generateInvoice(item)">Générer la facture associée</button></p>
         </td>
     </tr>
     </tbody>

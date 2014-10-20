@@ -9,23 +9,15 @@ import reactivemongo.bson.BSONObjectID
 
 case class ActivityDay(day: LocalDate, halfUp : Boolean, halfDown: Boolean)
 
-case class ActivityRequest(tjm : Double,
-                    numberOfDays : Double,
+case class ActivityRequest(numberOfDays : Double,
                     client: ClientRequest,
                     contractor: String,
                     title: String,
                     days : List[ActivityDay] = List()) {
-  
-  def toInvoice(invoiceNumber: String) = {
-    InvoiceRequest(s"${invoiceNumber} - facture", invoiceNumber, 30, true,client,
-      List(
-        InvoiceLine("Prestation de développement", numberOfDays, tjm)
-      )
-    )
-  }
+
 }
 
-case class Activity(_id: BSONObjectID, activity: ActivityRequest, pdfDocument: Attachment)
+case class Activity(_id: BSONObjectID, activity: ActivityRequest, pdfDocument: Attachment, invoiceId: Option[BSONObjectID])
 
 trait ActivitySerializer extends InvoiceSerializer {
   import play.modules.reactivemongo.json.BSONFormats._
@@ -48,10 +40,9 @@ trait ActivitySerializer extends InvoiceSerializer {
     val client = activityRequest.client
     val days = activityRequest.days
     val numberOfDays = activityRequest.numberOfDays
-    val tjm = activityRequest.tjm
     val contractor = activityRequest.contractor
     val subtitle = activityRequest.title
-    PDF.toBytes(views.html.activity.template(client, days, numberOfDays, tjm, contractor, subtitle))
+    PDF.toBytes(views.html.activity.template(client, days, numberOfDays, contractor, subtitle))
    }
 }
 

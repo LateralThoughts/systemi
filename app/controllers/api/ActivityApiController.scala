@@ -7,12 +7,10 @@ import play.modules.reactivemongo.MongoController
 import domain._
 import util.pdf.GoogleDriveInteraction
 import play.api.libs.json.{JsObject, Json, JsResult, JsError}
-import scala.Some
 import securesocial.core.BasicProfile
 import domain.ActivityRequest
 import play.modules.reactivemongo.json.collection.JSONCollection
 import org.bouncycastle.util.encoders.Base64
-import play.api.mvc.Action
 import scala.concurrent.Future
 import reactivemongo.bson.BSONObjectID
 import play.libs.Akka
@@ -40,7 +38,7 @@ class ActivityApiController(override implicit val env: RuntimeEnvironment[BasicP
         val generatedPdfDocument = activityToPdfBytes(result.get)
         val activityId = BSONObjectID.generate
 
-        activityActor ! Activity(activityId, result.get, Attachment("application/pdf", stub = false, generatedPdfDocument))
+        activityActor ! Activity(activityId, result.get, Attachment("application/pdf", stub = false, generatedPdfDocument), None)
 
         Future(Ok(routes.ActivityApiController.getPdfByCRA(activityId.stringify).absoluteURL()))
     }
@@ -65,7 +63,7 @@ class ActivityApiController(override implicit val env: RuntimeEnvironment[BasicP
   def findAll = SecuredAction(WithDomain()).async {
     db
       .collection[JSONCollection]("activities")
-      .find(Json.obj(), Json.obj("activity" -> 1, "id" -> 1))
+      .find(Json.obj(), Json.obj("activity" -> 1, "id" -> 1, "invoiceId" -> 1))
       .cursor[JsObject]
       .collect[List]()
       .map(users => Ok(Json.toJson(users)))

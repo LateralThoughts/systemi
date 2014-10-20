@@ -3,14 +3,27 @@ package domain
 import org.joda.time.LocalDate
 import org.scalatest.{FunSuite, Matchers}
 import play.api.libs.json.Json
+import reactivemongo.bson.BSONObjectID
 
 class ActivitySerializerTest extends FunSuite
-                     with Matchers
-                     with ActivitySerializer {
+with Matchers
+with ActivitySerializer {
 
-  test("should deserialize activities properly from json") {
-    val data =
-      """
+
+  val days = List(
+    ActivityDay(new LocalDate(2014, 9, 22), true, true),
+    ActivityDay(new LocalDate(2014, 9, 23), true, true),
+    ActivityDay(new LocalDate(2014, 9, 24), true, true),
+    ActivityDay(new LocalDate(2014, 9, 25), true, true),
+    ActivityDay(new LocalDate(2014, 9, 26), false, false),
+    ActivityDay(new LocalDate(2014, 9, 27), false, false),
+    ActivityDay(new LocalDate(2014, 9, 28), true, true)
+  )
+
+  val activityRequest = ActivityRequest(5, ClientRequest("VIDAL", "27 rue camille desmoulins", "94550", "chevilly", "France"), "Vincent Doba", "Octobre 2014", days)
+
+  val data =
+    """
         {
           "days":[
             {
@@ -62,7 +75,6 @@ class ActivitySerializerTest extends FunSuite
               "$$hashKey":"011"
             }
         ],
-        "tjm":450,
         "contractor":"Vincent Doba",
         "title":"Octobre 2014",
         "client":{
@@ -77,22 +89,156 @@ class ActivitySerializerTest extends FunSuite
         			},
         "numberOfDays":5
         }
+    """
+
+
+  test("should deserialize activity request properly from json") {
+    Json.parse(data).validate(activityReqFormat).get should be(activityRequest)
+  }
+
+  test("should serialize an activity") {
+    val activity = Activity(BSONObjectID("544559810a00000a001ef87c"), activityRequest, Attachment("application/pdf", stub = false, Array[Byte]()), None)
+
+    val json =
+      """
+        {
+          "_id":{
+            "$oid":"544559810a00000a001ef87c"
+          },
+          "activity":{
+            "numberOfDays":5.0,
+            "client":{
+              "name":"VIDAL",
+              "address":"27 rue camille desmoulins",
+              "postalCode":"94550",
+              "city":"chevilly",
+              "country":"France"
+            },
+            "contractor":"Vincent Doba",
+            "title":"Octobre 2014",
+            "days":[
+              {
+                "day":"2014-09-22",
+                "halfUp":true,
+                "halfDown":true
+              },
+              {
+                "day":"2014-09-23",
+                "halfUp":true,
+                "halfDown":true
+              },
+              {
+                "day":"2014-09-24",
+                "halfUp":true,
+                "halfDown":true
+              },
+              {
+                "day":"2014-09-25",
+                "halfUp":true,
+                "halfDown":true
+              },
+              {
+                "day":"2014-09-26",
+                "halfUp":false,
+                "halfDown":false
+              },
+              {
+                "day":"2014-09-27",
+                "halfUp":false,
+                "halfDown":false
+              },
+              {
+                "day":"2014-09-28",
+                "halfUp":true,
+                "halfDown":true
+              }
+            ]
+          },
+          "pdfDocument":{
+            "contentType":"application/pdf",
+            "stub":false,
+            "data":{
+              "data":""
+            }
+          }
+        }
       """
 
-    val days = List(
-      ActivityDay(new LocalDate(2014,9,22), true, true),
-      ActivityDay(new LocalDate(2014,9,23), true, true),
-      ActivityDay(new LocalDate(2014,9,24), true, true),
-      ActivityDay(new LocalDate(2014,9,25), true, true),
-      ActivityDay(new LocalDate(2014,9,26), false, false),
-      ActivityDay(new LocalDate(2014,9,27), false, false),
-      ActivityDay(new LocalDate(2014,9,28), true, true)
-    )
+    Json.toJson(activity) should be (Json.parse(json))
+  }
 
-    val activity = ActivityRequest(450.0, 5, ClientRequest("VIDAL", "27 rue camille desmoulins", "94550", "chevilly", "France"), "Vincent Doba", "Octobre 2014", days)
+  test("should serialize an activity with invoice id") {
+    val activity = Activity(BSONObjectID("544559810a00000a001ef87c"), activityRequest, Attachment("application/pdf", stub = false, Array[Byte]()), Some(BSONObjectID("544559810a00000a001ef87c")))
 
-    Json.parse(data).validate(activityReqFormat).get should be (activity)
+    val json =
+      """
+        {
+          "_id":{
+            "$oid":"544559810a00000a001ef87c"
+          },
+          "activity":{
+            "numberOfDays":5.0,
+            "client":{
+              "name":"VIDAL",
+              "address":"27 rue camille desmoulins",
+              "postalCode":"94550",
+              "city":"chevilly",
+              "country":"France"
+            },
+            "contractor":"Vincent Doba",
+            "title":"Octobre 2014",
+            "days":[
+              {
+                "day":"2014-09-22",
+                "halfUp":true,
+                "halfDown":true
+              },
+              {
+                "day":"2014-09-23",
+                "halfUp":true,
+                "halfDown":true
+              },
+              {
+                "day":"2014-09-24",
+                "halfUp":true,
+                "halfDown":true
+              },
+              {
+                "day":"2014-09-25",
+                "halfUp":true,
+                "halfDown":true
+              },
+              {
+                "day":"2014-09-26",
+                "halfUp":false,
+                "halfDown":false
+              },
+              {
+                "day":"2014-09-27",
+                "halfUp":false,
+                "halfDown":false
+              },
+              {
+                "day":"2014-09-28",
+                "halfUp":true,
+                "halfDown":true
+              }
+            ]
+          },
+          "pdfDocument":{
+            "contentType":"application/pdf",
+            "stub":false,
+            "data":{
+              "data":""
+            }
+          },
+          "invoiceId":{
+            "$oid":"544559810a00000a001ef87c"
+          }
+        }
+      """
 
+    Json.toJson(activity) should be (Json.parse(json))
   }
 
 }
