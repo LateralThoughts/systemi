@@ -24,6 +24,13 @@ angular.module('activity', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sel
         $scope.deleteActivity = function(id) {
             $http.delete("/api/activity/" + id).success(function(){ reloadActivities()});
         };
+
+        $scope.open = function(activity) {
+            $scope.activity = activity
+            $('#invoiceGenerationModal').modal('show');
+        };
+
+
         }])
     .controller('CreateCtrl', ['$scope', '$modal', '$log', '$http', 'Client', 'default_contractor',
     function ($scope, $modal, $log, $http, Client, default_contractor) {
