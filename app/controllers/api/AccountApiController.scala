@@ -2,15 +2,15 @@ package controllers.api
 
 import auth.WithDomain
 import domain._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json, JsObject}
 import play.api.mvc.Controller
-import play.modules.reactivemongo.MongoController
+import play.modules.reactivemongo.{ReactiveMongoPlugin, MongoController}
 import securesocial.core.{RuntimeEnvironment, BasicProfile}
 import domain.Account
 import play.modules.reactivemongo.json.collection.JSONCollection
-import play.api.libs.json.JsObject
 import domain.Human
 import scala.concurrent.Future
+import play.api.Play.current
 
 class AccountApiController(override implicit val env: RuntimeEnvironment[BasicProfile])
   extends Controller
@@ -46,11 +46,14 @@ class AccountApiController(override implicit val env: RuntimeEnvironment[BasicPr
                     val accounts = for {
                             accountName <- form.get("accountName")
                             name = accountName.head
-                        } yield Account(name, Human(user))
+                    } yield Account(name, Human(user))
                     accounts match {
                         case Some(account) => {
-                          saveAccount(account)
-                          Future(Redirect(controllers.routes.MembersController.index()))
+                          saveAccount(account).map {
+                            case Ok => Redirect(controllers.routes.MembersController.index())
+                            case _ => InternalServerError
+                          }
+
                         }
                         case None => Future(BadRequest)
                     }
@@ -61,9 +64,12 @@ class AccountApiController(override implicit val env: RuntimeEnvironment[BasicPr
   }
 
   def saveAccount(account: Account) = {
+    val json: JsValue = Json.toJson(account)
+    val db = ReactiveMongoPlugin.db
+
     db
       .collection[JSONCollection](ACCOUNT)
-      .save(Json.toJson(account))
+      .save(json)
       .map { lastError =>
         if (lastError.inError) {
           InternalServerError

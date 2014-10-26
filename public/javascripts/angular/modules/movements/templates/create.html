@@ -1,11 +1,11 @@
 <h2>Créer un nouveau mouvement</h2>
 <div id="facture_page" class="row">
-    <form action="/api/movements" method="POST" role="form">
+    <form class="form" ng-submit="submit()" ng-controller="CreateCtrl" name="movementCreationForm" novalidate>
 
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
-                    <select name="from" ng-model="from" ng-options="account.fullName for account in accounts track by account._id.$oid">
+                    <select name="from" ng-model="movement.from" ng-options="account.fullName for account in accounts track by account._id.$oid">
                         <option value="">---- Source ----</option>
                     </select>
                 </div>
@@ -13,19 +13,19 @@
 
             <div class="col-md-6">
                 <div class="form-group">
-                    <select name="to" ng-model="to" ng-options="account.fullName for account in accounts track by account._id.$oid">
+                    <select name="to" ng-model="movement.to" ng-options="account.fullName for account in accounts track by account._id.$oid">
                         <option value="">---- Destination ----</option>
                     </select>
                 </div>
             </div>
             <div class="col-md-12">
                 <div class="form-group">
-                    <input type="number" class="form-control" name="value" placeholder="Montant du mouvement">
+                    <input type="number" class="form-control" name="value" ng-model="movement.value" placeholder="Montant du mouvement">
                 </div>
             </div>
             <div class="col-md-12">
                 <div class="form-group">
-                    <input type="text" class="form-control" name="description" placeholder="Description du mouvement">
+                    <input type="text" class="form-control" name="description" ng-model="movement.description" placeholder="Description du mouvement">
                 </div>
             </div>
         </div>

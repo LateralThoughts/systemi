@@ -1,8 +1,9 @@
 package controllers.api
 
 import auth.WithDomain
-import domain.{Account, AccountSerializer, Movement, MovementsSerializer}
-import play.api.libs.json.{JsObject, Json}
+import domain._
+import play.api.Logger
+import play.api.libs.json.{JsResult, JsError, JsObject, Json}
 import play.api.mvc.Controller
 import play.modules.reactivemongo.MongoController
 import play.modules.reactivemongo.json.collection.JSONCollection
@@ -28,45 +29,43 @@ class MovementsApiController(override implicit val env: RuntimeEnvironment[Basic
       .map(movements => Ok(Json.toJson(movements)))
   }
 
-  def create = SecuredAction.async(parse.urlFormEncoded) { implicit request =>
-    val from = request.body.get("from")
-    val to = request.body.get("to")
-    val value = request.body.get("value")
-    val description = request.body.get("description") match {
-      case Some(x) => x.head
-      case None => "Pas de description"
+  def create = SecuredAction(WithDomain()).async(parse.json) { implicit request =>
+    request.body.validate(movementRequestFormatter) match {
+      case errors: JsError =>
+        Future(BadRequest(errors.toString).as("application/json"))
+
+      case result: JsResult[MovementRequest] => {
+        val futureMayBeFrom = db
+          .collection[JSONCollection]("accounts")
+          .find(Json.obj("_id" -> Json.obj("$oid" -> result.get.from._id.get.stringify)))
+          .one[Account]
+
+        val futureMayBeTo = db
+          .collection[JSONCollection]("accounts")
+          .find(Json.obj("_id" -> Json.obj("$oid" -> result.get.to._id.get.stringify)))
+          .one[Account]
+
+        for {
+          mayBeFrom <- futureMayBeFrom
+          mayBeTo <- futureMayBeTo
+          result <- (for {
+            fromAccount <- mayBeFrom
+            toAccount <- mayBeTo
+          } yield {
+            val movement = Movement(result.get.description, fromAccount, toAccount, result.get.value)
+            db
+              .collection[JSONCollection]("movements")
+              .save(movement)
+              .map(errors => if (errors.inError) {
+              InternalServerError
+            } else {
+              Ok(controllers.routes.MovementsController.index.absoluteURL())
+            })
+          }).getOrElse(Future(InternalServerError))
+        } yield result
+
+      }
     }
 
-    if (from.isDefined && to.isDefined && value.isDefined) {
-      val futureMayBeFrom = db
-        .collection[JSONCollection]("accounts")
-        .find(Json.obj("_id" -> Json.obj("$oid" -> from.get.head)))
-        .one[Account]
-
-      val futureMayBeTo = db
-        .collection[JSONCollection]("accounts")
-        .find(Json.obj("_id" -> Json.obj("$oid" -> to.get.head)))
-        .one[Account]
-
-      for {
-        mayBeFrom <- futureMayBeFrom
-        mayBeTo <- futureMayBeTo
-        result <- (for {
-          fromAccount <- mayBeFrom
-          toAccount <- mayBeTo
-        } yield {
-          val movement = Movement(description, fromAccount, toAccount, value.get.head.toDouble)
-          db
-            .collection[JSONCollection]("movements")
-            .save(movement)
-            .map(errors => if (errors.inError) {
-            InternalServerError
-          } else {
-            Redirect(controllers.routes.MovementsController.index)
-          })
-        }).getOrElse(Future(InternalServerError))
-      } yield result
-    } else
-      Future(BadRequest)
   }
 }

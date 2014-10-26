@@ -1,5 +1,6 @@
 package domain
 
+import reactivemongo.bson.BSONObjectID
 import securesocial.core._
 import julienrf.variants.Variants
 import play.api.libs.json.{Format, Json}
@@ -11,7 +12,7 @@ case class Human(user: BasicProfile) extends Member
 
 case class LT(underlying: String) extends Member
 
-case class Account(name: String, stakeholder: Member, affectable: Boolean = false)
+case class Account(name: String, stakeholder: Member, affectable: Boolean = false, _id: Option[BSONObjectID] = None)
 
 trait BasicProfileSerializer {
   implicit val passwordInfoFormatter = Json.format[PasswordInfo]
@@ -27,6 +28,8 @@ trait MemberSerializer extends BasicProfileSerializer {
 }
 
 trait AccountSerializer extends MemberSerializer {
+  import play.modules.reactivemongo.json.BSONFormats._
+
   implicit val accountFormatter = Json.format[Account]
 }
 

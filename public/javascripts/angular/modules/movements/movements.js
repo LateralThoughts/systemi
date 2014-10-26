@@ -45,6 +45,11 @@ angular.module('movements', ['ui.bootstrap', 'ngResource', 'ngRoute'])
             });
         };
         reload($scope);
+        $scope.movement = {};
+
+        $scope.submit = function() {
+            $http.post("/api/movements", JSON.stringify($scope.movement));
+        }
     })
     .controller("HeaderCtrl", function($scope, $location) {
 
