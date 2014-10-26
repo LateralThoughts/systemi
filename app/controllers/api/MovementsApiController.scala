@@ -32,6 +32,10 @@ class MovementsApiController(override implicit val env: RuntimeEnvironment[Basic
     val from = request.body.get("from")
     val to = request.body.get("to")
     val value = request.body.get("value")
+    val description = request.body.get("description") match {
+      case Some(x) => x.head
+      case None => "Pas de description"
+    }
 
     if (from.isDefined && to.isDefined && value.isDefined) {
       val futureMayBeFrom = db
@@ -51,7 +55,7 @@ class MovementsApiController(override implicit val env: RuntimeEnvironment[Basic
           fromAccount <- mayBeFrom
           toAccount <- mayBeTo
         } yield {
-          val movement = Movement(fromAccount, toAccount, value.get.head.toDouble)
+          val movement = Movement(description, fromAccount, toAccount, value.get.head.toDouble)
           db
             .collection[JSONCollection]("movements")
             .save(movement)

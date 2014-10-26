@@ -8,6 +8,7 @@
 <table class="table table-bordered">
     <thead>
     <tr>
+        <th>Description</th>
         <th>Source</th>
         <th>Destination</th>
         <th>Montant</th>
@@ -19,6 +20,7 @@
 
     <tr data-ng-repeat="item in movements | filter: search">
 
+        <td>{{ item.description }}</td>
         <td>{{ item.from.name }} ({{ item.from.stakeholder.user.fullName }})</td>
         <td>{{ item.to.name }} ({{ item.to.stakeholder.user.fullName }})</td>
         <td>{{ item.value }}€</td>
