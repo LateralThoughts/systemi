@@ -13,7 +13,41 @@ angular.module('activity', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sel
                 redirectTo:'/list'
             });
     })
+    .directive('ngConfirmClick', [
+        function(){
+            return {
+                priority: -1,
+                restrict: 'A',
+                link: function(scope, element, attrs){
+                    element.bind('click', function(e){
+                        var message = attrs.ngConfirmClick;
+                        if(message && !confirm(message)){
+                            e.stopImmediatePropagation();
+                            e.preventDefault();
+                        }
+                    });
+                }
+            }
+        }
+    ])
+    .directive('radioDetectChange', [function radioDetectChange() {
+
+        return {
+            replace: false,
+            require: 'ngModel',
+            scope: false,
+            link: function (scope, element, attrs, ngModelCtrl) {
+                element.on('change', function () {
+                    scope.$apply(function () {
+                        ngModelCtrl.$setViewValue(element[0].type.toLowerCase() == 'radio' ? element[0].value : element[0].checked);                    });
+                });
+            }
+        };
+    }])
     .controller('ListCtrl', ['$scope','$http',function($scope, $http) {
+        $scope.invoiceRequest = {
+            paymentDelay :30
+        };
         function reloadActivities() {
             $http.get("/api/activities").success(function (data) {
                 $scope.activities = data;
@@ -26,10 +60,27 @@ angular.module('activity', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sel
         };
 
         $scope.open = function(activity) {
-            $scope.activity = activity
+            $scope.taxes = 'true';
+            $scope.activity = activity;
+            $scope.invoiceRequest.title = activity.activity.contractor.toUpperCase() + ' - ' + activity.activity.title;
+            $scope.invoiceRequest.invoice = [{
+                description: 'Prestations de Services Informatiques',
+                days: activity.activity.numberOfDays,
+                taxRate: 20
+            }];
             $('#invoiceGenerationModal').modal('show');
         };
 
+        $scope.createInvoice = function () {
+            $scope.invoiceRequest.client = $scope.activity.activity.client;
+            $scope.invoiceRequest.withTaxes = $scope.taxes === 'true';
+            $http.post("/api/activity/invoice/" + $scope.activity._id.$oid, JSON.stringify($scope.invoiceRequest))
+                .success(function () {
+                    $('#invoiceGenerationModal').modal('hide');
+                    reloadActivities();
+                });
+
+        }
 
         }])
     .controller('CreateCtrl', ['$scope', '$modal', '$log', '$http', 'Client', 'default_contractor',

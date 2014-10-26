@@ -3,6 +3,7 @@ package domain
 import julienrf.variants.Variants
 import org.joda.time.DateTime
 import play.api.libs.json.Json
+import reactivemongo.bson.BSONObjectID
 
 sealed trait Way
 case object Plus extends Way
@@ -10,7 +11,8 @@ case object Minus extends Way
 
 sealed abstract class AccountOperation(way: Way)
 
-case class Invoice(invoice: InvoiceRequest,
+case class Invoice(_id: BSONObjectID,
+                   invoice: InvoiceRequest,
                    pdfDocument: Attachment,
                    statuses: List[Status],
                    lastStatus: Status,

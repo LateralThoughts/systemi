@@ -46,6 +46,7 @@ DELETE        /api/activity/:oid                       @controllers.api.Activity
 POST          /api/activity                            @controllers.api.ActivityApiController.createAndPushCRA
 GET           /api/activities                          @controllers.api.ActivityApiController.findAll
 GET           /api/activity/document/:oid              @controllers.api.ActivityApiController.getPdfByCRA(oid: String)
+POST          /api/activity/invoice/:oid               @controllers.api.ActivityApiController.createAndPushInvoice(oid: String)
 
 # config resources
 POST          /api/config                              @controllers.api.ConfigurationApiController.agoraCallback

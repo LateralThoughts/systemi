@@ -1,6 +1,8 @@
 package controllers.api
 
 import auth.WithDomain
+import engine.InvoiceEngine
+import play.Logger
 import securesocial.core.RuntimeEnvironment
 import play.api.mvc.Controller
 import play.modules.reactivemongo.MongoController
@@ -20,9 +22,9 @@ class ActivityApiController(override implicit val env: RuntimeEnvironment[BasicP
   with MongoController
   with ActivitySerializer
   with GoogleDriveInteraction
-  with securesocial.core.SecureSocial[BasicProfile] {
+  with InvoiceEngine {
 
-  implicit val context = scala.concurrent.ExecutionContext.Implicits.global
+  import play.modules.reactivemongo.json.BSONFormats._
 
   private val akkaSystem = Akka.system
   private lazy val activityActor = akkaSystem.actorSelection(akkaSystem / "activity")
@@ -55,6 +57,41 @@ class ActivityApiController(override implicit val env: RuntimeEnvironment[BasicP
         val doc = (pdfObj \ "pdfDocument" \ "data" \ "data").as[String]
         Ok(Base64.decode(doc)).as("application/pdf")
 
+      case None => BadRequest
+    }
+
+  }
+
+  def updateActivityWithInvoiceId(activityId: String, invoiceId: BSONObjectID) = {
+    val selector = Json.obj("_id" -> Json.obj("$oid" -> activityId))
+
+    val setterObj = Json.obj("invoiceId" -> Json.toJson(invoiceId))
+
+    val pushToStatesAndLastStatus = Json.obj(
+      "$set" -> setterObj
+    )
+    Logger.info(s"Add invoice $invoiceId to activity $activityId")
+    db
+      .collection[JSONCollection]("activities")
+      .update(selector, pushToStatesAndLastStatus)
+
+  }
+
+  def createAndPushInvoice(oid: String) = SecuredAction(WithDomain()) { implicit request =>
+    request.body.asJson match {
+      case Some(json) => json.validate(invoiceReqFormat) match {
+
+        case errors: JsError =>
+          BadRequest(errors.toString).as("application/json")
+
+        case result: JsResult[InvoiceRequest] =>
+          val generatedPdfDocument = invoiceRequestToPdfBytes(result.get)
+
+          val invoiceId = insertInvoice(request, result.get, generatedPdfDocument)
+
+          updateActivityWithInvoiceId(oid, invoiceId)
+          Ok(routes.InvoiceApiController.getPdfByInvoice(invoiceId.stringify).absoluteURL())
+      }
       case None => BadRequest
     }
 

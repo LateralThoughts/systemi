@@ -2,13 +2,12 @@ package controllers.api
 
 import auth.WithDomain
 import domain._
-import engine.AffectationEngine
+import engine.{AffectationEngine, InvoiceEngine}
 import org.bouncycastle.util.encoders.Base64
 import org.joda.time.DateTime
 import play.Logger
 import play.api.libs.json._
-import play.api.mvc.{Action, Controller}
-import play.libs.Akka
+import play.api.mvc.Controller
 import play.modules.reactivemongo.MongoController
 import play.modules.reactivemongo.json.collection.JSONCollection
 import securesocial.core.{BasicProfile, RuntimeEnvironment}
@@ -22,22 +21,21 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
   with AccountSerializer
   with AffectationSerializer
   with AffectationEngine
-  with securesocial.core.SecureSocial[BasicProfile] {
-
-  implicit val context = scala.concurrent.ExecutionContext.Implicits.global
-
-  private val akkaSystem = Akka.system
-  private lazy val invoiceActor = akkaSystem.actorSelection(akkaSystem / "invoice")
+  with InvoiceEngine {
 
   def createAndPushInvoice = SecuredAction(WithDomain()) { implicit request =>
     request.body.asJson match {
       case Some(json) => json.validate(invoiceReqFormat) match {
 
-        case errors:JsError =>
+        case errors: JsError =>
           BadRequest(errors.toString).as("application/json")
 
         case result: JsResult[InvoiceRequest] =>
-          Ok(invoiceRequestToPdfBytes(result.get)).as("application/pdf")
+          val generatedPdfDocument = invoiceRequestToPdfBytes(result.get)
+
+          val invoiceId = insertInvoice(request, result.get, generatedPdfDocument)
+
+          Ok(routes.InvoiceApiController.getPdfByInvoice(invoiceId.stringify).absoluteURL())
       }
       case None => request.body.asFormUrlEncoded match {
         case Some(body) =>
@@ -48,14 +46,8 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
           val generatedPdfDocument = invoiceRequestToPdfBytes(invoiceRequest)
 
           if (shouldUpload) {
-            val status = domain.Status("created", DateTime.now(), request.user.email.get)
-            val accessToken: String = request.user.oAuth2Info.map( _.accessToken ).get
-            invoiceActor ! (
-              Invoice(invoiceRequest, Attachment("application/pdf", stub = false, generatedPdfDocument), List(status), status),
-              accessToken
-            )
+            val invoiceId = insertInvoice(request, invoiceRequest, generatedPdfDocument)
           }
-
           Ok(generatedPdfDocument).as("application/pdf")
 
         case None => Ok("no go")
@@ -63,6 +55,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     }
   }
 
+  // TODO put body in Invoice Engine
   def getLastInvoiceNumber = SecuredAction(WithDomain()).async {
     db.collection[JSONCollection]("invoiceNumber")
       .find(Json.obj())
@@ -70,6 +63,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
       .map(mayBeObj => Ok(Json.toJson(mayBeObj.get)))
   }
 
+  // TODO put body in Invoice Engine
   def reset(value: Int) = SecuredAction(WithDomain()) {
     Logger.info(s"reset value of invoiceNumber to $value")
     db.collection[JSONCollection]("invoiceNumber")
@@ -89,9 +83,9 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
   def findByStatus(status: Option[String], exclude: Option[Boolean]) = SecuredAction(WithDomain()).async { implicit request =>
     val selector = (status: String) => {
       val selectorField =
-        if(List("paid", "unpaid") contains status)
+        if (List("paid", "unpaid") contains status)
           "paymentStatus"
-        else if(List("unaffected", "affected") contains status)
+        else if (List("unaffected", "affected") contains status)
           "affectationStatus"
         else
           "lastStatus.name"
@@ -132,7 +126,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
           val generatedPdfDocument = addCanceledWatermark(invoice.pdfDocument.data)
 
           val generatedPdfJson = Json.toJson(Attachment("application/pdf", stub = false, generatedPdfDocument))
-          val updateObject = Json.obj("pdfDocument" -> generatedPdfJson,"lastStatus" -> lastStatus, "canceled" -> true)
+          val updateObject = Json.obj("pdfDocument" -> generatedPdfJson, "lastStatus" -> lastStatus, "canceled" -> true)
           val updateFieldRequest = Json.obj(
             "$push" ->
               Json.obj(

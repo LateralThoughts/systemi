@@ -3,7 +3,7 @@ import controllers._
 import controllers.api._
 import play.api.data.Form
 import play.api.i18n.Lang
-import play.api.mvc.{Flash, RequestHeader}
+import play.api.mvc.RequestHeader
 import search.SimpleSearchEngine
 import securesocial.controllers._
 import securesocial.core._

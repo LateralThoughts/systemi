@@ -67,6 +67,8 @@ trait AttachmentSerializer {
 }
 
 trait InvoiceSerializer extends AttachmentSerializer with ClientSerializer {
+  import play.modules.reactivemongo.json.BSONFormats._
+
   implicit val invoiceStatus = Json.format[Status]
   implicit val invoiceLineFormat = Json.format[InvoiceLine]
 
