@@ -15,7 +15,7 @@ import play.twirl.api.Html
 
 object PDF {
 
-        private val PLAY_DEFAULT_URL = Play.maybeApplication.flatMap(_.configuration.getString("application.hostname")).getOrElse("http://localhost")
+        private val PLAY_DEFAULT_URL = Play.maybeApplication.flatMap(_.configuration.getString("application.hostname")).getOrElse("http://localhost:9000")
 
         class MyUserAgent(outputDevice : ITextOutputDevice) extends ITextUserAgent(outputDevice) {
 
