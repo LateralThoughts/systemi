@@ -1,15 +1,7 @@
-import org.specs2.runner._
 import org.junit.runner._
-
-import java.lang.reflect.Constructor
-
-import service.MongoBasedUserService
+import org.specs2.runner._
 import play.api.test._
 import reactivemongo.bson.BSONObjectID
-import play.api.GlobalSettings
-import securesocial.core.services.UserService
-import securesocial.core.{RuntimeEnvironment, BasicProfile}
-import securesocial.testkit.AlwaysValidIdentityProvider
 
 /**
  * Full application spec to execute page rendering and check consistency
@@ -17,7 +9,7 @@ import securesocial.testkit.AlwaysValidIdentityProvider
 @RunWith(classOf[JUnitRunner])
 class ApplicationSpec extends PlaySpecification {
 
-  def app = FakeApplication(withGlobal = Some(global(env)), withoutPlugins = Seq("ehcacheplugin"))
+  def app = FakeApplication(withGlobal = Some(TestGlobal), withoutPlugins = Seq("ehcacheplugin"))
 
   "Application" should {
 
@@ -59,20 +51,4 @@ class ApplicationSpec extends PlaySpecification {
     }
   }
 
-  val env = new AlwaysValidIdentityProvider.RuntimeEnvironment[BasicProfile] {
-    override val userService: UserService[BasicProfile] = new MongoBasedUserService()
-  }
-
-  private def global[A](env: RuntimeEnvironment[A]): GlobalSettings =
-    new play.api.GlobalSettings {
-      override def getControllerInstance[A](controllerClass: Class[A]): A = {
-        val instance = controllerClass.getConstructors.find { c =>
-          val params = c.getParameterTypes
-          params.length == 1 && params(0) == classOf[RuntimeEnvironment[A]]
-        }.map {
-          _.asInstanceOf[Constructor[A]].newInstance(env)
-        }
-        instance.getOrElse(super.getControllerInstance(controllerClass))
-      }
-    }
 }
