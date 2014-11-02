@@ -139,6 +139,15 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
             .collection[JSONCollection]("invoices")
             .update(selector, updateFieldRequest)
 
+          // TODO delete affectations from this invoice, see issue #36
+          val affectationSelector = Json.obj("invoiceId" -> Json.obj("$oid" -> oid))
+
+          db
+            .collection[JSONCollection]("affectations")
+            .remove(affectationSelector)
+
+          // TODO remove invoice id from activity if needed
+
           Future(Ok)
         }
         case None => Future(InternalServerError)
@@ -160,7 +169,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
           val futures = request.body.as[JsArray].value.map { affectationRequest =>
 
             affectationRequest.validate(affectationReqFormatter) match {
-             case errors: JsError => Future(true)
+              case errors: JsError => Future(true)
               case result: JsResult[AffectationRequest] => {
                 val affectation = IncomeAffectation(result.get.account, result.get.value, Some(invoice._id))
 
