@@ -140,13 +140,22 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
             .update(selector, updateFieldRequest)
 
           // delete affectations from this invoice, see issue #36
-          val affectationSelector = Json.obj("invoiceId" -> Json.obj("$oid" -> oid))
+          Logger.info(s"Remove affectation associated to invoice $oid if needed")
+          val invoiceSelector = Json.obj("invoiceId" -> Json.obj("$oid" -> oid))
 
           db
             .collection[JSONCollection]("affectations")
-            .remove(affectationSelector)
+            .remove(invoiceSelector)
 
-          // TODO remove invoice id from activity if needed
+          // remove invoice id from activity if needed
+          Logger.info(s"Unset invoice $oid from associated activity if needed")
+          val activityUpdateRequest = Json.obj(
+           "$unset" -> Json.obj("invoiceId" -> 1)
+          )
+
+          db
+            .collection[JSONCollection]("activities")
+            .update(invoiceSelector, activityUpdateRequest)
 
           Future(Ok)
         }
