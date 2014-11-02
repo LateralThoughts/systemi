@@ -50,22 +50,10 @@ case class MemberExpense(description: String,
                          value: Double) extends AccountOperation(Minus) // TODO add file
 
 
-sealed trait Affectation
-
-// une facture/un revenu se fait subdivisé entre le membre LT, la structure etc..
-case class IncomeAffectation(incomeOperation: Invoice,
-                       account: Account,
-                       value: Double) extends Affectation
-
 trait MemberBasedExpenseSerializer extends MemberSerializer {
   implicit val salaryType = Variants.format[SalaryType]
   implicit val commonExpenseType = Json.format[CommonExpenseType]
   implicit val common = Json.format[CommonExpense]
   implicit val salary = Json.format[Salary]
   implicit val member = Json.format[MemberExpense]
-}
-
-trait AffectationSerializer extends AccountSerializer with InvoiceSerializer with MemberBasedExpenseSerializer {
-  implicit val wayFormatter = Variants.format[Way]
-  implicit val affectationFormatter = Json.format[IncomeAffectation]
 }

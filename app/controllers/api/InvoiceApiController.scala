@@ -20,6 +20,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
   with InvoiceSerializer
   with AccountSerializer
   with AffectationSerializer
+  with AffectationReqSerializer
   with AffectationEngine
   with InvoiceEngine {
 
@@ -155,12 +156,21 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
       case (mayBeInvoice: Option[Invoice]) =>
         (for (invoice <- mayBeInvoice) yield {
           Logger.info("Loaded invoice, creating affectations...")
-          val futures = request.body.as[JsArray].value.map { affectation =>
-            Logger.info(affectation.toString())
-            db
-              .collection[JSONCollection]("affectations")
-              .save(affectation)
-              .map(errors => errors.inError)
+
+          val futures = request.body.as[JsArray].value.map { affectationRequest =>
+
+            affectationRequest.validate(affectationReqFormatter) match {
+             case errors: JsError => Future(true)
+              case result: JsResult[AffectationRequest] => {
+                val affectation = IncomeAffectation(result.get.account, result.get.value, Some(invoice._id))
+
+                Logger.info(affectationRequest.toString())
+                db
+                  .collection[JSONCollection]("affectations")
+                  .save(affectation)
+                  .map(errors => errors.inError)
+              }
+            }
           }
 
           val futureHasAtLeastOneFailure = Future.sequence(futures)
