@@ -139,7 +139,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
             .collection[JSONCollection]("invoices")
             .update(selector, updateFieldRequest)
 
-          // TODO delete affectations from this invoice, see issue #36
+          // delete affectations from this invoice, see issue #36
           val affectationSelector = Json.obj("invoiceId" -> Json.obj("$oid" -> oid))
 
           db
