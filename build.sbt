@@ -8,7 +8,7 @@ scalaVersion := "2.11.1"
 
 val luceneVersion = "4.7.0"
 
-resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
+resolvers += Resolver.sonatypeRepo("snapshots")
 
 libraryDependencies ++= Seq(
   jdbc,

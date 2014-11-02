@@ -17,7 +17,7 @@ import securesocial.testkit.AlwaysValidIdentityProvider
 @RunWith(classOf[JUnitRunner])
 class ApplicationSpec extends PlaySpecification {
 
-  def app = FakeApplication(withGlobal = Some(global(env)))
+  def app = FakeApplication(withGlobal = Some(global(env)), withoutPlugins = Seq("ehcacheplugin"))
 
   "Application" should {
 
