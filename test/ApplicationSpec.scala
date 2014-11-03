@@ -1,3 +1,4 @@
+import com.typesafe.config.ConfigFactory
 import org.junit.runner._
 import org.specs2.runner._
 import play.api.test._
@@ -9,7 +10,11 @@ import reactivemongo.bson.BSONObjectID
 @RunWith(classOf[JUnitRunner])
 class ApplicationSpec extends PlaySpecification {
 
-  def app = FakeApplication(withGlobal = Some(TestGlobal), withoutPlugins = Seq("ehcacheplugin"))
+  def app = FakeApplication(
+    additionalConfiguration = Map("mongodb.db" -> "test-invoice@LT"),
+    withGlobal = Some(TestGlobal),
+    withoutPlugins = Seq("ehcacheplugin")
+  )
 
   "Application" should {
 
