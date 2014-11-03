@@ -96,8 +96,8 @@ object PDF {
                         val buffer = new Array[Byte](1024)
                         var outCondition = true
                         while (outCondition) {
-                                val len = stream.read(buffer);
-                                os.write(buffer, 0, len);
+                                val len = stream.read(buffer)
+                                os.write(buffer, 0, len)
                                 if (len < buffer.length)
                                         outCondition = false
                         }
@@ -137,16 +137,16 @@ object PDF {
                 tidy.setXHTML(true)
                 val writer = new StringWriter()
                 tidy.parse(new StringReader(body), writer)
-                writer.getBuffer().toString
+                writer.getBuffer.toString
         }
 
         private def toBytes(string: String, documentBaseURL: String) : Array[Byte] = {
                 val os = new ByteArrayOutputStream()
-                toStream(string, os, documentBaseURL)
+                transformToStream(string, os, documentBaseURL)
                 os.toByteArray
         }
 
-        private def toStream(string: String, os: OutputStream, documentBaseURL: String) = {
+        private def transformToStream(string: String, os: OutputStream, documentBaseURL: String) = {
                 try {
                         val reader = new StringReader(string)
                         val renderer = new ITextRenderer()
@@ -165,7 +165,7 @@ object PDF {
 
         private def addFontDirectory(fontResolver: ITextFontResolver,
                         directory : String ) = {
-                val dir = new File(directory);
+                val dir = new File(directory)
                 for ( file : File <- dir.listFiles) {
                         fontResolver.addFont(file.getAbsolutePath, BaseFont.IDENTITY_H,
                                         BaseFont.EMBEDDED)
