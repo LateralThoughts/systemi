@@ -1,33 +1,26 @@
-import actors.{ActivityActor, InvoiceActor}
-import akka.actor.Props
-import com.softwaremill.macwire.MacwireMacros._
-import controllers.api.ClientApiController
 import play.Logger
-import play.api.{Application, GlobalSettings}
-import play.libs.Akka
-import search.SimpleSearchEngine
-
+import play.api.Application
+import play.api.Play.current
+import play.modules.reactivemongo.ReactiveMongoPlugin
+import com.softwaremill.macwire.MacwireMacros._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object TestGlobal extends GlobalSettings {
+object TestGlobal extends Global {
+
   val wired = wiredInModule(new TestModule)
 
   override def onStart(app: Application) = {
+    initDatabase
     super.onStart(app)
-    Akka.system.actorOf(Props[InvoiceActor], name="invoice")
-    Akka.system.actorOf(Props[ActivityActor], name="activity")
-    initSearchEngine
+    initApp(wired)
   }
 
-  private def initSearchEngine = {
-    Logger.info("Initiating search engine...")
-    val engine = wired.lookupSingleOrThrow(classOf[SimpleSearchEngine])
-    val clients = wired.lookupSingleOrThrow(classOf[ClientApiController])
+  def initDatabase {
+    Logger.info("Initiating database for tests...")
+    val db = ReactiveMongoPlugin.db
 
-    clients.findAll().map(clients => {
-      engine.initWithDocuments(clients)
-      Logger.info(s"Initiated search engine with ${clients.size} Clients.")
-    })
+    // remove database to start on a clean database
+    // db.drop()
   }
 
   override def getControllerInstance[A](controllerClass: Class[A]) = {
