@@ -1,7 +1,7 @@
 'use strict';
 
 describe("Fac stemi - C.R.A.", function () {
-    beforeEach(module('fac-stemi'));
+    beforeEach(module('activity'));
 
     var rootScope, scope, controller, $httpBackend, craCtl;
 
@@ -13,7 +13,7 @@ describe("Fac stemi - C.R.A.", function () {
             scope = rootScope.$new();
             $httpBackend = $injector.get('$httpBackend');
 
-            craCtl = controller('CraController', {
+            craCtl = controller('CreateCtrl', {
                 $scope: scope
             });
 

@@ -90,7 +90,7 @@ angular.module('activity', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sel
         $scope.cra = { days: [], contractor: default_contractor};
 
         $scope.datesSelected = function (start, end, label) {
-            $('#reportrange span').html(start.format('D MMMM YYYY') + ' - ' + end.format('D MMMM YYYY'));
+            $('#reportrange').find('span').html(start.format('D MMMM YYYY') + ' - ' + end.format('D MMMM YYYY'));
             $scope.startDate = start;
             $scope.endDate = end;
             // generate blocks
@@ -120,7 +120,7 @@ angular.module('activity', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sel
             $scope.weeks = weeks;
             $scope.cra.days = days;
             $scope.$apply();
-        }
+        };
 
         $scope.createDay = function (date) {
             return {
@@ -149,7 +149,7 @@ angular.module('activity', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sel
                     }
                 }
             }
-        }
+        };
 
         $scope.submit = function () {
             var accumulator = function (acc, day) {
@@ -163,7 +163,7 @@ angular.module('activity', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sel
                 })
                 .error(function () {
                 })
-        }
+        };
 
         var optionSet1 = {
             startDate: moment().utc().startOf('month'),
