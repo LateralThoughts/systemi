@@ -22,7 +22,7 @@ libraryDependencies ++= Seq(
   "com.google.apis"         % "google-api-services-drive"   % "v2-rev109-1.16.0-rc",
   "com.google.http-client"  % "google-http-client-jackson2" % "1.17.0-rc",
   "com.google.http-client"  % "google-http-client-jackson"  % "1.15.0-rc",
-  "org.reactivemongo"       %% "play2-reactivemongo"    %  "0.10.5.akka23-SNAPSHOT",
+  "org.reactivemongo"       %% "play2-reactivemongo"    %  "0.10.5.0.akka23",
   "org.apache.lucene"       % "lucene-test-framework"   % luceneVersion % "test",
   "org.apache.lucene"       % "lucene-core"             % luceneVersion,
   "org.apache.lucene"       % "lucene-analyzers-common" % luceneVersion,
