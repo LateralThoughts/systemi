@@ -186,9 +186,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
             affectationRequest.validate(affectationReqFormatter) match {
               case errors: JsError => Future(true)
               case result: JsResult[AffectationRequest] => {
-                val affectationId = BSONObjectID.generate
-
-                val affectation = IncomeAffectation(affectationId, result.get.account, result.get.value, invoice._id)
+                val affectation = IncomeAffectation(result.get.account, result.get.value, invoice._id)
 
                 Logger.info(affectationRequest.toString())
                 db
