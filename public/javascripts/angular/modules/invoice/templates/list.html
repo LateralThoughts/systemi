@@ -3,6 +3,8 @@
     <thead>
     <tr>
         <th>Project</th>
+        <th>Client</th>
+        <th>Prix HT</th>
         <th>Status</th>
         <th>Actions</th>
     </tr>
@@ -11,6 +13,8 @@
     <tr data-ng-repeat="item in invoices">
 
         <td>{{ item.invoice.title }} ({{ item.invoice.invoiceNumber }})</td>
+        <td>{{ item.invoice.client.name }}</td>
+        <td>{{ item.totalHT() }}€</td>
         <td>
             <ul>
                 <li data-ng-repeat="status in item.statuses"><strong>{{ status.name }}</strong> le {{ status.createdAt | date:'dd/MM/yyyy' }}</li>
