@@ -17,9 +17,6 @@ def deploy(artifact):
         sudo('rm -rf *')
         # unzip l'artefact
         run('tar -xvf %s' % TEMP_DEPLOY_PATH)
-        # replace ehcache configuration for production
-        sudo('mv conf/ehcache.prod.xml conf/ehcache.xml')
-
         # re-set les droits
         sudo('chown -R systemi:deployer .')
         sudo('chmod -R 770 .')
