@@ -28,3 +28,4 @@ def deploy(artifact):
     # check running/status supervisord
     # TODO
     # reload nginx
+    sudo("service nginx reload")
