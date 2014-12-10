@@ -2,7 +2,7 @@ package actors
 
 import akka.actor.Actor
 import domain.{Invoice, InvoiceSerializer}
-import play.api.Logger
+import play.api.{Play, Logger}
 import play.api.libs.json.Json
 import play.modules.reactivemongo.ReactiveMongoPlugin
 import play.modules.reactivemongo.json.collection.JSONCollection
@@ -17,7 +17,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
     case (invoice: Invoice, accessToken: String) => {
       saveInvoice(invoice)
-      uploadInvoiceToDrive(accessToken, invoice.invoice, invoice.pdfDocument.data)
+      val shouldPush = Play.maybeApplication.flatMap{_.configuration.getBoolean("application.drive.shouldPush")}.getOrElse(false)
+      if (shouldPush)
+        uploadInvoiceToDrive(accessToken, invoice.invoice, invoice.pdfDocument.data)
     }
 
   }
