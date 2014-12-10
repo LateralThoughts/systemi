@@ -91,7 +91,7 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
         };
 
         $scope.affect = function(affectations, invoice) {
-            var totalForAffectations = _.reduce(affectations, function(sum, item) { return sum + item.value });
+            var totalForAffectations = _.reduce(affectations, function(sum, item) { return sum + item.value }, 0);
             if (totalForAffectations > invoice.totalHT()) {
                 alert("Petit Chenapan, On ne peut affecter plus que le total d'une facture !");
             } else {
@@ -166,18 +166,14 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
     .controller('CreateCtrl', function($scope) {
         $scope.shouldUpload = true;
 
-        var initTaskLineData = {
-            'invoiceDescription': '',
-            'invoiceDays': '',
-            'invoiceDailyRate': '',
-            'invoiceTaxRate': '20.0',
-            'addButtonVisible': true,
-            'deleteButtonVisible': false
-        };
-
-        $scope.tasklines = [
-            initTaskLineData
-        ];
+        $scope.tasklines = [{
+            invoiceDescription: '',
+            invoiceDays: '',
+            invoiceDailyRate: '',
+            invoiceTaxRate: '20.0',
+            addButtonVisible: true,
+            deleteButtonVisible: false
+        }];
 
         $scope.addTask = function(){
             $scope.tasklines[$scope.tasklines.length - 1]['addButtonVisible'] = false;
