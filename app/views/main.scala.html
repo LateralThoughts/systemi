@@ -76,8 +76,6 @@
                 </ul>
                 <h3 class="text-muted">System&#64;LT</h3>
             </div>
-            @flash.get("welcome").map(data => s"<div>flash : $data</div>")
-
             @if(flash.get("error").isDefined) {
                 <div class="alert alert-danger">
                 @flash.get("error")

@@ -10,6 +10,6 @@ class Application(override implicit val env: RuntimeEnvironment[BasicProfile])
 
   def index = SecuredAction(WithDomain()) {
     implicit request =>
-      Ok(views.html.index(request.user)).flashing("welcome" -> "connard")
+      Ok(views.html.index(request.user))
   }
 }
