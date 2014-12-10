@@ -79,23 +79,52 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
             });
         };
         reload($scope);
+
         $scope.open = function(invoice) {
             $scope.affectations = [{
+                addButtonVisible: true,
+                deleteButtonVisible: true,
                 value: invoice.totalHT()
             }];
             $scope.invoice = invoice;
             $('#affectationModal').modal('show');
         };
+
         $scope.affect = function(affectations, invoice) {
-            _.map(affectations, function(item) { delete item.$$hashKey; });
-            $http.post("/api/affectations/" + invoice._id.$oid, JSON.stringify(affectations))
-                .success(function() {
-                    reload($scope);
-                    $('#affectationModal').modal('hide');
+            var totalForAffectations = _.reduce(affectations, function(sum, item) { return sum + item.value });
+            if (totalForAffectations > invoice.totalHT()) {
+                alert("Petit Chenapan, On ne peut affecter plus que le total d'une facture !");
+            } else {
+                _.map(affectations, function (item) {
+                    delete item.$$hashKey;
+                    delete item.addButtonVisible;
+                    delete item.deleteButtonVisible;
                 });
+                $http.post("/api/affectations/" + invoice._id.$oid, JSON.stringify(affectations))
+                    .success(function () {
+                        reload($scope);
+                        $('#affectationModal').modal('hide');
+                    });
+            }
         };
+
         $scope.cancel = function(invoice) {
             invoicesService.cancelInvoice($scope, $http, invoice, reload)
+        };
+
+        $scope.addAffectationLine = function() {
+            $scope.affectations[$scope.affectations.length - 1]['addButtonVisible'] = false;
+            $scope.affectations[$scope.affectations.length - 1]['deleteButtonVisible'] = false;
+            $scope.affectations.push({
+                'addButtonVisible': true,
+                'deleteButtonVisible': true
+            });
+        };
+
+        $scope.deleteAffectationLine = function() {
+            $scope.affectations.pop();
+            $scope.affectations[$scope.affectations.length - 1]['addButtonVisible'] = true;
+            $scope.affectations[$scope.affectations.length - 1]['deleteButtonVisible'] = ($scope.affectations.length>1);
         }
     }])
     .controller('InProgressCtrl', ['$scope','$http','InvoicesService',function($scope, $http, invoicesService) {
