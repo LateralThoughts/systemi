@@ -12,8 +12,7 @@ sealed trait Affectation
 // une facture/un revenu se fait subdivisé entre le membre LT, la structure etc..
 case class IncomeAffectation(account: Account,
                              value: Double,
-                             invoiceId: Option[BSONObjectID] = None
-                              ) extends Affectation
+                             invoiceId: BSONObjectID) extends Affectation
 
 trait AffectationSerializer extends AccountSerializer {
   import play.modules.reactivemongo.json.BSONFormats._
