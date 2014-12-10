@@ -9,8 +9,9 @@ case class AffectationRequest(value: Double, account: Account)
 
 sealed trait Affectation
 
-// une facture/un revenu se fait subdivisé entre le membre LT, la structure etc..
-case class IncomeAffectation(account: Account,
+// une facture/un revenu se fait subdiviser entre le membre LT, la structure etc..
+case class IncomeAffectation(_id: BSONObjectID,
+                              account: Account,
                              value: Double,
                              invoiceId: BSONObjectID) extends Affectation
 

@@ -100,7 +100,7 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
                     delete item.addButtonVisible;
                     delete item.deleteButtonVisible;
                 });
-                $http.post("/api/affectations/" + invoice._id.$oid, JSON.stringify(affectations))
+                $http.post("/api/invoices/" + invoice._id.$oid + "/affectation", JSON.stringify(affectations))
                     .success(function () {
                         reload($scope);
                         $('#affectationModal').modal('hide');
@@ -139,9 +139,13 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
             $http.post("/api/invoices/" + invoice._id.$oid + "/status/paid").success(function(){ reload($scope)})
         };
 
+        $scope.unaffect = function(invoice) {
+            invoicesService.removeAffectation($scope, $http, invoice, reload)
+        };
+
         $scope.cancel = function(invoice) {
             invoicesService.cancelInvoice($scope, $http, invoice, reload)
-        }
+        };
     }])
     .controller('PaidCtrl', function($scope, $http) {
         var reload = function(scope) {
@@ -153,7 +157,11 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
         $scope.revert = function(invoice) {
             $http.post("/api/invoices/" + invoice._id.$oid + "/status/unpaid").success(function(){ reload($scope)})
 
-        }
+        };
+
+        $scope.unaffect = function(invoice) {
+            invoicesService.removeAffectation($scope, $http, invoice, reload)
+        };
     })
     .controller('CanceledCtrl', function($scope, $http) {
         var reload = function(scope) {
@@ -209,6 +217,10 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
         return {
             cancelInvoice: function($scope, $http, invoice, callback) {
                 $http.post("/api/invoices/" + invoice._id.$oid + "/cancel", "{}").success(function(){ callback($scope)})
+            },
+
+            removeAffectation: function($scope, $http, invoice, callback) {
+                $http.delete("/api/invoices/" + invoice._id.$oid + "/affectation").success(function(){ callback($scope)})
             }
         };
     });

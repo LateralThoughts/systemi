@@ -19,6 +19,7 @@
         <td>
             <p><a href="/api/invoices/document/{{ item._id.$oid }}">Voir la facture (PDF)</a></p>
             <p><button class="btn btn-primary" ng-click="revert(item)">Le paiement a échoué</button></p>
+            <p><button class="btn btn-primary" ng-click="unaffect(item)">Désaffecter la facture</button></p>
         </td>
     </tr>
     </tbody>

@@ -2,7 +2,7 @@ package controllers.api
 
 import auth.WithDomain
 import domain._
-import engine.{AffectationEngine, InvoiceEngine}
+import engine.InvoiceEngine
 import org.bouncycastle.util.encoders.Base64
 import org.joda.time.DateTime
 import play.Logger
@@ -10,6 +10,7 @@ import play.api.libs.json._
 import play.api.mvc.Controller
 import play.modules.reactivemongo.MongoController
 import play.modules.reactivemongo.json.collection.JSONCollection
+import reactivemongo.bson.BSONObjectID
 import securesocial.core.{BasicProfile, RuntimeEnvironment}
 
 import scala.concurrent.Future
@@ -21,7 +22,6 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
   with AccountSerializer
   with AffectationSerializer
   with AffectationReqSerializer
-  with AffectationEngine
   with InvoiceEngine {
 
   def createAndPushInvoice = SecuredAction(WithDomain()) { implicit request =>
@@ -112,8 +112,8 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     Ok
   }
 
-  def cancelInvoice(oid: String) = SecuredAction(WithDomain()).async(parse.json) { implicit request =>
-    val selector = Json.obj("_id" -> Json.obj("$oid" -> oid))
+  def cancelInvoice(invoiceId: String) = SecuredAction(WithDomain()).async(parse.json) { implicit request =>
+    val selector = Json.obj("_id" -> Json.obj("$oid" -> invoiceId))
     db
       .collection[JSONCollection]("invoices")
       .find(selector)
@@ -140,15 +140,11 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
             .update(selector, updateFieldRequest)
 
           // delete affectations from this invoice, see issue #36
-          Logger.info(s"Remove affectation associated to invoice $oid if needed")
-          val invoiceSelector = Json.obj("invoiceId" -> Json.obj("$oid" -> oid))
-
-          db
-            .collection[JSONCollection]("affectations")
-            .remove(invoiceSelector)
+          removeAffectation(invoiceId)
 
           // remove invoice id from activity if needed
-          Logger.info(s"Unset invoice $oid from associated activity if needed")
+          Logger.info(s"Unset invoice $invoiceId from associated activity if needed")
+          val invoiceSelector = Json.obj("invoiceId" -> Json.obj("$oid" -> invoiceId))
           val activityUpdateRequest = Json.obj(
            "$unset" -> Json.obj("invoiceId" -> 1)
           )
@@ -163,6 +159,16 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
       }
       case _ => Future(BadRequest)
     }
+  }
+
+  private def removeAffectation(invoiceId: String): JsObject = {
+    Logger.info(s"Remove affectation associated to invoice $invoiceId")
+    val invoiceSelector = Json.obj("invoiceId" -> Json.obj("$oid" -> invoiceId))
+
+    db
+      .collection[JSONCollection]("affectations")
+      .remove(invoiceSelector)
+    invoiceSelector
   }
 
   def affectToAccount(oid: String) = SecuredAction(WithDomain()).async(parse.json) { implicit request =>
@@ -180,7 +186,9 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
             affectationRequest.validate(affectationReqFormatter) match {
               case errors: JsError => Future(true)
               case result: JsResult[AffectationRequest] => {
-                val affectation = IncomeAffectation(result.get.account, result.get.value, invoice._id)
+                val affectationId = BSONObjectID.generate
+
+                val affectation = IncomeAffectation(affectationId, result.get.account, result.get.value, invoice._id)
 
                 Logger.info(affectationRequest.toString())
                 db
@@ -203,6 +211,17 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
         }).getOrElse(Future(InternalServerError))
       case _ => Future(BadRequest)
     }
+  }
+
+  def deleteAffectation(invoiceId: String) = SecuredAction(WithDomain()).async { implicit request =>
+
+    // set status to unaffected
+    setStatusToInvoice(invoiceId, "unaffected", request.user.email.get)
+
+    // delete affectation
+    removeAffectation(invoiceId)
+
+    Future(Ok)
   }
 
   def getPdfByInvoice(oid: String) = SecuredAction(WithDomain()).async {
