@@ -1,24 +1,6 @@
 @(loginForm: Form[(String,String)], errorMsg: Option[String] = None)(implicit request: RequestHeader, lang: Lang, env: securesocial.core.RuntimeEnvironment[securesocial.core.BasicProfile], flash: Flash)
 
 @main() {
-    @errorMsg.map { msg =>
-        <div class="alert alert-error">
-            @Messages(msg)
-        </div>
-    }
-
-    @request.flash.get("success").map { msg =>
-        <div class="alert alert-info">
-            @msg
-        </div>
-    }
-
-    @request.flash.get("error").map { msg =>
-        <div class="alert alert-error">
-            @msg
-        </div>
-    }
-
     <form class="form-signin text-center">
         <h2 class="form-signin-heading">Connexion requise</h2>
         <div class="center">

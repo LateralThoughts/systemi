@@ -82,6 +82,13 @@
                 </div>
             }
 
+            @if(flash.get("success").isDefined) {
+                <div class="alert alert-info">
+                    @flash.get("success")
+                </div>
+            }
+
+
             @content
 
             <div class="footer">
