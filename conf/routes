@@ -63,6 +63,9 @@ POST          /api/contributions                       @controllers.api.Contribu
 GET           /api/movements                           @controllers.api.MovementsApiController.findAll
 POST          /api/movements                           @controllers.api.MovementsApiController.create
 
+# statistics ressources
+GET           /api/stats                               @controllers.api.StatsApiController.getCurrentBalanceForUser
+
 
 # Map static resources from the /public folder to the /assets URL path
 GET           /assets/*file                            controllers.Assets.at(path="/public", file)
