@@ -51,7 +51,7 @@ case class MemberExpense(description: String,
 
 
 trait MemberBasedExpenseSerializer extends MemberSerializer {
-  implicit val salaryType = Variants.format[SalaryType]
+  implicit val salaryType = Variants.format[SalaryType]("type")
   implicit val commonExpenseType = Json.format[CommonExpenseType]
   implicit val common = Json.format[CommonExpense]
   implicit val salary = Json.format[Salary]

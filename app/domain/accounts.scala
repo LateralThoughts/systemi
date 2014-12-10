@@ -24,7 +24,7 @@ trait BasicProfileSerializer {
 
 trait MemberSerializer extends BasicProfileSerializer {
   // Should explicitly declare Format[Member] type in order to avoid https://github.com/LateralThoughts/systemi/issues/24
-  implicit val memberFormatter: Format[Member] = Variants.format[Member]
+  implicit val memberFormatter: Format[Member] = Variants.format[Member]("type")
 }
 
 trait AccountSerializer extends MemberSerializer {
