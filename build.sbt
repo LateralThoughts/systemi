@@ -15,6 +15,8 @@ libraryDependencies ++= Seq(
   anorm,
   cache,
   ws,
+  "org.webjars"             %% "webjars-play"               % "2.3.0-2",
+  "org.webjars"             % "angularjs"                   % "1.2.27",
   "org.xhtmlrenderer"       % "flying-saucer-pdf"           % "9.0.6",
   "net.sf.jtidy"            % "jtidy"                       % "r938",
   "com.google.apis"         % "google-api-services-drive"   % "v2-rev109-1.16.0-rc",

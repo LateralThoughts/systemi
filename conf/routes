@@ -66,5 +66,7 @@ POST          /api/movements                           @controllers.api.Movement
 
 # Map static resources from the /public folder to the /assets URL path
 GET           /assets/*file                            controllers.Assets.at(path="/public", file)
+GET           /webjars/*file                           controllers.WebJarAssets.at(file)
+
 
 ->            /auth                                    securesocial.Routes

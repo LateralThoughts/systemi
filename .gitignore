@@ -26,4 +26,4 @@ data/
 *.ipr
 /node_modules
 fac-stemi/
-
+play.data
