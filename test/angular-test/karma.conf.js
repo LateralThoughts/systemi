@@ -11,8 +11,8 @@ module.exports = function (config) {
         // list of files / patterns to load in the browser
         files: [
             '../../public/javascripts/jquery-1.9.0.min.js',
-            '../../public/javascripts/angular.min.js',
-            '../../public/javascripts/angular-mocks.js',
+            '../../target/web/public/test/public/lib/angularjs/angular.min.js',
+            '../../target/web/public/test/public/lib/angularjs/angular-mocks.js',
             '../../public/javascripts/moment-with-langs.min.js',
             '../../public/javascripts/moment-range.js',
             '../../public/javascripts/*.js',
