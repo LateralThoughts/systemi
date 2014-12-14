@@ -10,14 +10,14 @@ object TestGlobal extends Global {
   val wired = wiredInModule(new TestModule)
 
   override def onStart(app: Application) = {
-    initDatabase
+    initDatabase(app)
     super.onStart(app)
     initApp(wired)
   }
 
-  def initDatabase {
+  def initDatabase(app: Application) {
     Logger.info("Initiating database for tests...")
-    val db = ReactiveMongoPlugin.db
+    val db = ReactiveMongoPlugin.db(app)
 
     // remove database to start on a clean database
     // db.drop()
