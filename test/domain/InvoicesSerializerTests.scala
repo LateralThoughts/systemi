@@ -138,3 +138,48 @@ class InvoiceRequestSerializerTest extends FunSuite
     )
   }
 }
+
+class InvoiceSearchRequestSerializerTest extends FunSuite
+                                         with Matchers
+                                         with InvoiceSerializer {
+
+  test("Should deserialize invoice search request") {
+    // Given
+    val data =
+      """{
+        "clientName":"aFirmName",
+        "creatorEmail":"jean.zay@example.com",
+        "affectationStatus":"affected",
+        "cancellationStatus":"false",
+        "paymentStatus":"paid"
+        }"""
+
+    val invoiceSearchRequest = new InvoiceSearchRequest(Some("aFirmName"), Some("jean.zay@example.com"), Some("affected"), Some("false"), Some("paid"))
+
+    // When
+    val result: InvoiceSearchRequest = Json.parse(data).validate(invoiceSearchRequestFormat).get
+
+    // Then
+    result should be (invoiceSearchRequest)
+
+  }
+
+  test("Should deserialize incomplete invoice search request") {
+    // Given
+    val data =
+      """{
+        "clientName":"aFirmName",
+        "affectationStatus":"affected",
+        "paymentStatus":"paid"
+        }"""
+
+    val invoiceSearchRequest = new InvoiceSearchRequest(Some("aFirmName"), None, Some("affected"), None, Some("paid"))
+
+    // When
+    val result: InvoiceSearchRequest = Json.parse(data).validate(invoiceSearchRequestFormat).get
+
+    // Then
+    result should be (invoiceSearchRequest)
+  }
+
+}

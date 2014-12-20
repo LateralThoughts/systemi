@@ -106,6 +106,34 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
       .map(invoices => Ok(Json.toJson(invoices)))
   }
 
+  def find = SecuredAction(WithDomain()).async {
+    implicit request =>
+      request.body.asJson match {
+        case Some(json) => json.validate(invoiceSearchRequestFormat) match {
+
+          case errors: JsError =>
+            Future(BadRequest(errors.toString).as("application/json"))
+
+          case searchRequest: JsResult[InvoiceSearchRequest] => {
+            val filters = searchRequest.map(_.transformToSearchRequest())
+            db
+              .collection[JSONCollection]("invoices")
+              .find(filters.getOrElse(Json.obj()), Json.obj("invoice" -> 1, "statuses" -> 1))
+              .cursor[JsObject]
+              .collect[List]()
+              .map(invoices => Ok(Json.toJson(invoices)))
+          }
+        }
+        case None =>
+          db
+            .collection[JSONCollection]("invoices")
+            .find(Json.obj(), Json.obj("invoice" -> 1, "statuses" -> 1))
+            .cursor[JsObject]
+            .collect[List]()
+            .map(invoices => Ok(Json.toJson(invoices)))
+      }
+  }
+
   def addStatusToInvoice(oid: String, status: String) = SecuredAction(WithDomain()) { implicit request =>
     setStatusToInvoice(oid, status, request.user.email.get)
 
