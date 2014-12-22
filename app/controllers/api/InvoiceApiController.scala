@@ -11,6 +11,7 @@ import play.api.mvc.Controller
 import play.modules.reactivemongo.MongoController
 import play.modules.reactivemongo.json.collection.JSONCollection
 import reactivemongo.bson.BSONObjectID
+import repository.InvoiceRepository
 import securesocial.core.{BasicProfile, RuntimeEnvironment}
 
 import scala.concurrent.Future
@@ -23,6 +24,10 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
   with AffectationSerializer
   with AffectationReqSerializer
   with InvoiceEngine {
+
+  import com.softwaremill.macwire.MacwireMacros._
+
+  lazy val invoiceRepository = wire[InvoiceRepository]
 
   def createAndPushInvoice = SecuredAction(WithDomain()) { implicit request =>
     request.body.asJson match {
@@ -56,7 +61,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     }
   }
 
-  // TODO put body in Invoice Engine
+  // TODO put body in Invoice Repository
   def getLastInvoiceNumber = SecuredAction(WithDomain()).async {
     db.collection[JSONCollection]("invoiceNumber")
       .find(Json.obj())
@@ -64,7 +69,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
       .map(mayBeObj => Ok(Json.toJson(mayBeObj.get)))
   }
 
-  // TODO put body in Invoice Engine
+  // TODO put body in Invoice Repository
   def reset(value: Int) = SecuredAction(WithDomain()) {
     Logger.info(s"reset value of invoiceNumber to $value")
     db.collection[JSONCollection]("invoiceNumber")
@@ -73,36 +78,21 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
   }
 
   def getCanceledInvoices = SecuredAction(WithDomain()).async { implicit request =>
-    db
-      .collection[JSONCollection]("invoices")
-      .find(Json.obj("canceled" -> true), Json.obj("invoice" -> 1, "statuses" -> 1))
-      .cursor[JsObject]
-      .collect[List]()
+    invoiceRepository
+      .find(Json.obj("canceled" -> true))
       .map(invoices => Ok(Json.toJson(invoices)))
   }
 
   def findByStatus(status: Option[String], exclude: Option[Boolean]) = SecuredAction(WithDomain()).async { implicit request =>
-    val selector = (status: String) => {
-      val selectorField =
-        if (List("paid", "unpaid") contains status)
-          "paymentStatus"
-        else if (List("unaffected", "affected") contains status)
-          "affectationStatus"
-        else
-          "lastStatus.name"
 
-      if (exclude.getOrElse(false)) {
-        Json.obj(selectorField -> Json.obj("$ne" -> status), "canceled" -> Json.obj("$ne" -> true))
-      } else {
-        Json.obj(selectorField -> status, "canceled" -> Json.obj("$ne" -> true))
-      }
-    }
+    // construct status criteria
+    val criteria: JsObject = status
+      .map(x => invoiceRepository.buildStatusCriteria(x, exclude.getOrElse(false)))
+      .getOrElse(Json.obj())
 
-    db
-      .collection[JSONCollection]("invoices")
-      .find(status.map(selector).getOrElse(Json.obj()), Json.obj("invoice" -> 1, "statuses" -> 1))
-      .cursor[JsObject]
-      .collect[List]()
+    // request database
+    invoiceRepository
+      .find(criteria)
       .map(invoices => Ok(Json.toJson(invoices)))
   }
 
@@ -115,21 +105,16 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
             Future(BadRequest(errors.toString).as("application/json"))
 
           case searchRequest: JsResult[InvoiceSearchRequest] => {
-            val filters = searchRequest.map(_.transformToSearchRequest())
-            db
-              .collection[JSONCollection]("invoices")
-              .find(filters.getOrElse(Json.obj()), Json.obj("invoice" -> 1, "statuses" -> 1))
-              .cursor[JsObject]
-              .collect[List]()
+            val criteria = searchRequest.map(_.transformToSearchRequest())
+
+            invoiceRepository
+              .find(criteria.getOrElse(Json.obj()))
               .map(invoices => Ok(Json.toJson(invoices)))
           }
         }
         case None =>
-          db
-            .collection[JSONCollection]("invoices")
-            .find(Json.obj(), Json.obj("invoice" -> 1, "statuses" -> 1))
-            .cursor[JsObject]
-            .collect[List]()
+          invoiceRepository
+            .find()
             .map(invoices => Ok(Json.toJson(invoices)))
       }
   }
@@ -141,11 +126,8 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
   }
 
   def cancelInvoice(invoiceId: String) = SecuredAction(WithDomain()).async(parse.json) { implicit request =>
-    val selector = Json.obj("_id" -> Json.obj("$oid" -> invoiceId))
-    db
-      .collection[JSONCollection]("invoices")
-      .find(selector)
-      .one[Invoice]
+    invoiceRepository
+      .find(invoiceId)
       .flatMap {
       case (mayBeInvoice: Option[Invoice]) => mayBeInvoice match {
         case Some(invoice) => {
@@ -163,9 +145,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
               ),
             "$set" -> updateObject)
 
-          db
-            .collection[JSONCollection]("invoices")
-            .update(selector, updateFieldRequest)
+          invoiceRepository.update(invoiceId, updateFieldRequest)
 
           // delete affectations from this invoice, see issue #36
           removeAffectation(invoiceId)
@@ -266,7 +246,6 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
 
 
   private def setStatusToInvoice(oid: String, status: String, email: String) = {
-    val selector = Json.obj("_id" -> Json.obj("$oid" -> oid))
     val lastStatus = Json.toJson(domain.Status(status, DateTime.now(), email))
 
     val setterObj = if (List("paid", "unpaid") contains status)
@@ -284,9 +263,8 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
       "$set" -> setterObj
     )
     Logger.info(s"Add status $status to invoice $oid")
-    db
-      .collection[JSONCollection]("invoices")
-      .update(selector, pushToStatesAndLastStatus)
+    invoiceRepository
+      .update(oid, pushToStatesAndLastStatus)
   }
 
 }
