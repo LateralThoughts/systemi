@@ -63,10 +63,21 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
                     item.totalHT = function() {
                         var lines = this.invoice.invoice;
                         return _.reduce(lines, function(sum, line) { sum += line.dailyRate * line.days; return sum}, 0);
+                    };
+
+                    item.totalTTC = function() {
+                        if (this.invoice.withTaxes) {
+                            var lines = this.invoice.invoice;
+                            return _.reduce(lines, function(sum, line) { sum += line.dailyRate * line.days * (1 + line.taxRate/100); return sum}, 0);
+                        } else {
+                            return item.totalHT();
+                        }
+
                     }
                 });
                 scope.invoices = data;
             });
+
             $http.get("/api/accounts").success(function(data){
                 _.map(data, function(item) {
                     if (item.stakeholder.user.fullName) {
@@ -80,7 +91,11 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
         };
         reload($scope);
 
-        $scope.open = function(invoice) {
+        $scope.cancel = function(invoice) {
+            invoicesService.cancelInvoice($scope, $http, invoice, reload)
+        };
+
+        $scope.openAffectationDialog = function(invoice) {
             $scope.affectations = [{
                 addButtonVisible: true,
                 deleteButtonVisible: true,
@@ -106,10 +121,6 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
                         $('#affectationModal').modal('hide');
                     });
             }
-        };
-
-        $scope.cancel = function(invoice) {
-            invoicesService.cancelInvoice($scope, $http, invoice, reload)
         };
 
         $scope.addAffectationLine = function() {
