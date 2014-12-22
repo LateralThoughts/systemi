@@ -68,7 +68,7 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
                     item.totalTTC = function() {
                         if (this.invoice.withTaxes) {
                             var lines = this.invoice.invoice;
-                            return _.reduce(lines, function(sum, line) { sum += line.dailyRate * line.days * (1 + line.taxRate/100); return sum}, 0);
+                            return _.reduce(lines, function(sum, line) { sum += Math.round((line.dailyRate * line.days * (1 + line.taxRate/100))*100)/100; return sum}, 0);
                         } else {
                             return item.totalHT();
                         }
