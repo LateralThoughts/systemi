@@ -4,7 +4,6 @@ import domain.{InvoiceSerializer, Invoice}
 import play.api.libs.json.{Json, JsObject}
 import play.modules.reactivemongo.{ReactiveMongoPlugin, MongoController}
 import play.modules.reactivemongo.json.collection.JSONCollection
-import sun.awt.ModalExclude
 
 import scala.concurrent.Future
 import play.api.Play.current
@@ -15,7 +14,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
  */
 class InvoiceRepository() extends Repository with InvoiceSerializer {
 
-  val selection: JsObject = Json.obj("invoice" -> 1, "statuses" -> 1)
+  // TODO ticket #47 : modify to retrieve only status
+  val selection: JsObject = Json.obj("invoice" -> 1, "statuses" -> 1, "paymentStatus" -> 1, "affectationStatus" -> 1, "canceled" -> 1)
 
   val invoicesCollection: JSONCollection = ReactiveMongoPlugin.db
     .collection[JSONCollection](invoiceCollection)
@@ -27,6 +27,7 @@ class InvoiceRepository() extends Repository with InvoiceSerializer {
       .collect[List]()
   }
 
+  // TODO ticket #47 : change criteria
   def buildStatusCriteria(status: String, exclude: Boolean):JsObject = {
 
     val criteriaField =

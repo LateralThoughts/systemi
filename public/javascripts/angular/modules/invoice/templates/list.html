@@ -1,4 +1,44 @@
-<h2>Liste des factures non-affectées *complètement*</h2>
+<h2>Liste des factures</h2>
+
+<div>
+    <div class="col-md-4 form-group">
+        <label>Éditeur : </label>
+        <div class="btn-group" dropdown >
+            <button type="button" class="btn btn-primary dropdown-toggle">
+                {{selectedCreator.label}} <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu" >
+                <li ng-repeat="creator in creators"><a ng-click="filterCreator(creator)">{{creator.label}}</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-md-4 form-group">
+        <label>Client : </label>
+        <div class="btn-group" dropdown >
+            <button type="button" class="btn btn-primary dropdown-toggle">
+                {{selectedClient}} <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu" >
+                <li ng-repeat="client in clients"><a ng-click="filterClient(client)">{{client}}</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-md-4 form-group center-block">
+        <label>Status : </label>
+        <div class="btn-group" dropdown >
+            <button type="button" class="btn btn-primary dropdown-toggle">
+                {{selectedStatus}} <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu" >
+                <li ng-repeat="status in statuses"><a ng-click="filterStatus(status)">{{status}}</a></li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+
 <table class="table table-bordered">
     <thead>
     <tr>
@@ -8,13 +48,13 @@
     </tr>
     </thead>
     <tbody>
-    <tr data-ng-repeat="item in invoices">
+    <tr data-ng-repeat="item in filteredInvoices">
 
         <td><h4>{{ item.invoice.title }} ({{ item.invoice.invoiceNumber }})</h4>
             <ul>
                 <li><strong>Client : </strong>{{ item.invoice.client.name }} </li>
                 <li><strong>Montant HT : </strong>{{ item.totalHT() }}€</li>
-                <li><strong>Montant TTC : </strong>{{item.totalTTC() }}€</li>
+                <li><strong>Montant TTC : </strong>{{ item.totalTTC() }}€</li>
             </ul>
         <td>
             <ul>
@@ -23,8 +63,10 @@
         </td>
         <td>
             <p><a href="/api/invoices/document/{{ item._id.$oid }}">Voir la facture (PDF)</a></p>
-            <p><button class="btn btn-primary" ng-click="openAffectationDialog(item)">Affecter la facture</button></p>
-            <p><button class="btn btn-primary" ng-click="cancel(item)" ng-confirm-click="Êtes-vous sur de vouloir annuler votre facture ?">Annuler la facture</button></p>
+            <p><button class="btn btn-primary" ng-click="openAffectationDialog(item)" ng-show="isCreated(item)">Affecter la facture</button></p>
+            <p><button class="btn btn-primary" ng-click="revert(item)" ng-show="isPaid(item)">Le paiement a échoué</button></p>
+            <p><button class="btn btn-primary" ng-click="pay(item)" ng-show="isAllocated(item)">La facture a été payée</button></p>
+            <p><button class="btn btn-primary" ng-click="cancel(item)" ng-confirm-click="Êtes-vous sur de vouloir annuler votre facture ?" ng-show="!isPaid(item) && !isCanceled(item)">Annuler la facture</button></p>
         </td>
     </tr>
     </tbody>

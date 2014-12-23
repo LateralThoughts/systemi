@@ -1,7 +1,7 @@
-angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-select'])
+angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-values', 'client-select'])
     .config(function($routeProvider) {
         $routeProvider
-            .when('/pending', {
+            .when('/list', {
                 controller:'ListCtrl',
                 templateUrl:'/assets/javascripts/angular/modules/invoice/templates/list.html'
             })
@@ -9,20 +9,8 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
                 controller:'CreateCtrl',
                 templateUrl:'/assets/javascripts/angular/modules/invoice/templates/create.html'
             })
-            .when('/in-progress', {
-                controller:'InProgressCtrl',
-                templateUrl:'/assets/javascripts/angular/modules/invoice/templates/in-progress.html'
-            })
-            .when('/paid', {
-                controller:'PaidCtrl',
-                templateUrl:'/assets/javascripts/angular/modules/invoice/templates/paid.html'
-            })
-            .when('/canceled', {
-                controller:'CanceledCtrl',
-                templateUrl:'/assets/javascripts/angular/modules/invoice/templates/canceled.html'
-            })
             .otherwise({
-                redirectTo:'/pending'
+                redirectTo:'/list'
             });
     })
     .directive('ngConfirmClick', [
@@ -56,9 +44,87 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
             }
         };
     }])
-    .controller('ListCtrl', ['$scope','$http','InvoicesService',function($scope, $http, invoicesService) {
+    .controller('ListCtrl', ['$scope','$http','InvoicesService', 'default_contractor',function($scope, $http, invoicesService, default_contractor) {
+
+        // TODO ticket #47 change those methods
+        $scope.isCreated =  function(invoice) {
+          return invoice.affectationStatus === "unaffected" && invoice.canceled === false && invoice.paymentStatus == "unpaid";
+        };
+
+        $scope.isAllocated =  function(invoice) {
+            return invoice.affectationStatus === "affected" && invoice.canceled === false && invoice.paymentStatus == "unpaid";
+        };
+
+        $scope.isPaid =  function(invoice) {
+            return invoice.canceled === false && invoice.paymentStatus == "paid";
+        };
+
+        $scope.isCanceled =  function(invoice) {
+            return invoice.canceled === true;
+        };
+
+        var filter = function($scope) {
+            var filteredInvoices = $scope.invoices.slice();
+
+            if ($scope.selectedClient !== $scope.clients[0]) {
+                filteredInvoices = filteredInvoices.filter(function(element) {
+                    return element.invoice.client.name === $scope.selectedClient;
+                })
+            }
+
+            if ($scope.selectedCreator !== $scope.creators[0]) {
+                filteredInvoices = filteredInvoices.filter(function(element) {
+                    return element.statuses[0].email === $scope.selectedCreator.content;
+                })
+            }
+
+            if ($scope.selectedStatus != $scope.statuses[0]) {
+                // TODO ticket #47 modify this function to take only status into account
+                switch($scope.selectedStatus) {
+                    case "Créée":
+                        filteredInvoices = filteredInvoices.filter($scope.isCreated);
+                        break;
+                    case "Affectée":
+                        filteredInvoices = filteredInvoices.filter($scope.isAllocated);
+                        break;
+                    case "Payée":
+                        filteredInvoices = filteredInvoices.filter($scope.isPaid);
+                        break;
+                    case "Annulée":
+                        filteredInvoices = filteredInvoices.filter($scope.isCanceled);
+                        break;
+                }
+            }
+
+            return filteredInvoices;
+        };
+
+        $scope.creators = [{label: "Tous", content: "Tous"}];
+        $scope.selectedCreator = {label: default_contractor.name, content: default_contractor.email};
+
+        $scope.clients = ["Tous"];
+        $scope.selectedClient = $scope.clients[0];
+
+        $scope.statuses = ["Tous", "Créée", "Affectée", "Payée", "Annulée"];
+        $scope.selectedStatus = $scope.statuses[1];
+
+        $http.get("/api/members").success(function(data){
+            data.reduce(function(creators, item) {
+
+                creators.push({label: item.fullName, content: item.email});
+                return creators;
+            }, $scope.creators);
+        });
+
+        $http.get("/api/clients").success(function(data){
+            data.reduce(function(clients, item) {
+                clients.push(item.name);
+            }, $scope.clients);
+        });
+
         var reload = function(scope) {
-            $http.get("/api/invoices?status=affected&exclude=true").success(function (data) {
+
+            $http.get("/api/invoices").success(function (data) {
                 _.map(data, function(item) {
                     item.totalHT = function() {
                         var lines = this.invoice.invoice;
@@ -76,6 +142,8 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
                     }
                 });
                 scope.invoices = data;
+                scope.filteredInvoices = filter(scope);
+
             });
 
             $http.get("/api/accounts").success(function(data){
@@ -89,10 +157,34 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
                 scope.accounts = data;
             });
         };
+
         reload($scope);
+
+        $scope.filterCreator = function(newCreator) {
+            $scope.selectedCreator = newCreator;
+            $scope.filteredInvoices = filter($scope);
+        };
+
+        $scope.filterClient = function(newClient) {
+            $scope.selectedClient = newClient;
+            $scope.filteredInvoices = filter($scope);
+        };
+
+        $scope.filterStatus = function(newStatus) {
+            $scope.selectedStatus = newStatus;
+            $scope.filteredInvoices = filter($scope);
+        };
 
         $scope.cancel = function(invoice) {
             invoicesService.cancelInvoice($scope, $http, invoice, reload)
+        };
+
+        $scope.pay = function(invoice) {
+            $http.post("/api/invoices/" + invoice._id.$oid + "/status/paid").success(function(){ reload($scope)})
+        };
+
+        $scope.revert = function(invoice) {
+            $http.post("/api/invoices/" + invoice._id.$oid + "/status/unpaid").success(function(){ reload($scope)})
         };
 
         $scope.openAffectationDialog = function(invoice) {
@@ -138,50 +230,6 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sele
             $scope.affectations[$scope.affectations.length - 1]['deleteButtonVisible'] = ($scope.affectations.length>1);
         }
     }])
-    .controller('InProgressCtrl', ['$scope','$http','InvoicesService',function($scope, $http, invoicesService) {
-        var reload = function(scope) {
-            $http.get("/api/invoices?status=paid&exclude=true").success(function (data) {
-                scope.invoices = data;
-            });
-        };
-        reload($scope);
-
-        $scope.pay = function(invoice) {
-            $http.post("/api/invoices/" + invoice._id.$oid + "/status/paid").success(function(){ reload($scope)})
-        };
-
-        $scope.unaffect = function(invoice) {
-            invoicesService.removeAffectation($scope, $http, invoice, reload)
-        };
-
-        $scope.cancel = function(invoice) {
-            invoicesService.cancelInvoice($scope, $http, invoice, reload)
-        };
-    }])
-    .controller('PaidCtrl', function($scope, $http) {
-        var reload = function(scope) {
-            $http.get("/api/invoices?status=paid").success(function (data) {
-                scope.invoices = data;
-            });
-        };
-        reload($scope);
-        $scope.revert = function(invoice) {
-            $http.post("/api/invoices/" + invoice._id.$oid + "/status/unpaid").success(function(){ reload($scope)})
-
-        };
-
-        $scope.unaffect = function(invoice) {
-            invoicesService.removeAffectation($scope, $http, invoice, reload)
-        };
-    })
-    .controller('CanceledCtrl', function($scope, $http) {
-        var reload = function(scope) {
-            $http.get("/api/invoices/canceled").success(function (data) {
-                scope.invoices = data;
-            });
-        };
-        reload($scope);
-    })
     .controller('CreateCtrl', function($scope) {
         $scope.shouldUpload = true;
 

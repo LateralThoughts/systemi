@@ -87,7 +87,7 @@ angular.module('activity', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sel
     function ($scope, $modal, $log, $http, Client, default_contractor) {
         moment.lang("fr");
 
-        $scope.cra = { days: [], contractor: default_contractor};
+        $scope.cra = { days: [], contractor: default_contractor.name};
 
         $scope.datesSelected = function (start, end) {
             $('#reportrange').find('span').html(start.format('D MMMM YYYY') + ' - ' + end.format('D MMMM YYYY'));

@@ -2,9 +2,9 @@
 
 @main(user, "activity") {
     <script type="application/javascript">
-    angular.module ( 'default-values', [ ] ).constant ( 'default_contractor', '@{
+    angular.module ( 'default-values', [ ] ).constant ( 'default_contractor', {name: '@{
         user.fullName
-    }')
+    }', email: '@{user.email}'})
     </script>
 
     <ul class="nav nav-tabs" role="tablist" data-ng-controller="HeaderCtrl">
