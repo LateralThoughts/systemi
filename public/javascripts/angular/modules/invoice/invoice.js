@@ -119,6 +119,7 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
         $http.get("/api/clients").success(function(data){
             data.reduce(function(clients, item) {
                 clients.push(item.name);
+                return clients;
             }, $scope.clients);
         });
 
