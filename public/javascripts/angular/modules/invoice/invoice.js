@@ -181,7 +181,7 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
                 return "success";
             }
 
-            if ((item.statuses[0].createdAt + (item.invoice.paymentDelay*3600*24))>(Date.now()/1000)) {
+            if ((item.statuses[0].createdAt + (item.invoice.paymentDelay*3600*24*1000))>Date.now()) {
                 return "warning";
             }
 
