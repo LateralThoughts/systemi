@@ -48,7 +48,7 @@
     </tr>
     </thead>
     <tbody>
-    <tr data-ng-repeat="item in filteredInvoices">
+    <tr data-ng-repeat="item in filteredInvoices" ng-class="getStatusStyle(item)">
 
         <td><h4>{{ item.invoice.title }} ({{ item.invoice.invoiceNumber }})</h4>
             <ul>

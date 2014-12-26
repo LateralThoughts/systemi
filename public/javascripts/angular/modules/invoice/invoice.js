@@ -176,6 +176,18 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
             $scope.filteredInvoices = filter($scope);
         };
 
+        $scope.getStatusStyle = function(item) {
+            if ($scope.isCanceled(item) || $scope.isPaid(item)) {
+                return "success";
+            }
+
+            if ((item.statuses[0].createdAt + (item.invoice.paymentDelay*3600*24))>(Date.now()/1000)) {
+                return "warning";
+            }
+
+            return "danger";
+        };
+
         $scope.cancel = function(invoice) {
             invoicesService.cancelInvoice($scope, $http, invoice, reload)
         };
