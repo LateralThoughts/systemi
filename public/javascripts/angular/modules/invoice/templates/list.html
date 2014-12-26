@@ -32,7 +32,11 @@
                 {{selectedStatus}} <span class="caret"></span>
             </button>
             <ul class="dropdown-menu" role="menu" >
-                <li ng-repeat="status in statuses"><a ng-click="filterStatus(status)">{{status}}</a></li>
+                <li><a ng-click="filterStatus('Tous')">Tous</a></li>
+                <li class="divider"></li>
+                <li ng-repeat="status in inProgressStatuses"><a ng-click="filterStatus(status)">{{status}}</a></li>
+                <li class="divider"></li>
+                <li ng-repeat="status in finishedStatuses"><a ng-click="filterStatus(status)">{{status}}</a></li>
             </ul>
         </div>
     </div>

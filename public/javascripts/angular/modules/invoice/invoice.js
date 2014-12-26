@@ -63,6 +63,14 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
             return invoice.canceled === true;
         };
 
+        $scope.isInProgress = function(invoice) {
+            return $scope.isCreated(invoice) || $scope.isAllocated(invoice);
+        };
+
+        $scope.isFinished = function(invoice) {
+            return $scope.isCanceled(invoice) || $scope.isPaid(invoice);
+        };
+
         var filter = function($scope) {
             var filteredInvoices = $scope.invoices.slice();
 
@@ -78,14 +86,19 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
                 })
             }
 
-            if ($scope.selectedStatus != $scope.statuses[0]) {
-                // TODO ticket #47 modify this function to take only status into account
+            if ($scope.selectedStatus != "Tous") {
                 switch($scope.selectedStatus) {
+                    case "En Cours":
+                        filteredInvoices = filteredInvoices.filter($scope.isInProgress);
+                        break;
                     case "Créée":
                         filteredInvoices = filteredInvoices.filter($scope.isCreated);
                         break;
                     case "Affectée":
                         filteredInvoices = filteredInvoices.filter($scope.isAllocated);
+                        break;
+                    case "Terminée":
+                        filteredInvoices = filteredInvoices.filter($scope.isFinished);
                         break;
                     case "Payée":
                         filteredInvoices = filteredInvoices.filter($scope.isPaid);
@@ -105,8 +118,9 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
         $scope.clients = ["Tous"];
         $scope.selectedClient = $scope.clients[0];
 
-        $scope.statuses = ["Tous", "Créée", "Affectée", "Payée", "Annulée"];
-        $scope.selectedStatus = $scope.statuses[1];
+        $scope.inProgressStatuses = ["En Cours", "Créée", "Affectée"];
+        $scope.finishedStatuses = ["Terminée", "Payée", "Annulée"];
+        $scope.selectedStatus = $scope.inProgressStatuses[0];
 
         $http.get("/api/members").success(function(data){
             data.reduce(function(creators, item) {
