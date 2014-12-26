@@ -18,7 +18,7 @@ class InvoiceRepository() extends Repository with InvoiceSerializer {
   val selection: JsObject = Json.obj("invoice" -> 1, "statuses" -> 1, "paymentStatus" -> 1, "affectationStatus" -> 1, "canceled" -> 1)
 
   val invoicesCollection: JSONCollection = ReactiveMongoPlugin.db
-    .collection[JSONCollection](invoiceCollection)
+    .collection[JSONCollection](invoicesCollectionName)
 
   def find(criteria : JsObject = Json.obj()): Future[List[JsObject]] = {
     invoicesCollection

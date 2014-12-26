@@ -192,10 +192,32 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
             $scope.affectations = [{
                 addButtonVisible: true,
                 deleteButtonVisible: true,
-                value: invoice.totalHT()
+                value: invoice.totalHT(),
             }];
             $scope.invoice = invoice;
             $('#affectationModal').modal('show');
+        };
+
+        $scope.openReallocationDialog = function(invoice) {
+          $http.get("/api/allocations/invoice/" + invoice._id.$oid)
+              .success(function(data) {
+                  _.map(data, function(item) {
+                      item.addButtonVisible = false;
+                      item.deleteButtonVisible = true;
+                      for (var i = 0; i < $scope.accounts.length; i++) {
+                          if ($scope.accounts[i]._id.$oid === item.account._id.$oid) {
+                              item.account = $scope.accounts[i];
+                              break;
+                          }
+                      }
+                  });
+                  $scope.affectations = data;
+                  $scope.affectations[$scope.affectations.length -1].addButtonVisible = true;
+
+                  $scope.invoice = invoice;
+                  $('#affectationModal').modal('show');
+                }
+              )
         };
 
         $scope.affect = function(affectations, invoice) {
@@ -207,6 +229,7 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
                     delete item.$$hashKey;
                     delete item.addButtonVisible;
                     delete item.deleteButtonVisible;
+                    delete item.account.fullname;
                 });
                 $http.post("/api/invoices/" + invoice._id.$oid + "/affectation", JSON.stringify(affectations))
                     .success(function () {

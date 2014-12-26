@@ -64,6 +64,7 @@
         <td>
             <p><a href="/api/invoices/document/{{ item._id.$oid }}">Voir la facture (PDF)</a></p>
             <p><button class="btn btn-primary" ng-click="openAffectationDialog(item)" ng-show="isCreated(item)">Affecter la facture</button></p>
+            <p><button class="btn btn-primary" ng-click="openReallocationDialog(item)" ng-show="!isCreated(item) && !isCanceled(item)">Réaffecter la facture</button></p>
             <p><button class="btn btn-primary" ng-click="revert(item)" ng-show="isPaid(item)">Le paiement a échoué</button></p>
             <p><button class="btn btn-primary" ng-click="pay(item)" ng-show="isAllocated(item)">La facture a été payée</button></p>
             <p><button class="btn btn-primary" ng-click="cancel(item)" ng-confirm-click="Êtes-vous sur de vouloir annuler votre facture ?" ng-show="!isPaid(item) && !isCanceled(item)">Annuler la facture</button></p>

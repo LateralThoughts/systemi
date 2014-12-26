@@ -2,6 +2,7 @@ package repository
 
 trait Repository {
 
-  val invoiceCollection = "invoices"
+  val invoicesCollectionName = "invoices"
+  val allocationsCollectionName = "affectations"
 
 }

@@ -10,14 +10,13 @@ import play.api.libs.json._
 import play.api.mvc.Controller
 import play.modules.reactivemongo.MongoController
 import play.modules.reactivemongo.json.collection.JSONCollection
-import reactivemongo.bson.BSONObjectID
-import repository.InvoiceRepository
 import securesocial.core.{BasicProfile, RuntimeEnvironment}
 
 import scala.concurrent.Future
 
 class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicProfile])
   extends Controller
+  with ApiController
   with MongoController
   with InvoiceSerializer
   with AccountSerializer
@@ -25,9 +24,6 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
   with AffectationReqSerializer
   with InvoiceEngine {
 
-  import com.softwaremill.macwire.MacwireMacros._
-
-  lazy val invoiceRepository = wire[InvoiceRepository]
 
   def createAndPushInvoice = SecuredAction(WithDomain()) { implicit request =>
     request.body.asJson match {
@@ -148,7 +144,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
           invoiceRepository.update(invoiceId, updateFieldRequest)
 
           // delete affectations from this invoice, see issue #36
-          removeAffectation(invoiceId)
+          removeAllocations(invoiceId)
 
           // remove invoice id from activity if needed
           Logger.info(s"Unset invoice $invoiceId from associated activity if needed")
@@ -169,7 +165,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     }
   }
 
-  private def removeAffectation(invoiceId: String): JsObject = {
+  private def removeAllocations(invoiceId: String): JsObject = {
     Logger.info(s"Remove affectation associated to invoice $invoiceId")
     val invoiceSelector = Json.obj("invoiceId" -> Json.obj("$oid" -> invoiceId))
 
@@ -189,6 +185,8 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
         (for (invoice <- mayBeInvoice) yield {
           Logger.info("Loaded invoice, creating affectations...")
 
+          removeAllocations(invoice._id.stringify) // TODO remove allocations after error checking
+
           val futures = request.body.as[JsArray].value.map { affectationRequest =>
 
             affectationRequest.validate(affectationReqFormatter) match {
@@ -197,6 +195,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
                 val affectation = IncomeAffectation(result.get.account, result.get.value, invoice._id)
 
                 Logger.info(affectationRequest.toString())
+
                 db
                   .collection[JSONCollection]("affectations")
                   .save(affectation)
@@ -217,17 +216,6 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
         }).getOrElse(Future(InternalServerError))
       case _ => Future(BadRequest)
     }
-  }
-
-  def deleteAffectation(invoiceId: String) = SecuredAction(WithDomain()).async { implicit request =>
-
-    // set status to unaffected
-    setStatusToInvoice(invoiceId, "unaffected", request.user.email.get)
-
-    // delete affectation
-    removeAffectation(invoiceId)
-
-    Future(Ok)
   }
 
   def getPdfByInvoice(oid: String) = SecuredAction(WithDomain()).async {

@@ -61,4 +61,5 @@ class ProductionModule {
   lazy val membersApiController = wire[MembersApiController]
   lazy val contributionsApiController = wire[ContributionsApiController]
   lazy val statsApiController = wire[StatsApiController]
+  lazy val allocationApiController = wire[AllocationApiController]
 }

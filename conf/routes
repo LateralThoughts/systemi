@@ -26,8 +26,10 @@ POST          /api/invoices/:oid/status/:status        @controllers.api.InvoiceA
 POST          /api/invoices/:oid/cancel                @controllers.api.InvoiceApiController.cancelInvoice(oid: String)
 GET           /api/invoices/canceled                   @controllers.api.InvoiceApiController.getCanceledInvoices()
 POST          /api/invoices/:oid/affectation           @controllers.api.InvoiceApiController.affectToAccount(oid: String)
-DELETE        /api/invoices/:oid/affectation           @controllers.api.InvoiceApiController.deleteAffectation(oid: String)
 GET           /api/invoices/document/:oid              @controllers.api.InvoiceApiController.getPdfByInvoice(oid: String)
+
+# allocation resources
+GET           /api/allocations/invoice/:oid            @controllers.api.AllocationApiController.findByInvoice(oid: String)
 
 # expense resources
 POST          /api/expenses                            @controllers.api.ExpenseApiController.createExpense
