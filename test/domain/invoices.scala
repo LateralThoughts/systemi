@@ -1,7 +1,9 @@
 package domain
 
+import org.joda.time.DateTime
 import org.scalatest.FunSuite
 import org.scalatest.Matchers
+import reactivemongo.bson.BSONObjectID
 
 
 class InvoiceLinesAnalyzerTest extends FunSuite with Matchers with InvoiceLinesAnalyzer {
@@ -40,5 +42,101 @@ class NextInvoiceNumbersParserTest extends FunSuite with Matchers with NextInvoi
   test("should extract next invoice number") {
     extractInvoiceNumber("NEXT_VT123") should be (123, 124)
   }
+
+}
+
+class InvoiceDataTest extends FunSuite with Matchers {
+
+	test("Invoice is a late payment if status is created and payment is delayed") {
+
+		// Given
+		val invoice = generateInvoiceData("created", 60)
+
+		// When
+		val result = invoice.isDelayed
+
+		// Then
+		result should be (true)
+	}
+
+	test("Invoice is a late payment if status is allocated and payment is delayed") {
+
+		// Given
+		val invoice = generateInvoiceData("allocated", 60)
+
+		// When
+		val result = invoice.isDelayed
+
+		// Then
+		result should be (true)
+	}
+
+	test("Invoice is not a late payment if status is created but payment is not delayed yet") {
+
+		// Given
+		val invoice = generateInvoiceData("created", 15)
+
+		// When
+		val result = invoice.isDelayed
+
+		// Then
+		result should be (false)
+	}
+
+	test("Invoice is not a late payment if status is created and it is the last day of payment") {
+
+		// Given
+		val invoice = generateInvoiceData("created", 30)
+
+		// When
+		val result = invoice.isDelayed
+
+		// Then
+		result should be (false)
+	}
+
+	test("Invoice is not a late payment if status is payed") {
+
+		// Given
+		val invoice = generateInvoiceData("payed", 60)
+
+		// When
+		val result = invoice.isDelayed
+
+		// Then
+		result should be (false)
+	}
+
+	test("Invoice is not a late payment if status is canceled") {
+
+		// Given
+		val invoice = generateInvoiceData("canceled", 60)
+
+		// When
+		val result = invoice.isDelayed
+
+		// Then
+		result should be (false)
+	}
+
+	test("Invoice payment delay is the difference between today and last possible payment date ") {
+
+		// Given
+		val invoice = generateInvoiceData("created", 60)
+
+		// When
+		val result = invoice.retrievePaymentDelayInDays
+
+		// Then
+		result should be (30)
+	}
+
+	private def generateInvoiceData(status: String,daysSinceInvoiceCreated: Int) = {
+		val id = BSONObjectID.generate
+		val client = ClientRequest("Client","3 rue test","75000","Paris","France")
+		val lastStatus: Status = Status(status,DateTime.now().minusDays(daysSinceInvoiceCreated), "jean.zay@example.com")
+		val invoiceRequest = InvoiceRequest("Invoice","VT204",30,true, client, Nil)
+		InvoiceData(id, invoiceRequest, List(lastStatus), status)
+	}
 
 }

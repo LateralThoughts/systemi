@@ -22,12 +22,6 @@ case class Invoice(_id: BSONObjectID,
 
   def isAllocated = statuses.exists(status => "allocated" == status.name || "affected" == status.name )
 
-  def isDelayed = {
-    (status == "allocated" || status == "created") &&
-      retrievePaymentDelayInDays > 0
-  }
-
-  def retrievePaymentDelayInDays = Days.daysBetween(statuses.head.createdAt.plusDays(invoice.paymentDelay), DateTime.now()).getDays
 }
 
 case class CommonExpenseType(name: String)

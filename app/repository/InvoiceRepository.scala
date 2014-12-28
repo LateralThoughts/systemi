@@ -1,6 +1,6 @@
 package repository
 
-import domain.{InvoiceSerializer, Invoice}
+import domain.{InvoiceData, InvoiceSerializer, Invoice}
 import play.api.libs.json.{Json, JsObject}
 import play.modules.reactivemongo.{ReactiveMongoPlugin, MongoController}
 import play.modules.reactivemongo.json.collection.JSONCollection
@@ -26,12 +26,12 @@ class InvoiceRepository() extends Repository with InvoiceSerializer {
       .collect[List]()
   }
 
-  def findInProgress: Future[List[Invoice]] = {
+  def findInProgress: Future[List[InvoiceData]] = {
     val criteria = Json.obj("$or" -> List(Json.obj("status" -> "created"), Json.obj("status" -> "allocated")))
 
     invoicesCollection
-    .find(criteria)
-    .cursor[Invoice]
+    .find(criteria, selection)
+    .cursor[InvoiceData]
     .collect[List]()
   }
 

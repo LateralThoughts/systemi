@@ -4,9 +4,10 @@ import java.awt.Color
 
 import _root_.util.pdf.PDF
 import org.bouncycastle.util.encoders.Base64
-import org.joda.time.DateTime
+import org.joda.time.{Days, DateTime}
 import play.Logger
 import play.api.libs.json._
+import reactivemongo.bson.BSONObjectID
 
 case class InvoiceNumber(value: Int) {
   def increment = this.copy(value + 1)
@@ -20,6 +21,19 @@ case class InvoiceRequest(title: String,
                           withTaxes: Boolean,
                           client: ClientRequest,
                           invoice: List[InvoiceLine])
+
+case class InvoiceData(_id: BSONObjectID,
+                       invoice: InvoiceRequest,
+                       statuses: List[Status],
+                       status: String) {
+
+  def isDelayed = {
+    (status == "allocated" || status == "created") &&
+      retrievePaymentDelayInDays > 0
+  }
+
+  def retrievePaymentDelayInDays = Days.daysBetween(statuses.head.createdAt.plusDays(invoice.paymentDelay), DateTime.now()).getDays
+}
 
 case class Attachment(contentType: String,
                       stub: Boolean,
@@ -72,6 +86,9 @@ trait InvoiceSerializer extends AttachmentSerializer with ClientSerializer {
   implicit val invoiceLineFormat = Json.format[InvoiceLine]
 
   implicit val invoiceReqFormat = Json.format[InvoiceRequest]
+
+  implicit val invoiceDataFormat = Json.format[InvoiceData]
+
   implicit val invoiceNumberFormat = Json.format[InvoiceNumber]
   implicit val invoiceFormat = Json.format[Invoice]
 
