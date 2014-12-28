@@ -1,6 +1,6 @@
 package controllers.api
 
-import repository.{AllocationRepository, InvoiceRepository}
+import repository.{ActivityRepository, AllocationRepository, InvoiceRepository}
 
 trait ApiController {
 
@@ -8,5 +8,6 @@ trait ApiController {
 
   lazy val invoiceRepository = wire[InvoiceRepository]
   lazy val allocationRepository = wire[AllocationRepository]
+  lazy val activityRepository = wire[ActivityRepository]
 
 }

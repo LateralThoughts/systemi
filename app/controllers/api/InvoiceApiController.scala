@@ -111,21 +111,13 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
 
           // remove invoice id from activity if needed
           Logger.info(s"Unset invoice $invoiceId from associated activity if needed")
-          val invoiceSelector = Json.obj("invoiceId" -> Json.obj("$oid" -> invoiceId))
-          val activityUpdateRequest = Json.obj(
-           "$unset" -> Json.obj("invoiceId" -> 1)
-          )
-
-          db
-            .collection[JSONCollection]("activities")
-            .update(invoiceSelector, activityUpdateRequest)
-          .map(errors =>
-            if (errors.inError) {
+          activityRepository.unsetInvoiceFromActivity(invoiceId)
+          .map {
+            case true =>
               Logger.error(s"unable to unset invoice $invoiceId from associated activity")
               InternalServerError
-            } else {
-              Ok
-            })
+            case false => Ok
+          }
         }
         case None => Future(InternalServerError)
       }

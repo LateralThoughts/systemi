@@ -6,6 +6,7 @@ trait Repository {
 
   val invoicesCollectionName = "invoices"
   val allocationsCollectionName = "affectations"
+  val activitiesCollectionName = "activities"
 
 }
 
