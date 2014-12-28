@@ -323,12 +323,12 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
 
                 scope.delayedInvoicesNumber = data.length;
                 scope.delayedInvoicesTotalHT = _.reduce(data, function(sum, invoice) {
-                    sum += invoice.totalHT();
+                    sum += Math.round(invoice.totalHT());
                     return sum;
 
                 }, 0);
                 scope.delayedInvoicesTotalTTC = _.reduce(data, function(sum, invoice) {
-                    sum += invoice.totalTTC();
+                    sum += Math.round(invoice.totalTTC());
                     return sum;
 
                 }, 0);
