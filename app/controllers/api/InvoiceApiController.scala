@@ -229,7 +229,6 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     Logger.info(s"Add status $status to invoice $oid")
     invoiceRepository
       .update(oid, pushToStatesAndLastStatus)
-    .map(errors => errors.inError)
   }
 
 }

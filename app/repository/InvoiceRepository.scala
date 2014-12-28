@@ -4,6 +4,7 @@ import domain.{InvoiceData, InvoiceSerializer, Invoice}
 import play.api.libs.json.{Json, JsObject}
 import play.modules.reactivemongo.{ReactiveMongoPlugin, MongoController}
 import play.modules.reactivemongo.json.collection.JSONCollection
+import reactivemongo.core.commands.LastError
 
 import scala.concurrent.Future
 import play.api.Play.current
@@ -19,10 +20,10 @@ class InvoiceRepository() extends Repository with InvoiceSerializer {
   val invoicesCollection: JSONCollection = ReactiveMongoPlugin.db
     .collection[JSONCollection](invoicesCollectionName)
 
-  def find(criteria : JsObject = Json.obj()): Future[List[JsObject]] = {
+  def find(criteria : JsObject = Json.obj()): Future[List[InvoiceData]] = {
     invoicesCollection
       .find(criteria, selection)
-      .cursor[JsObject]
+      .cursor[InvoiceData]
       .collect[List]()
   }
 
@@ -35,7 +36,7 @@ class InvoiceRepository() extends Repository with InvoiceSerializer {
     .collect[List]()
   }
 
-  def find(invoiceId: String) = {
+  def find(invoiceId: String): Future[Option[Invoice]] = {
 
     val criteria = Json.obj("_id" -> Json.obj("$oid" -> invoiceId))
 
@@ -45,10 +46,10 @@ class InvoiceRepository() extends Repository with InvoiceSerializer {
 
   }
 
-  def update(invoiceId: String, update: JsObject) = {
+  def update(invoiceId: String, update: JsObject): Future[Boolean] = {
     val criteria = Json.obj("_id" -> Json.obj("$oid" -> invoiceId))
 
-    invoicesCollection.update(criteria, update)
+    invoicesCollection.update(criteria, update).map(errors => errors.inError)
 
   }
 
