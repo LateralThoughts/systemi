@@ -16,11 +16,11 @@ case class Invoice(_id: BSONObjectID,
                    pdfDocument: Attachment,
                    statuses: List[Status],
                    lastStatus: Status,
-                   paymentStatus: String = "unpaid",
-                   canceled:Boolean = false,
-                   affectationStatus: String = "unaffected") extends AccountOperation(Plus) {
+                   status: String = "created") extends AccountOperation(Plus) {
 
   def totalHT = InvoiceLinesAnalyzer.computeTotalHT(invoice.invoice)
+
+  def isAllocated = statuses.exists(status => "allocated" == status.name || "affected" == status.name )
 }
 
 case class CommonExpenseType(name: String)

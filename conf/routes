@@ -21,10 +21,9 @@ PUT           /api/clients/:id                         @controllers.api.ClientAp
 
 # invoice resources
 POST          /api/invoice                             @controllers.api.InvoiceApiController.createAndPushInvoice
-GET           /api/invoices                            @controllers.api.InvoiceApiController.findByStatus(status: Option[String], exclude: Option[Boolean])
+GET           /api/invoices                            @controllers.api.InvoiceApiController.find
 POST          /api/invoices/:oid/status/:status        @controllers.api.InvoiceApiController.addStatusToInvoice(oid: String, status: String)
 POST          /api/invoices/:oid/cancel                @controllers.api.InvoiceApiController.cancelInvoice(oid: String)
-GET           /api/invoices/canceled                   @controllers.api.InvoiceApiController.getCanceledInvoices()
 POST          /api/invoices/:oid/affectation           @controllers.api.InvoiceApiController.affectToAccount(oid: String)
 GET           /api/invoices/document/:oid              @controllers.api.InvoiceApiController.getPdfByInvoice(oid: String)
 

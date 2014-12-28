@@ -28,10 +28,10 @@ class AllocationRepository extends Repository {
       .collect[List]()
   }
 
-  def removeByInvoice(invoiceId: String): Future[LastError] = {
+  def removeByInvoice(invoiceId: String): Future[Boolean] = {
     Logger.info(s"Remove affectation associated to invoice $invoiceId")
     val invoiceSelector = Json.obj("invoiceId" -> Json.obj("$oid" -> invoiceId))
 
-    allocationsCollection.remove(invoiceSelector)
+    allocationsCollection.remove(invoiceSelector).map(errors => errors.inError)
   }
 }

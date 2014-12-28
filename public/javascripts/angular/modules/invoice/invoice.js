@@ -46,21 +46,20 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
     }])
     .controller('ListCtrl', ['$scope','$http','InvoicesService', 'default_contractor',function($scope, $http, invoicesService, default_contractor) {
 
-        // TODO ticket #47 change those methods
         $scope.isCreated =  function(invoice) {
-          return invoice.affectationStatus === "unaffected" && invoice.canceled === false && invoice.paymentStatus == "unpaid";
+          return invoice.status === "created";
         };
 
         $scope.isAllocated =  function(invoice) {
-            return invoice.affectationStatus === "affected" && invoice.canceled === false && invoice.paymentStatus == "unpaid";
+            return invoice.status === "allocated";
         };
 
         $scope.isPaid =  function(invoice) {
-            return invoice.canceled === false && invoice.paymentStatus == "paid";
+            return invoice.status === "paid";
         };
 
         $scope.isCanceled =  function(invoice) {
-            return invoice.canceled === true;
+            return invoice.status === "canceled";
         };
 
         $scope.isInProgress = function(invoice) {

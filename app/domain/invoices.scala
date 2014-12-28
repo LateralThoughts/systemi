@@ -21,34 +21,6 @@ case class InvoiceRequest(title: String,
                           client: ClientRequest,
                           invoice: List[InvoiceLine])
 
-case class InvoiceSearchRequest(clientName: Option[String] = None,
-                                creatorEmail: Option[String] = None,
-                                affectationStatus: Option[String] = None,
-                                cancellationStatus: Option[String] = None,
-                                paymentStatus: Option[String] = None) {
-
-  def transformToSearchRequest():JsObject = {
-
-    val clientNameFilter = clientName.map(x => "invoice.client.name" -> new JsString(x))
-    val creatorEmailFilter = creatorEmail.map(x => "statuses.0.email" -> new JsString(x))
-    val affectationStatusFilter = affectationStatus.map(x => "affectationStatus" -> new JsString(x))
-    val cancellationStatusFilter = cancellationStatus.map(x => "canceled" -> new JsString(x))
-    val paymentStatusFilter = paymentStatus.map(x => "paymentStatus" -> new JsString(x))
-
-    val filters = Seq(
-      clientNameFilter,
-      creatorEmailFilter,
-      affectationStatusFilter,
-      cancellationStatusFilter,
-      paymentStatusFilter
-    ).filter(p => p.isDefined).flatten
-
-
-    new JsObject(filters)
-  }
-}
-
-
 case class Attachment(contentType: String,
                       stub: Boolean,
                       data: Array[Byte])
@@ -100,7 +72,6 @@ trait InvoiceSerializer extends AttachmentSerializer with ClientSerializer {
   implicit val invoiceLineFormat = Json.format[InvoiceLine]
 
   implicit val invoiceReqFormat = Json.format[InvoiceRequest]
-  implicit val invoiceSearchRequestFormat = Json.format[InvoiceSearchRequest]
   implicit val invoiceNumberFormat = Json.format[InvoiceNumber]
   implicit val invoiceFormat = Json.format[Invoice]
 

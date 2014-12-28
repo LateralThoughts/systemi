@@ -10,7 +10,6 @@ import play.api.libs.json._
 import play.api.mvc.Controller
 import play.modules.reactivemongo.MongoController
 import play.modules.reactivemongo.json.collection.JSONCollection
-import reactivemongo.core.commands.LastError
 import securesocial.core.{BasicProfile, RuntimeEnvironment}
 
 import scala.concurrent.Future
@@ -74,52 +73,17 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     Ok
   }
 
-  def getCanceledInvoices = SecuredAction(WithDomain()).async { implicit request =>
+  def find = SecuredAction(WithDomain()).async { implicit request =>
     invoiceRepository
-      .find(Json.obj("canceled" -> true))
+      .find()
       .map(invoices => Ok(Json.toJson(invoices)))
   }
 
-  def findByStatus(status: Option[String], exclude: Option[Boolean]) = SecuredAction(WithDomain()).async { implicit request =>
-
-    // construct status criteria
-    val criteria: JsObject = status
-      .map(x => invoiceRepository.buildStatusCriteria(x, exclude.getOrElse(false)))
-      .getOrElse(Json.obj())
-
-    // request database
-    invoiceRepository
-      .find(criteria)
-      .map(invoices => Ok(Json.toJson(invoices)))
-  }
-
-  def find = SecuredAction(WithDomain()).async {
-    implicit request =>
-      request.body.asJson match {
-        case Some(json) => json.validate(invoiceSearchRequestFormat) match {
-
-          case errors: JsError =>
-            Future(BadRequest(errors.toString).as("application/json"))
-
-          case searchRequest: JsResult[InvoiceSearchRequest] => {
-            val criteria = searchRequest.map(_.transformToSearchRequest())
-
-            invoiceRepository
-              .find(criteria.getOrElse(Json.obj()))
-              .map(invoices => Ok(Json.toJson(invoices)))
-          }
-        }
-        case None =>
-          invoiceRepository
-            .find()
-            .map(invoices => Ok(Json.toJson(invoices)))
-      }
-  }
-
-  def addStatusToInvoice(oid: String, status: String) = SecuredAction(WithDomain()) { implicit request =>
-    setStatusToInvoice(oid, status, request.user.email.get)
-
-    Ok
+  def addStatusToInvoice(oid: String, status: String) = SecuredAction(WithDomain()).async { implicit request =>
+    setStatusToInvoice(oid, status, request.user.email.get).map {
+      case true => InternalServerError
+      case false => Ok
+    }
   }
 
   def cancelInvoice(invoiceId: String) = SecuredAction(WithDomain()).async(parse.json) { implicit request =>
@@ -134,7 +98,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
           val generatedPdfDocument = addCanceledWatermark(invoice.pdfDocument.data)
 
           val generatedPdfJson = Json.toJson(Attachment("application/pdf", stub = false, generatedPdfDocument))
-          val updateObject = Json.obj("pdfDocument" -> generatedPdfJson, "lastStatus" -> lastStatus, "canceled" -> true)
+          val updateObject = Json.obj("pdfDocument" -> generatedPdfJson, "lastStatus" -> lastStatus, "status" -> "canceled")
           val updateFieldRequest = Json.obj(
             "$push" ->
               Json.obj(
@@ -145,7 +109,9 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
           invoiceRepository.update(invoiceId, updateFieldRequest)
 
           // delete affectations from this invoice, see issue #36
-          allocationRepository.removeByInvoice(invoiceId)
+          allocationRepository.removeByInvoice(invoiceId).map( hasErrors =>
+            if (hasErrors) Logger.error(s"unable to delete allocations of invoice $invoiceId")
+          )
 
           // remove invoice id from activity if needed
           Logger.info(s"Unset invoice $invoiceId from associated activity if needed")
@@ -157,8 +123,13 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
           db
             .collection[JSONCollection]("activities")
             .update(invoiceSelector, activityUpdateRequest)
-
-          Future(Ok)
+          .map(errors =>
+            if (errors.inError) {
+              Logger.error(s"unable to unset invoice $invoiceId from associated activity")
+              InternalServerError
+            } else {
+              Ok
+            })
         }
         case None => Future(InternalServerError)
       }
@@ -202,7 +173,11 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
           futureHasAtLeastOneFailure.map {
             case true => InternalServerError
             case false =>
-              setStatusToInvoice(oid, "affected", request.user.email.get)
+              if (invoice.isAllocated) {
+                setStatusToInvoice(oid, "reallocated", request.user.email.get)
+              } else {
+                setStatusToInvoice(oid, "allocated", request.user.email.get)
+              }
               Ok
           }
         }).getOrElse(Future(InternalServerError))
@@ -223,17 +198,20 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     }
   }
 
-
-  // TODO ticket 47 simplify this method
-  private def setStatusToInvoice(oid: String, status: String, email: String) = {
+  private def setStatusToInvoice(oid: String, status: String, email: String): Future[Boolean] = {
     val lastStatus = Json.toJson(domain.Status(status, DateTime.now(), email))
 
-    val setterObj = if (List("paid", "unpaid") contains status)
-      Json.obj("lastStatus" -> lastStatus, "paymentStatus" -> status)
-    else if (List("unaffected", "affected") contains status)
-      Json.obj("lastStatus" -> lastStatus, "affectationStatus" -> status)
-    else
-      Json.obj("lastStatus" -> lastStatus)
+    val setterObj = status match {
+      case "created" => Json.obj("lastStatus" -> lastStatus, "status" -> "created")
+      case "allocated" => Json.obj("lastStatus" -> lastStatus, "status" -> "allocated")
+      case "reallocated" => Json.obj("lastStatus" -> lastStatus)
+      case "paid" => Json.obj("lastStatus" -> lastStatus, "status" -> "paid")
+      case "unpaid" => Json.obj("lastStatus" -> lastStatus, "status" -> "allocated")
+      case "canceled" => Json.obj("lastStatus" -> lastStatus, "status" -> "canceled")
+      case _ =>
+        Logger.error(s"status $status unknown, use one of [created, allocated, reallocated, paid, unpaid, canceled] statuses")
+        return Future(true)
+    }
 
     val pushToStatesAndLastStatus = Json.obj(
       "$push" ->
@@ -245,6 +223,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     Logger.info(s"Add status $status to invoice $oid")
     invoiceRepository
       .update(oid, pushToStatesAndLastStatus)
+    .map(errors => errors.inError)
   }
 
 }

@@ -14,8 +14,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
  */
 class InvoiceRepository() extends Repository with InvoiceSerializer {
 
-  // TODO ticket #47 : modify to retrieve only status
-  val selection: JsObject = Json.obj("invoice" -> 1, "statuses" -> 1, "paymentStatus" -> 1, "affectationStatus" -> 1, "canceled" -> 1)
+  val selection: JsObject = Json.obj("invoice" -> 1, "statuses" -> 1, "status" -> 1)
 
   val invoicesCollection: JSONCollection = ReactiveMongoPlugin.db
     .collection[JSONCollection](invoicesCollectionName)
@@ -25,24 +24,6 @@ class InvoiceRepository() extends Repository with InvoiceSerializer {
       .find(criteria, selection)
       .cursor[JsObject]
       .collect[List]()
-  }
-
-  // TODO ticket #47 : change criteria
-  def buildStatusCriteria(status: String, exclude: Boolean):JsObject = {
-
-    val criteriaField =
-      if (List("paid", "unpaid") contains status)
-        "paymentStatus"
-      else if (List("unaffected", "affected") contains status)
-        "affectationStatus"
-      else
-        "lastStatus.name"
-
-    if (exclude) {
-      Json.obj(criteriaField -> Json.obj("$ne" -> status), "canceled" -> Json.obj("$ne" -> true))
-    } else {
-      Json.obj(criteriaField -> status, "canceled" -> Json.obj("$ne" -> true))
-    }
   }
 
   def find(invoiceId: String) = {
