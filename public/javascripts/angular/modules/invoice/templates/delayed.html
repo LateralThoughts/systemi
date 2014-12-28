@@ -1,0 +1,30 @@
+<h2>Factures en retard de paiement</h2>
+
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>Facture</th>
+        <th>Retard</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr data-ng-repeat="item in invoices" class="danger">
+
+        <td><h4>{{ item.invoice.title }} ({{ item.invoice.invoiceNumber }})</h4>
+            <ul>
+                <li><strong>Client : </strong>{{ item.invoice.client.name }} </li>
+                <li><strong>Montant HT : </strong>{{ item.totalHT() }}€</li>
+                <li><strong>Montant TTC : </strong>{{ item.totalTTC() }}€</li>
+            </ul>
+        <td>
+            <strong>{{item.delayInDays}} Jours</strong>
+        </td>
+        <td>
+            <p><a href="/api/invoices/document/{{ item._id.$oid }}">Voir la facture (PDF)</a></p>
+            <p><button class="btn btn-primary" ng-click="pay(item)">La facture a été payée</button></p>
+            <p><button class="btn btn-primary" ng-click="cancel(item)" ng-confirm-click="Êtes-vous sur de vouloir annuler votre facture ?">Annuler la facture</button></p>
+        </td>
+    </tr>
+    </tbody>
+</table>

@@ -79,6 +79,12 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
       .map(invoices => Ok(Json.toJson(invoices)))
   }
 
+  def findDelayedInvoices = SecuredAction(WithDomain()).async { implicit request =>
+    invoiceRepository
+      .findInProgress
+      .map(invoices => Ok(Json.toJson(invoices.filter(invoice => invoice.isDelayed))))
+  }
+
   def addStatusToInvoice(oid: String, status: String) = SecuredAction(WithDomain()).async { implicit request =>
     setStatusToInvoice(oid, status, request.user.email.get).map {
       case true => InternalServerError

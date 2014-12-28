@@ -26,6 +26,15 @@ class InvoiceRepository() extends Repository with InvoiceSerializer {
       .collect[List]()
   }
 
+  def findInProgress: Future[List[Invoice]] = {
+    val criteria = Json.obj("$or" -> List(Json.obj("status" -> "created"), Json.obj("status" -> "allocated")))
+
+    invoicesCollection
+    .find(criteria)
+    .cursor[Invoice]
+    .collect[List]()
+  }
+
   def find(invoiceId: String) = {
 
     val criteria = Json.obj("_id" -> Json.obj("$oid" -> invoiceId))

@@ -22,6 +22,7 @@ PUT           /api/clients/:id                         @controllers.api.ClientAp
 # invoice resources
 POST          /api/invoice                             @controllers.api.InvoiceApiController.createAndPushInvoice
 GET           /api/invoices                            @controllers.api.InvoiceApiController.find
+GET           /api/invoices/delayed                    @controllers.api.InvoiceApiController.findDelayedInvoices
 POST          /api/invoices/:oid/status/:status        @controllers.api.InvoiceApiController.addStatusToInvoice(oid: String, status: String)
 POST          /api/invoices/:oid/cancel                @controllers.api.InvoiceApiController.cancelInvoice(oid: String)
 POST          /api/invoices/:oid/affectation           @controllers.api.InvoiceApiController.affectToAccount(oid: String)

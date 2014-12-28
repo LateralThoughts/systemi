@@ -9,6 +9,10 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
                 controller:'CreateCtrl',
                 templateUrl:'/assets/javascripts/angular/modules/invoice/templates/create.html'
             })
+            .when('/delayed', {
+                controller:'DelayedCtrl',
+                templateUrl:'/assets/javascripts/angular/modules/invoice/templates/delayed.html'
+            })
             .otherwise({
                 redirectTo:'/list'
             });
@@ -139,22 +143,7 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
         var reload = function(scope) {
 
             $http.get("/api/invoices").success(function (data) {
-                _.map(data, function(item) {
-                    item.totalHT = function() {
-                        var lines = this.invoice.invoice;
-                        return _.reduce(lines, function(sum, line) { sum += line.dailyRate * line.days; return sum}, 0);
-                    };
-
-                    item.totalTTC = function() {
-                        if (this.invoice.withTaxes) {
-                            var lines = this.invoice.invoice;
-                            return _.reduce(lines, function(sum, line) { sum += Math.round((line.dailyRate * line.days * (1 + line.taxRate/100))*100)/100; return sum}, 0);
-                        } else {
-                            return item.totalHT();
-                        }
-
-                    }
-                });
+                _.map(data, invoicesService.computeInvoiceTotals);
                 scope.invoices = data;
                 scope.filteredInvoices = filter(scope);
 
@@ -206,7 +195,7 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
         };
 
         $scope.pay = function(invoice) {
-            $http.post("/api/invoices/" + invoice._id.$oid + "/status/paid").success(function(){ reload($scope)})
+            invoicesService.payInvoice($scope, $http, invoice, reload)
         };
 
         $scope.revert = function(invoice) {
@@ -217,7 +206,7 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
             $scope.affectations = [{
                 addButtonVisible: true,
                 deleteButtonVisible: true,
-                value: invoice.totalHT(),
+                value: invoice.totalHT()
             }];
             $scope.invoice = invoice;
             $('#affectationModal').modal('show');
@@ -314,6 +303,36 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
 
         $scope.taxes = true;
     })
+    .controller("DelayedCtrl", ['$scope','$http','InvoicesService',function($scope, $http, invoicesService) {
+
+        var reload = function(scope) {
+
+            $http.get("/api/invoices/delayed").success(function (data) {
+                _.map(data, invoicesService.computeInvoiceTotals);
+
+                _.map(data, function(item) {
+                    var lastTime = item.statuses[0].createdAt + (item.invoice.paymentDelay*3600*24*1000);
+                    var delayInMillis = Date.now() - lastTime;
+
+                   item.delayInDays = Math.floor(delayInMillis/(1000*3600*24));
+                });
+
+                scope.invoices = data.sort(function(a, b) {
+                    return b - a;
+                });
+            });
+        };
+        reload($scope);
+
+        $scope.cancel = function(invoice) {
+            invoicesService.cancelInvoice($scope, $http, invoice, reload)
+        };
+
+        $scope.pay = function(invoice) {
+            invoicesService.payInvoice($scope, $http, invoice, reload)
+        };
+
+    }])
     .controller("HeaderCtrl", function($scope, $location) {
 
         $scope.isActive = function (viewLocation) {
@@ -327,8 +346,31 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
                 $http.post("/api/invoices/" + invoice._id.$oid + "/cancel", "{}").success(function(){ callback($scope)})
             },
 
-            removeAffectation: function($scope, $http, invoice, callback) {
-                $http.delete("/api/invoices/" + invoice._id.$oid + "/affectation").success(function(){ callback($scope)})
+            payInvoice: function($scope, $http, invoice, callback) {
+                $http.post("/api/invoices/" + invoice._id.$oid + "/status/paid").success(function(){ callback($scope)})
+            },
+
+            computeInvoiceTotals: function(invoice) {
+                invoice.totalHT = function () {
+                    var lines = this.invoice.invoice;
+                    return _.reduce(lines, function (sum, line) {
+                        sum += line.dailyRate * line.days;
+                        return sum
+                    }, 0);
+                };
+
+                invoice.totalTTC = function () {
+                    if (this.invoice.withTaxes) {
+                        var lines = this.invoice.invoice;
+                        return _.reduce(lines, function (sum, line) {
+                            sum += Math.round((line.dailyRate * line.days * (1 + line.taxRate / 100)) * 100) / 100;
+                            return sum
+                        }, 0);
+                    } else {
+                        return invoice.totalHT();
+                    }
+
+                }
             }
         };
     });

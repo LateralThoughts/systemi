@@ -1,7 +1,7 @@
 package domain
 
 import julienrf.variants.Variants
-import org.joda.time.DateTime
+import org.joda.time.{Days, Duration, DateTime}
 import play.api.libs.json.Json
 import reactivemongo.bson.BSONObjectID
 
@@ -21,6 +21,13 @@ case class Invoice(_id: BSONObjectID,
   def totalHT = InvoiceLinesAnalyzer.computeTotalHT(invoice.invoice)
 
   def isAllocated = statuses.exists(status => "allocated" == status.name || "affected" == status.name )
+
+  def isDelayed = {
+    (status == "allocated" || status == "created") &&
+      retrievePaymentDelayInDays > 0
+  }
+
+  def retrievePaymentDelayInDays = Days.daysBetween(statuses.head.createdAt.plusDays(invoice.paymentDelay), DateTime.now()).getDays
 }
 
 case class CommonExpenseType(name: String)
