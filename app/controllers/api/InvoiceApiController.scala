@@ -4,7 +4,6 @@ import auth.WithDomain
 import domain._
 import engine.InvoiceEngine
 import org.bouncycastle.util.encoders.Base64
-import org.joda.time.DateTime
 import play.Logger
 import play.api.libs.json._
 import play.api.mvc.Controller
@@ -75,7 +74,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
 
   def find = SecuredAction(WithDomain()).async { implicit request =>
     invoiceRepository
-      .find()
+      .find
       .map(invoices => Ok(Json.toJson(invoices)))
   }
 
@@ -86,9 +85,9 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
   }
 
   def addStatusToInvoice(oid: String, status: String) = SecuredAction(WithDomain()).async { implicit request =>
-    setStatusToInvoice(oid, status, request.user.email.get).map {
-      case true => InternalServerError
+    invoiceRepository.updateInvoiceStatus(oid, status, request.user.email.get).map {
       case false => Ok
+      case true => InternalServerError
     }
   }
 
@@ -99,20 +98,11 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
       case (mayBeInvoice: Option[Invoice]) => mayBeInvoice match {
         case Some(invoice) => {
           Logger.info("Loaded invoice, canceling...")
-          val lastStatus = Json.toJson(domain.Status("canceled", DateTime.now(), request.user.email.get))
-
           val generatedPdfDocument = addCanceledWatermark(invoice.pdfDocument.data)
 
-          val generatedPdfJson = Json.toJson(Attachment("application/pdf", stub = false, generatedPdfDocument))
-          val updateObject = Json.obj("pdfDocument" -> generatedPdfJson, "lastStatus" -> lastStatus, "status" -> "canceled")
-          val updateFieldRequest = Json.obj(
-            "$push" ->
-              Json.obj(
-                "statuses" -> lastStatus
-              ),
-            "$set" -> updateObject)
-
-          invoiceRepository.update(invoiceId, updateFieldRequest)
+          invoiceRepository.cancelInvoice(invoiceId, generatedPdfDocument, request.user.email.get).map( hasErrors =>
+            if (hasErrors) Logger.error(s"unable to cancel invoice $invoiceId")
+          )
 
           // delete affectations from this invoice, see issue #36
           allocationRepository.removeByInvoice(invoiceId).map( hasErrors =>
@@ -145,10 +135,8 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
 
 
   def affectToAccount(oid: String) = SecuredAction(WithDomain()).async(parse.json) { implicit request =>
-    db
-      .collection[JSONCollection]("invoices")
-      .find(Json.obj("_id" -> Json.obj("$oid" -> oid)))
-      .one[Invoice]
+    invoiceRepository
+      .find(oid)
       .flatMap {
       case (mayBeInvoice: Option[Invoice]) =>
         (for (invoice <- mayBeInvoice) yield {
@@ -173,17 +161,14 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
             }
           }
 
-          val futureHasAtLeastOneFailure = Future.sequence(futures)
-            .map(_.foldLeft(false)((acc, current) => acc || current))
-
-          futureHasAtLeastOneFailure.map {
+          checkFailures(futures).map {
             case true => InternalServerError
             case false =>
-              if (invoice.isAllocated) {
-                setStatusToInvoice(oid, "reallocated", request.user.email.get)
-              } else {
-                setStatusToInvoice(oid, "allocated", request.user.email.get)
-              }
+              val status = if (invoice.isAllocated) "reallocated" else "allocated"
+              Logger.info(s"Add status $status to invoice $oid")
+              invoiceRepository.updateInvoiceStatus(oid, status, request.user.email.get).map(hasErrors =>
+                if (hasErrors) Logger.error(s"unable to add status $status to invoice $oid")
+              )
               Ok
           }
         }).getOrElse(Future(InternalServerError))
@@ -191,44 +176,17 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     }
   }
 
-  def getPdfByInvoice(oid: String) = SecuredAction(WithDomain()).async {
-    invoiceRepository.invoicesCollection
-      .find(Json.obj("_id" -> Json.obj("$oid" -> oid)), Json.obj("pdfDocument" -> 1))
-      .one[JsObject]
-      .map {
-      case Some(pdfObj) =>
-        val doc = (pdfObj \ "pdfDocument" \ "data" \ "data").as[String]
-        Ok(Base64.decode(doc)).as("application/pdf")
-
-      case None => BadRequest
-    }
+  private def checkFailures(futures: Seq[Future[Boolean]]): Future[Boolean] = {
+    Future.sequence(futures)
+      .map(_.foldLeft(false)((acc, current) => acc || current))
   }
 
-  private def setStatusToInvoice(oid: String, status: String, email: String): Future[Boolean] = {
-    val lastStatus = Json.toJson(domain.Status(status, DateTime.now(), email))
-
-    val setterObj = status match {
-      case "created" => Json.obj("lastStatus" -> lastStatus, "status" -> "created")
-      case "allocated" => Json.obj("lastStatus" -> lastStatus, "status" -> "allocated")
-      case "reallocated" => Json.obj("lastStatus" -> lastStatus)
-      case "paid" => Json.obj("lastStatus" -> lastStatus, "status" -> "paid")
-      case "unpaid" => Json.obj("lastStatus" -> lastStatus, "status" -> "allocated")
-      case "canceled" => Json.obj("lastStatus" -> lastStatus, "status" -> "canceled")
-      case _ =>
-        Logger.error(s"status $status unknown, use one of [created, allocated, reallocated, paid, unpaid, canceled] statuses")
-        return Future(true)
+  def getPdfByInvoice(oid: String) = SecuredAction(WithDomain()).async {
+    invoiceRepository.retrievePDF(oid)
+      .map {
+      case "" => BadRequest
+      case doc => Ok(Base64.decode(doc)).as("application/pdf")
     }
-
-    val pushToStatesAndLastStatus = Json.obj(
-      "$push" ->
-        Json.obj(
-          "statuses" -> lastStatus
-        ),
-      "$set" -> setterObj
-    )
-    Logger.info(s"Add status $status to invoice $oid")
-    invoiceRepository
-      .update(oid, pushToStatesAndLastStatus)
   }
 
 }
