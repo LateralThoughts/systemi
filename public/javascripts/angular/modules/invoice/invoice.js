@@ -320,6 +320,18 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
                 scope.invoices = data.sort(function(a, b) {
                     return b.delayInDays - a.delayInDays;
                 });
+
+                scope.delayedInvoicesNumber = data.length;
+                scope.delayedInvoicesTotalHT = _.reduce(data, function(sum, invoice) {
+                    sum += invoice.totalHT();
+                    return sum;
+
+                }, 0);
+                scope.delayedInvoicesTotalTTC = _.reduce(data, function(sum, invoice) {
+                    sum += invoice.totalTTC();
+                    return sum;
+
+                }, 0);
             });
         };
         reload($scope);
