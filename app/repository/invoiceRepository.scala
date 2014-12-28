@@ -3,7 +3,7 @@ package repository
 import domain.{Attachment, InvoiceData, InvoiceSerializer, Invoice}
 import org.joda.time.DateTime
 import play.Logger
-import play.api.libs.json.{Json, JsObject}
+import play.api.libs.json.{JsValue, Json, JsObject}
 import play.modules.reactivemongo.ReactiveMongoPlugin
 import play.modules.reactivemongo.json.collection.JSONCollection
 
@@ -45,14 +45,11 @@ class InvoiceRepository extends Repository with InvoiceSerializer {
       .collect[List]()
   }
 
-  def retrievePDF(invoiceId: String): Future[String] = {
+  def retrievePDF(invoiceId: String): Future[Option[String]] = {
     invoicesCollection
       .find(invoiceRequestBuilder.idCriteria(invoiceId), Json.obj("pdfDocument.data.data" -> 1))
       .one[JsObject]
-      .map {
-      case Some(pdfObj) => (pdfObj \ "pdfDocument" \ "data" \ "data").as[String]
-      case None => ""
-    }
+      .map(_.map(jsValue => (jsValue \ "pdfDocument" \ "data" \ "data").as[String]))
   }
 
   def cancelInvoice(invoiceId: String, invoicePDF: Array[Byte], email: String): Future[Boolean] = {
@@ -60,7 +57,10 @@ class InvoiceRepository extends Repository with InvoiceSerializer {
   }
 
   def updateInvoiceStatus(invoiceId: String, status: String, email: String) = {
-    update(invoiceId, invoiceRequestBuilder.updateStatusUpdateFieldRequest(status, email))
+    invoiceRequestBuilder.updateStatusUpdateFieldRequest(status, email) match {
+      case Some(updateFields) => update(invoiceId, updateFields)
+      case None => Future(true)
+    }
   }
 
   private def update(invoiceId: String, update: JsObject): Future[Boolean] = {
@@ -82,15 +82,10 @@ class InvoiceRequestBuilder extends RequestBuilder with InvoiceSerializer {
     val lastStatus = Json.toJson(domain.Status("canceled", DateTime.now(), email))
     val updateObject = Json.obj("pdfDocument" -> generatedPdfJson, "lastStatus" -> lastStatus, "status" -> "canceled")
 
-    Json.obj(
-      "$push" ->
-        Json.obj(
-          "statuses" -> lastStatus
-        ),
-      "$set" -> updateObject)
+    updateStatusRequest(lastStatus, updateObject)
   }
 
-  def updateStatusUpdateFieldRequest(status: String, email: String) = {
+  def updateStatusUpdateFieldRequest(status: String, email: String): Option[JsObject] = {
     val lastStatus = Json.toJson(domain.Status(status, DateTime.now(), email))
 
     val setterObj = status match {
@@ -99,19 +94,24 @@ class InvoiceRequestBuilder extends RequestBuilder with InvoiceSerializer {
       case "reallocated" => Some(Json.obj("lastStatus" -> lastStatus))
       case "paid" => Some(Json.obj("lastStatus" -> lastStatus, "status" -> "paid"))
       case "unpaid" => Some(Json.obj("lastStatus" -> lastStatus, "status" -> "allocated"))
-      case "canceled" => Some(Json.obj("lastStatus" -> lastStatus, "status" -> "canceled"))
+      case "canceled" =>
+        Logger.error("should use cancel endpoint to update to canceled status")
+        None
       case _ =>
-        Logger.error(s"status $status unknown, use one of [created, allocated, reallocated, paid, unpaid, canceled] statuses")
+        Logger.error(s"status $status unknown, use one of [created, allocated, reallocated, paid, unpaid] statuses")
         None
     }
 
-    setterObj.map(setter => Json.obj(
+    setterObj.map(setter => updateStatusRequest(lastStatus, setter))
+  }
+
+  private def updateStatusRequest(lastStatus: JsValue, updateObject: JsObject): JsObject = {
+    Json.obj(
       "$push" ->
         Json.obj(
           "statuses" -> lastStatus
         ),
-      "$set" -> setter
-    )).getOrElse(Json.obj())
+      "$set" -> updateObject)
   }
 
 }

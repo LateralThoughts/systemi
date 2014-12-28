@@ -184,8 +184,8 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
   def getPdfByInvoice(oid: String) = SecuredAction(WithDomain()).async {
     invoiceRepository.retrievePDF(oid)
       .map {
-      case "" => BadRequest
-      case doc => Ok(Base64.decode(doc)).as("application/pdf")
+      case None => BadRequest
+      case Some(doc) => Ok(Base64.decode(doc)).as("application/pdf")
     }
   }
 

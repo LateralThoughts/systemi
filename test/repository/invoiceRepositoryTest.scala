@@ -1,7 +1,7 @@
 package repository
 
 import org.scalatest.{FunSuite, Matchers}
-import play.api.libs.json.{JsObject, JsUndefined, JsValue, Json}
+import play.api.libs.json.{JsObject, JsUndefined}
 
 class InvoiceRequestBuilderTest extends FunSuite with Matchers {
 
@@ -12,10 +12,10 @@ class InvoiceRequestBuilderTest extends FunSuite with Matchers {
     val status = "Inexistant status"
 
     // When
-    val request: JsObject = invoiceRequestBuilder.updateStatusUpdateFieldRequest(status, "fake.email@example.com")
+    val request: Option[JsObject] = invoiceRequestBuilder.updateStatusUpdateFieldRequest(status, "fake.email@example.com")
 
     // Then
-    request should be (Json.obj())
+    request should be (None)
   }
 
   test("Should return created for status update if status is created") {
@@ -23,10 +23,10 @@ class InvoiceRequestBuilderTest extends FunSuite with Matchers {
     val status = "created"
 
     // When
-    val request: JsObject = invoiceRequestBuilder.updateStatusUpdateFieldRequest(status, "fake.email@example.com")
+    val request: Option[JsObject] = invoiceRequestBuilder.updateStatusUpdateFieldRequest(status, "fake.email@example.com")
 
     // Then
-    (request \ "$set" \ "status").as[String] should be ("created")
+    (request.get \ "$set" \ "status").as[String] should be ("created")
   }
 
   test("Should return allocated for status update if status is unpaid") {
@@ -34,10 +34,10 @@ class InvoiceRequestBuilderTest extends FunSuite with Matchers {
     val status = "unpaid"
 
     // When
-    val request: JsObject = invoiceRequestBuilder.updateStatusUpdateFieldRequest(status, "fake.email@example.com")
+    val request: Option[JsObject] = invoiceRequestBuilder.updateStatusUpdateFieldRequest(status, "fake.email@example.com")
 
     // Then
-    (request \ "$set" \ "status").as[String] should be ("allocated")
+    (request.get \ "$set" \ "status").as[String] should be ("allocated")
   }
 
   test("Should return allocated for status update if status is allocated") {
@@ -45,10 +45,10 @@ class InvoiceRequestBuilderTest extends FunSuite with Matchers {
     val status = "allocated"
 
     // When
-    val request: JsObject = invoiceRequestBuilder.updateStatusUpdateFieldRequest(status, "fake.email@example.com")
+    val request: Option[JsObject] = invoiceRequestBuilder.updateStatusUpdateFieldRequest(status, "fake.email@example.com")
 
     // Then
-    (request \ "$set" \ "status").as[String] should be ("allocated")
+    (request.get \ "$set" \ "status").as[String] should be ("allocated")
   }
 
   test("Should return paid for status update if status is paid") {
@@ -56,10 +56,10 @@ class InvoiceRequestBuilderTest extends FunSuite with Matchers {
     val status = "paid"
 
     // When
-    val request: JsObject = invoiceRequestBuilder.updateStatusUpdateFieldRequest(status, "fake.email@example.com")
+    val request: Option[JsObject] = invoiceRequestBuilder.updateStatusUpdateFieldRequest(status, "fake.email@example.com")
 
     // Then
-    (request \ "$set" \ "status").as[String] should be ("paid")
+    (request.get \ "$set" \ "status").as[String] should be ("paid")
   }
 
   test("Should return canceled for status update if status is canceled") {
@@ -67,10 +67,10 @@ class InvoiceRequestBuilderTest extends FunSuite with Matchers {
     val status = "canceled"
 
     // When
-    val request: JsObject = invoiceRequestBuilder.updateStatusUpdateFieldRequest(status, "fake.email@example.com")
+    val request: Option[JsObject] = invoiceRequestBuilder.updateStatusUpdateFieldRequest(status, "fake.email@example.com")
 
     // Then
-    (request \ "$set" \ "status").as[String] should be ("canceled")
+    request should be (None)
   }
 
   test("Should not have status update if status is reallocated") {
@@ -78,11 +78,10 @@ class InvoiceRequestBuilderTest extends FunSuite with Matchers {
     val status = "reallocated"
 
     // When
-    val request: JsObject = invoiceRequestBuilder.updateStatusUpdateFieldRequest(status, "fake.email@example.com")
+    val request: Option[JsObject] = invoiceRequestBuilder.updateStatusUpdateFieldRequest(status, "fake.email@example.com")
 
     // Then
-    val value: JsValue = request \ "$set" \ "status"
-    value shouldBe a [JsUndefined]
+    (request.get \ "$set" \ "status") shouldBe a [JsUndefined]
   }
 
 }
