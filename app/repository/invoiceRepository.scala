@@ -4,9 +4,8 @@ import domain.{Attachment, InvoiceData, InvoiceSerializer, Invoice}
 import org.joda.time.DateTime
 import play.Logger
 import play.api.libs.json.{Json, JsObject}
-import play.modules.reactivemongo.{ReactiveMongoPlugin, MongoController}
+import play.modules.reactivemongo.ReactiveMongoPlugin
 import play.modules.reactivemongo.json.collection.JSONCollection
-import reactivemongo.core.commands.LastError
 
 import scala.concurrent.Future
 import play.api.Play.current
@@ -95,24 +94,24 @@ class InvoiceRequestBuilder extends RequestBuilder with InvoiceSerializer {
     val lastStatus = Json.toJson(domain.Status(status, DateTime.now(), email))
 
     val setterObj = status match {
-      case "created" => Json.obj("lastStatus" -> lastStatus, "status" -> "created")
-      case "allocated" => Json.obj("lastStatus" -> lastStatus, "status" -> "allocated")
-      case "reallocated" => Json.obj("lastStatus" -> lastStatus)
-      case "paid" => Json.obj("lastStatus" -> lastStatus, "status" -> "paid")
-      case "unpaid" => Json.obj("lastStatus" -> lastStatus, "status" -> "allocated")
-      case "canceled" => Json.obj("lastStatus" -> lastStatus, "status" -> "canceled")
+      case "created" => Some(Json.obj("lastStatus" -> lastStatus, "status" -> "created"))
+      case "allocated" => Some(Json.obj("lastStatus" -> lastStatus, "status" -> "allocated"))
+      case "reallocated" => Some(Json.obj("lastStatus" -> lastStatus))
+      case "paid" => Some(Json.obj("lastStatus" -> lastStatus, "status" -> "paid"))
+      case "unpaid" => Some(Json.obj("lastStatus" -> lastStatus, "status" -> "allocated"))
+      case "canceled" => Some(Json.obj("lastStatus" -> lastStatus, "status" -> "canceled"))
       case _ =>
         Logger.error(s"status $status unknown, use one of [created, allocated, reallocated, paid, unpaid, canceled] statuses")
-        Json.obj()
+        None
     }
 
-    Json.obj(
+    setterObj.map(setter => Json.obj(
       "$push" ->
         Json.obj(
           "statuses" -> lastStatus
         ),
-      "$set" -> setterObj
-    )
+      "$set" -> setter
+    )).getOrElse(Json.obj())
   }
 
 }
