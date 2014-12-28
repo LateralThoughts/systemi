@@ -5,7 +5,6 @@ import java.awt.Color
 import _root_.util.pdf.PDF
 import org.bouncycastle.util.encoders.Base64
 import org.joda.time.{Days, DateTime}
-import play.Logger
 import play.api.libs.json._
 import reactivemongo.bson.BSONObjectID
 
