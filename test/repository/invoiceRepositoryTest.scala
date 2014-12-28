@@ -7,7 +7,13 @@ class InvoiceRequestBuilderTest extends FunSuite with Matchers {
 
   val invoiceRequestBuilder = new InvoiceRequestBuilder
 
-  test("Should return empty Json object if status doesn't exist") {
+  ///////////////////////////////////////////////////
+  //
+  // check method updateStatusUpdateFieldRequest
+  //
+  ///////////////////////////////////////////////////
+
+  test("Should return None if status doesn't exist") {
     // Given
     val status = "Inexistant status"
 
@@ -62,7 +68,7 @@ class InvoiceRequestBuilderTest extends FunSuite with Matchers {
     (request.get \ "$set" \ "status").as[String] should be ("paid")
   }
 
-  test("Should return canceled for status update if status is canceled") {
+  test("Should return None if status is canceled") {
     // Given
     val status = "canceled"
 
@@ -82,6 +88,25 @@ class InvoiceRequestBuilderTest extends FunSuite with Matchers {
 
     // Then
     (request.get \ "$set" \ "status") shouldBe a [JsUndefined]
+  }
+
+  ///////////////////////////////////////////////////
+  //
+  // check method cancelInvoiceUpdateFieldRequest
+  //
+  ///////////////////////////////////////////////////
+
+  test("Should return cancel update fields") {
+    // Given
+    val email = "fake.email@example.com"
+    val pdfData = Array[Byte]()
+
+    // When
+    val request: JsObject = invoiceRequestBuilder.cancelInvoiceUpdateFieldRequest(pdfData, email)
+
+    // Then
+    (request \ "$set" \ "status").as[String] should be ("canceled")
+    (request \ "$set" \ "pdfDocument" \ "contentType").as[String] should be ("application/pdf")
   }
 
 }
