@@ -318,7 +318,7 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
                 });
 
                 scope.invoices = data.sort(function(a, b) {
-                    return a - b;
+                    return b.delayInDays - a.delayInDays;
                 });
             });
         };
