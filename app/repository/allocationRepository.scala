@@ -35,6 +35,13 @@ class AllocationRepository extends Repository with AllocationSerializer {
       .collect[List]()
   }
 
+  def findByUser(userId: String): Future[List[IncomeAllocation]] = {
+    allocationsCollection
+      .find(allocationRequestBuilder.userCriteria(userId))
+      .cursor[IncomeAllocation]
+      .collect[List]()
+  }
+
   def removeByInvoice(invoiceId: String): Future[Boolean] = {
     allocationsCollection.remove(allocationRequestBuilder.invoiceCriteria(invoiceId)).map(errors => errors.inError)
   }
@@ -46,6 +53,8 @@ class AllocationRepository extends Repository with AllocationSerializer {
 class AllocationRequestBuilder extends RequestBuilder with AllocationSerializer {
 
   def invoiceCriteria(invoiceId: String) = Json.obj("invoiceId" -> Json.obj("$oid" -> invoiceId))
+
+  def userCriteria(userId: String) = Json.obj("account.stakeholder.user.userId" -> userId)
 
 }
 
