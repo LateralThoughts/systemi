@@ -112,7 +112,9 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
                 }
             }
 
-            return filteredInvoices;
+            return filteredInvoices.sort(function(a,b) {
+                return a.statuses[0].createdAt - b.statuses[0].createdAt;
+            });
         };
 
         $scope.creators = [{label: "Tous", content: "Tous"}];
@@ -311,15 +313,13 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
                 return Math.round(_.reduce(invoicesList, function (sum, invoice) {
                     sum += invoice.totalHT();
                     return sum;
-
-                }, 0) * 100) / 100;
+                    }, 0) * 100) / 100;
             }
 
             function computeTotalTTC(invoicesList) {
                 return Math.round(_.reduce(invoicesList, function (sum, invoice) {
                         sum += invoice.totalTTC();
                         return sum;
-
                     }, 0) * 100) / 100;
             }
 
