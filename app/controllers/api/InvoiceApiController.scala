@@ -105,6 +105,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
           )
 
           // delete affectations from this invoice, see issue #36
+          Logger.info(s"Remove affectation associated to invoice $invoiceId")
           allocationRepository.removeByInvoice(invoiceId).map( hasErrors =>
             if (hasErrors) Logger.error(s"unable to delete allocations of invoice $invoiceId")
           )
