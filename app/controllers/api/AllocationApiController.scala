@@ -4,13 +4,14 @@ import auth.WithDomain
 import domain._
 import play.api.libs.json._
 import play.api.mvc.Controller
+import repository.Repositories
 import securesocial.core.{BasicProfile, RuntimeEnvironment}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class AllocationApiController(override implicit val env: RuntimeEnvironment[BasicProfile])
   extends Controller
-  with ApiController
+  with Repositories
   with AccountSerializer
   with AffectationSerializer
   with AffectationReqSerializer

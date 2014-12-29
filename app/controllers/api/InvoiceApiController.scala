@@ -9,13 +9,14 @@ import play.api.libs.json._
 import play.api.mvc.Controller
 import play.modules.reactivemongo.MongoController
 import play.modules.reactivemongo.json.collection.JSONCollection
+import repository.Repositories
 import securesocial.core.{BasicProfile, RuntimeEnvironment}
 
 import scala.concurrent.Future
 
 class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicProfile])
   extends Controller
-  with ApiController
+  with Repositories
   with MongoController
   with InvoiceSerializer
   with AccountSerializer
@@ -105,7 +106,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
           )
 
           // delete affectations from this invoice, see issue #36
-          Logger.info(s"Remove affectation associated to invoice $invoiceId")
+          Logger.info(s"Remove allocations associated to invoice $invoiceId")
           allocationRepository.removeByInvoice(invoiceId).map( hasErrors =>
             if (hasErrors) Logger.error(s"unable to delete allocations of invoice $invoiceId")
           )
@@ -133,7 +134,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
       .flatMap {
       case (mayBeInvoice: Option[Invoice]) =>
         (for (invoice <- mayBeInvoice) yield {
-          Logger.info("Loaded invoice, creating affectations...")
+          Logger.info("Loaded invoice, creating allocations...")
 
           allocationRepository.removeByInvoice(invoice._id.stringify) // TODO remove allocations after error checking
 
@@ -142,14 +143,11 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
             affectationRequest.validate(affectationReqFormatter) match {
               case errors: JsError => Future(true)
               case result: JsResult[AffectationRequest] => {
-                val affectation = IncomeAffectation(result.get.account, result.get.value, invoice._id)
+                val allocation = IncomeAffectation(result.get.account, result.get.value, invoice._id)
 
                 Logger.info(affectationRequest.toString())
 
-                db
-                  .collection[JSONCollection]("affectations")
-                  .save(affectation)
-                  .map(errors => errors.inError)
+                allocationRepository.save(allocation)
               }
             }
           }

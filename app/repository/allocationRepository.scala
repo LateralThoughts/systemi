@@ -22,6 +22,12 @@ class AllocationRepository extends Repository with AffectationSerializer {
   val allocationsCollection: JSONCollection = ReactiveMongoPlugin.db
     .collection[JSONCollection](allocationsCollectionName)
 
+  def save(allocation: IncomeAffectation):Future[Boolean] = {
+    allocationsCollection
+      .save(allocation)
+      .map(errors => errors.inError)
+  }
+
   def findByInvoice(invoiceId: String): Future[List[IncomeAffectation]] = {
     allocationsCollection
       .find(allocationRequestBuilder.invoiceCriteria(invoiceId))
