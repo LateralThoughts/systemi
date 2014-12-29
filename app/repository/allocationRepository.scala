@@ -1,6 +1,6 @@
 package repository
 
-import domain.{IncomeAffectation, AffectationSerializer}
+import domain.{IncomeAllocation, AllocationSerializer}
 import play.api.libs.json.Json
 import play.modules.reactivemongo.ReactiveMongoPlugin
 import play.modules.reactivemongo.json.collection.JSONCollection
@@ -13,7 +13,7 @@ import scala.concurrent.Future
 /**
  * Manage all database interaction related to allocations
  */
-class AllocationRepository extends Repository with AffectationSerializer {
+class AllocationRepository extends Repository with AllocationSerializer {
 
   import com.softwaremill.macwire.MacwireMacros._
 
@@ -22,16 +22,16 @@ class AllocationRepository extends Repository with AffectationSerializer {
   val allocationsCollection: JSONCollection = ReactiveMongoPlugin.db
     .collection[JSONCollection](allocationsCollectionName)
 
-  def save(allocation: IncomeAffectation):Future[Boolean] = {
+  def save(allocation: IncomeAllocation):Future[Boolean] = {
     allocationsCollection
       .save(allocation)
       .map(errors => errors.inError)
   }
 
-  def findByInvoice(invoiceId: String): Future[List[IncomeAffectation]] = {
+  def findByInvoice(invoiceId: String): Future[List[IncomeAllocation]] = {
     allocationsCollection
       .find(allocationRequestBuilder.invoiceCriteria(invoiceId))
-      .cursor[IncomeAffectation]
+      .cursor[IncomeAllocation]
       .collect[List]()
   }
 
@@ -43,7 +43,7 @@ class AllocationRepository extends Repository with AffectationSerializer {
 /**
  * Construct all request (JsObject) used in AllocationRepository
  */
-class AllocationRequestBuilder extends RequestBuilder with AffectationSerializer {
+class AllocationRequestBuilder extends RequestBuilder with AllocationSerializer {
 
   def invoiceCriteria(invoiceId: String) = Json.obj("invoiceId" -> Json.obj("$oid" -> invoiceId))
 

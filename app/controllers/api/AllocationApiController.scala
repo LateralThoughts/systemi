@@ -13,8 +13,7 @@ class AllocationApiController(override implicit val env: RuntimeEnvironment[Basi
   extends Controller
   with Repositories
   with AccountSerializer
-  with AffectationSerializer
-  with AffectationReqSerializer
+  with AllocationSerializer
   with securesocial.core.SecureSocial[BasicProfile] {
 
   def findByInvoice(invoiceId : String) = SecuredAction(WithDomain()).async { implicit request =>

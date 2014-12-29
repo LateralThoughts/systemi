@@ -1,7 +1,7 @@
 package controllers.api
 
 import auth.WithDomain
-import domain.{AffectationSerializer, IncomeAffectation}
+import domain.{AllocationSerializer, IncomeAllocation}
 import play.api.libs.json.Json
 import play.api.mvc.Controller
 import play.modules.reactivemongo.MongoController
@@ -12,23 +12,23 @@ import securesocial.core.{BasicProfile, RuntimeEnvironment}
 class StatsApiController(override implicit val env: RuntimeEnvironment[BasicProfile])
   extends Controller
   with MongoController
-  with AffectationSerializer
+  with AllocationSerializer
   with securesocial.core.SecureSocial[BasicProfile] {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   def getCurrentBalanceForUser = SecuredAction(WithDomain()).async { implicit request =>
     db.collection[JSONCollection]("affectations")
       .find(Json.obj("account.stakeholder.user.userId" -> request.user.userId))
-      .cursor[IncomeAffectation]
+      .cursor[IncomeAllocation]
       .collect[List]()
-      .map { affectations =>
+      .map { allocations =>
 
       Ok(
         Json.toJson(
-          affectations.groupBy(_.account).map { case (account, affectations) =>
+          allocations.groupBy(_.account).map { case (account, allocations) =>
             Json.obj(
               "account" -> account.name,
-              "total" -> affectations.foldLeft(0.0)((sum: Double, item: IncomeAffectation) => sum + item.value)
+              "total" -> allocations.foldLeft(0.0)((sum: Double, item: IncomeAllocation) => sum + item.value)
             )
           }
         )

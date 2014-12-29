@@ -16,8 +16,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
   extends Controller
   with Repositories
   with InvoiceSerializer
-  with AffectationSerializer
-  with AffectationReqSerializer
+  with AllocationSerializer
   with InvoiceEngine {
 
 
@@ -97,7 +96,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
             if (hasErrors) Logger.error(s"unable to cancel invoice $invoiceId")
           )
 
-          // delete affectations from this invoice, see issue #36
+          // delete allocations from this invoice, see issue #36
           Logger.info(s"Remove allocations associated to invoice $invoiceId")
           allocationRepository.removeByInvoice(invoiceId).map( hasErrors =>
             if (hasErrors) Logger.error(s"unable to delete allocations of invoice $invoiceId")
@@ -130,14 +129,14 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
 
           allocationRepository.removeByInvoice(invoice._id.stringify) // TODO remove allocations after error checking
 
-          val futures = request.body.as[JsArray].value.map { affectationRequest =>
+          val futures = request.body.as[JsArray].value.map { allocationRequest =>
 
-            affectationRequest.validate(affectationReqFormatter) match {
+            allocationRequest.validate(allocationReqFormatter) match {
               case errors: JsError => Future(true)
-              case result: JsResult[AffectationRequest] => {
-                val allocation = IncomeAffectation(result.get.account, result.get.value, invoice._id)
+              case result: JsResult[AllocationRequest] => {
+                val allocation = IncomeAllocation(result.get.account, result.get.value, invoice._id)
 
-                Logger.info(affectationRequest.toString())
+                Logger.info(allocationRequest.toString())
 
                 allocationRepository.save(allocation)
               }
