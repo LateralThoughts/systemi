@@ -66,7 +66,7 @@
             </ul>
         </td>
         <td>
-            <p><a href="/api/invoices/document/{{ item._id.$oid }}">Voir la facture (PDF)</a></p>
+            <p><a ng-click="openInvoiceModal(item)">Afficher la facture (PDF)</a></p>
             <p><button class="btn btn-primary" ng-click="openAffectationDialog(item)" ng-show="isCreated(item)">Affecter la facture</button></p>
             <p><button class="btn btn-primary" ng-click="openReallocationDialog(item)" ng-show="!isCreated(item) && !isCanceled(item)">Réaffecter la facture</button></p>
             <p><button class="btn btn-primary" ng-click="revert(item)" ng-show="isPaid(item)">Le paiement a échoué</button></p>
@@ -126,6 +126,21 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
                 <button type="button" class="btn btn-primary" ng-click="affect(affectations, invoice)">Sauvegarder les changements</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="invoiceModal" tabindex="-1" role="dialog" aria-labelledby="invoiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Fermer</span></button>
+            </div>
+            <div class="modal-body">
+                <object width="100%" height="1200" type="application/pdf" data="{{invoicePdfUrl}}" id="pdf_content">
+                    <p>Votre navigateur ne permet pas d'afficher les PDF</p>
+                </object>
             </div>
         </div>
     </div>

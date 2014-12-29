@@ -24,3 +24,13 @@
 #facture_page .item_line input, #facture_page .item_line button {
     width: 100%;
 }
+
+#invoiceModal .modal-dialog {
+    width: 80%;
+    height: 80%;
+}
+
+#invoiceModal .modal-body {
+    max-height: calc(100% - 200px);
+    overflow-y: scroll;
+}

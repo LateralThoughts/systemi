@@ -204,6 +204,11 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
             $http.post("/api/invoices/" + invoice._id.$oid + "/status/unpaid").success(function(){ reload($scope)})
         };
 
+        $scope.openInvoiceModal = function(invoice) {
+            $scope.invoicePdfUrl = "/api/invoices/document/" + invoice._id.$oid;
+            $('#invoiceModal').modal('show');
+        };
+
         $scope.openAffectationDialog = function(invoice) {
             $scope.affectations = [{
                 addButtonVisible: true,
@@ -351,6 +356,11 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
             });
         };
         reload($scope);
+
+        $scope.openInvoiceModal = function(invoice) {
+            $scope.invoicePdfUrl = "/api/invoices/document/" + invoice._id.$oid;
+            $('#invoiceModal').modal('show');
+        };
 
         $scope.cancel = function(invoice) {
             invoicesService.cancelInvoice($scope, $http, invoice, reload)
