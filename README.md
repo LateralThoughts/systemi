@@ -12,7 +12,7 @@ This application aims to replace the google sheet currently used.
 Technologies
 -------
 
-Systemi@LT use the following technologies :
+Systemi@LT uses the following technologies :
 * [Scala](http://www.scala-lang.org/)
   * [Play Framework](https://www.playframework.com/)
   * [Apache Lucene](http://lucene.apache.org/core/)
