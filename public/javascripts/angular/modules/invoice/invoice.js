@@ -307,20 +307,20 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
 
         var reload = function(scope) {
 
-            function computeTotalHT(thirtyDaysData) {
-                return _.reduce(thirtyDaysData, function (sum, invoice) {
-                    sum += Math.round(invoice.totalHT() * 100) / 100;
+            function computeTotalHT(invoicesList) {
+                return Math.round(_.reduce(invoicesList, function (sum, invoice) {
+                    sum += invoice.totalHT();
                     return sum;
 
-                }, 0);
+                }, 0) * 100) / 100;
             }
 
-            function computeTotalTTC(thirtyDaysData) {
-                return _.reduce(thirtyDaysData, function (sum, invoice) {
-                    sum += Math.round(invoice.totalTTC() * 100) / 100;
-                    return sum;
+            function computeTotalTTC(invoicesList) {
+                return Math.round(_.reduce(invoicesList, function (sum, invoice) {
+                        sum += invoice.totalTTC();
+                        return sum;
 
-                }, 0);
+                    }, 0) * 100) / 100;
             }
 
             $http.get("/api/invoices/delayed").success(function (data) {
