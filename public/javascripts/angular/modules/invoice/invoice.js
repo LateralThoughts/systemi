@@ -307,6 +307,22 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
 
         var reload = function(scope) {
 
+            function computeTotalHT(thirtyDaysData) {
+                return _.reduce(thirtyDaysData, function (sum, invoice) {
+                    sum += Math.round(invoice.totalHT() * 100) / 100;
+                    return sum;
+
+                }, 0);
+            }
+
+            function computeTotalTTC(thirtyDaysData) {
+                return _.reduce(thirtyDaysData, function (sum, invoice) {
+                    sum += Math.round(invoice.totalTTC() * 100) / 100;
+                    return sum;
+
+                }, 0);
+            }
+
             $http.get("/api/invoices/delayed").success(function (data) {
                 _.map(data, invoicesService.computeInvoiceTotals);
 
@@ -322,16 +338,16 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
                 });
 
                 scope.delayedInvoicesNumber = data.length;
-                scope.delayedInvoicesTotalHT = _.reduce(data, function(sum, invoice) {
-                    sum += Math.round(invoice.totalHT());
-                    return sum;
+                scope.delayedInvoicesTotalHT = computeTotalHT(data)
+                scope.delayedInvoicesTotalTTC = computeTotalTTC(data);
 
-                }, 0);
-                scope.delayedInvoicesTotalTTC = _.reduce(data, function(sum, invoice) {
-                    sum += Math.round(invoice.totalTTC());
-                    return sum;
+                var thirtyDaysData = data.filter(function(item) {
+                   return item.delayInDays > 30;
+                });
 
-                }, 0);
+                scope.delayedThirtyDaysInvoicesNumber = thirtyDaysData.length;
+                scope.delayedThirtyDaysInvoicesTotalHT = computeTotalHT(thirtyDaysData);
+                scope.delayedThirtyDaysInvoicesTotalTTC = computeTotalTTC(thirtyDaysData);
             });
         };
         reload($scope);
