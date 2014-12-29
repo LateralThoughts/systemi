@@ -7,8 +7,6 @@ import org.bouncycastle.util.encoders.Base64
 import play.Logger
 import play.api.libs.json._
 import play.api.mvc.Controller
-import play.modules.reactivemongo.MongoController
-import play.modules.reactivemongo.json.collection.JSONCollection
 import repository.Repositories
 import securesocial.core.{BasicProfile, RuntimeEnvironment}
 
@@ -17,9 +15,7 @@ import scala.concurrent.Future
 class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicProfile])
   extends Controller
   with Repositories
-  with MongoController
   with InvoiceSerializer
-  with AccountSerializer
   with AffectationSerializer
   with AffectationReqSerializer
   with InvoiceEngine {
@@ -57,20 +53,16 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     }
   }
 
-  // TODO put body in Invoice Repository
   def getLastInvoiceNumber = SecuredAction(WithDomain()).async {
-    db.collection[JSONCollection]("invoiceNumber")
-      .find(Json.obj())
-      .one[InvoiceNumber]
-      .map(mayBeObj => Ok(Json.toJson(mayBeObj.get)))
+    invoiceNumberRepository.getLastInvoiceNumber.map(mayBeObj => Ok(Json.toJson(mayBeObj.get)))
   }
 
-  // TODO put body in Invoice Repository
-  def reset(value: Int) = SecuredAction(WithDomain()) {
+  def reset(value: Int) = SecuredAction(WithDomain()).async {
     Logger.info(s"reset value of invoiceNumber to $value")
-    db.collection[JSONCollection]("invoiceNumber")
-      .update(Json.obj(), Json.toJson(InvoiceNumber(value)))
-    Ok
+    invoiceNumberRepository.reset(value).map {
+      case false => Ok
+      case true => InternalServerError
+    }
   }
 
   def find = SecuredAction(WithDomain()).async { implicit request =>
@@ -98,7 +90,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
       .flatMap {
       case (mayBeInvoice: Option[Invoice]) => mayBeInvoice match {
         case Some(invoice) => {
-          Logger.info("Loaded invoice, canceling...")
+          Logger.info(s"Loaded invoice $invoiceId, canceling...")
           val generatedPdfDocument = addCanceledWatermark(invoice.pdfDocument.data)
 
           invoiceRepository.cancelInvoice(invoiceId, generatedPdfDocument, request.user.email.get).map( hasErrors =>

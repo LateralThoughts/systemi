@@ -12,10 +12,13 @@ trait Repositories {
   lazy val invoiceRepository = wire[InvoiceRepository]
   lazy val allocationRepository = wire[AllocationRepository]
   lazy val activityRepository = wire[ActivityRepository]
+  lazy val invoiceNumberRepository = wire[InvoiceNumberRepository]
 }
 
 trait Repository {
 
+  // collection's name in mongo database
+  val invoiceNumberCollectionName = "invoiceNumber"
   val invoicesCollectionName = "invoices"
   val allocationsCollectionName = "affectations"
   val activitiesCollectionName = "activities"

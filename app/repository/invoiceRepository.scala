@@ -1,6 +1,6 @@
 package repository
 
-import domain.{Attachment, InvoiceData, InvoiceSerializer, Invoice}
+import domain._
 import org.joda.time.DateTime
 import play.Logger
 import play.api.libs.json.{JsValue, Json, JsObject}
@@ -10,6 +10,28 @@ import play.modules.reactivemongo.json.collection.JSONCollection
 import scala.concurrent.Future
 import play.api.Play.current
 import scala.concurrent.ExecutionContext.Implicits.global
+
+/**
+ * Manage all database interactions related to invoice Number
+ */
+class InvoiceNumberRepository extends Repository with InvoiceSerializer {
+
+  private val invoiceNumberCollection: JSONCollection = ReactiveMongoPlugin.db
+    .collection[JSONCollection](invoiceNumberCollectionName)
+
+  def getLastInvoiceNumber = {
+    invoiceNumberCollection
+      .find(Json.obj())
+      .one[InvoiceNumber]
+  }
+
+  def reset(value: Int) = {
+    invoiceNumberCollection
+      .update(Json.obj(), Json.toJson(InvoiceNumber(value)))
+      .map(errors => errors.inError)
+  }
+
+}
 
 /**
  * Manage all database interactions related to invoices
