@@ -32,7 +32,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
 
           val invoiceId = insertInvoice(request, result.get, generatedPdfDocument)
 
-          Ok(routes.InvoiceApiController.getPdfByInvoice(invoiceId.stringify).absoluteURL())
+          Ok(invoiceId.stringify)
       }
       case None => request.body.asFormUrlEncoded match {
         case Some(body) =>

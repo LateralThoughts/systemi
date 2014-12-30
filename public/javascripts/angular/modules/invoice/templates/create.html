@@ -1,21 +1,21 @@
 <h2>Créer une nouvelle facture</h2>
 <div id="facture_page" class="row">
-    <form action="/api/invoice" method="POST" role="form">
+    <form class="form" ng-submit="submit()" ng-controller="CreateCtrl" novalidate>
 
         <div class="facture_info_form col-md-6">
             <div class="form-group">
                 <label>Numéro de Facture</label>
-                <input type="text" class="form-control" name="invoiceNumber" id="number" placeholder="Numéro de facture">
+                <input type="text" class="form-control" ng-model="invoice.invoiceNumber" name="invoiceNumber" id="number" placeholder="Numéro de facture">
             </div>
 
             <div class="form-group">
                 <label>Titre de la Facture</label>
-                <input type="text" class="form-control" name="title" id="title" placeholder="Titre de la facture">
+                <input type="text" class="form-control" ng-model="invoice.title" name="title" id="title" placeholder="Titre de la facture">
             </div>
 
             <div class="form-group delais_jour row">
                 <div class="col-md-9"><label for="paymentDelay">Délai de paiement (en jours) :</label></div>
-                <div class="col-md-3"><input class="form-control" type="text" class="form-control" name="paymentDelay" id="paymentDelay" placeholder="Délai de paiement" value="30"></div>
+                <div class="col-md-3"><input class="form-control" ng-model="invoice.paymentDelay" type="number" class="form-control" name="paymentDelay" id="paymentDelay" placeholder="Délai de paiement" value="30"></div>
             </div>
 
             <div class="form-group row">
@@ -23,10 +23,10 @@
                 <div class="col-md-4">
                     <div class="btn-group raw" data-toggle="buttons">
                         <label class="btn btn-primary active col-md-6">
-                            <input type="radio" ng-model="taxes" radio-detect-change name="paymentTaxesIncluded" value="true" checked> TTC
+                            <input type="radio" ng-model="invoice.withTaxes" radio-detect-change name="paymentTaxesIncluded" value="true" checked> TTC
                         </label>
                         <label class="btn btn-primary col-md-6">
-                            <input type="radio" ng-model="taxes" radio-detect-change name="paymentTaxesIncluded" value="false" > HT
+                            <input type="radio" ng-model="invoice.withTaxes" radio-detect-change name="paymentTaxesIncluded" value="false" > HT
                         </label>
                     </div>
                 </div>
@@ -34,34 +34,26 @@
         </div>
 
         <div class=" client_form col-md-6">
-            <lt-client-select client="client"></lt-client-select>
+            <lt-client-select client="invoice.client"></lt-client-select>
         </div>
 
-        <div class="col-md-12 item_line row" ng-repeat="taskline in tasklines">
-            <div class="col-md-7"><input type="text" name="invoiceDescription" placeholder="Description" data-ng-model="taskline.invoiceDescription"></div>
-            <div class="col-md-1"><input type="text" name="invoiceDays" placeholder="Jours" data-ng-model="taskline.invoiceDays"></div>
-            <div class="col-md-1"><input type="text" name="invoiceDailyRate" placeholder="TJM" data-ng-model="taskline.invoiceDailyRate"></div>
-            <div class="col-md-1"><input type="text" ng-readonly="$eval(taxes) == false" name="invoiceTaxRate" placeholder="TVA" data-ng-model="taskline.invoiceTaxRate"></div>
-            <div class="col-md-1" ng-show="taskline.addButtonVisible">
+        <div class="col-md-12 item_line row" ng-repeat="line in invoice.invoice">
+            <div class="col-md-7"><input type="text" name="invoiceDescription" placeholder="Description" data-ng-model="line.description"></div>
+            <div class="col-md-1"><input type="number" name="invoiceDays" placeholder="Jours" data-ng-model="line.days"></div>
+            <div class="col-md-1"><input type="number" name="invoiceDailyRate" placeholder="TJM" data-ng-model="line.dailyRate"></div>
+            <div class="col-md-1"><input type="number" ng-readonly="$eval(taxes) == false" name="invoiceTaxRate" placeholder="TVA" data-ng-model="line.taxRate"></div>
+            <div class="col-md-1" ng-show="line.addButtonVisible">
                 <button type="button" class="add-task-btn btn btn-primary btn-sm" ng-click="addTask()">
                     <span class="glyphicon glyphicon-plus"></span>
                 </button>
             </div>
-            <div class="col-md-1" ng-show="taskline.deleteButtonVisible">
+            <div class="col-md-1" ng-show="line.deleteButtonVisible">
                 <button type="button" class="delete-task-btn btn btn-danger btn-sm" ng-click="deleteTask()">
                     <span class="glyphicon glyphicon-minus"></span>
                 </button>
             </div>
         </div>
 
-        <div class="col-md-12 checkbox">
-            <label>
-                <input name="shouldUpload" ng-model="shouldUpload" type="checkbox"> Uploader la facture dans le système
-            </label>
-        </div>
-
-
-        <button type="submit" ng-if="shouldUpload" class="btn btn-success">Générer la facture &amp; Upload</button>
-        <button type="submit" ng-if="!shouldUpload" class="btn btn-success">Générer la facture</button>
+        <button type="submit" class="btn btn-success">Générer la facture &amp; Upload</button>
     </form>
 </div>

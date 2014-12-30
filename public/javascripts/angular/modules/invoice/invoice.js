@@ -276,41 +276,52 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
             $scope.affectations[$scope.affectations.length - 1]['deleteButtonVisible'] = ($scope.affectations.length>1);
         }
     }])
-    .controller('CreateCtrl', function($scope) {
-        $scope.shouldUpload = true;
+    .controller('CreateCtrl', ['$scope', '$http', function($scope, $http) {
 
-        $scope.tasklines = [{
-            invoiceDescription: '',
-            invoiceDays: '',
-            invoiceDailyRate: '',
-            invoiceTaxRate: '20.0',
-            addButtonVisible: true,
-            deleteButtonVisible: false
-        }];
+        $scope.invoice = {
+            invoiceNumber: "VTXXX", // TODO retrieve invoice number in database
+            paymentDelay: 30,
+            withTaxes: true,
+            client: null,
+            invoice: [
+                {
+                    taxRate: 20,
+                    addButtonVisible: true,
+                    deleteButtonVisible: false
+                }
+            ]
+        };
 
         $scope.addTask = function(){
-            $scope.tasklines[$scope.tasklines.length - 1]['addButtonVisible'] = false;
-            $scope.tasklines[$scope.tasklines.length - 1]['deleteButtonVisible'] = false;
-            $scope.tasklines.push({
-                'invoiceDescription': '',
-                'invoiceDays': '',
-                'invoiceDailyRate': '',
-                'invoiceTaxRate': '20.0',
-                'addButtonVisible': true,
-                'deleteButtonVisible': true
+            $scope.invoice.invoice[$scope.invoice.invoice.length - 1]['addButtonVisible'] = false;
+            $scope.invoice.invoice[$scope.invoice.invoice.length - 1]['deleteButtonVisible'] = false;
+            $scope.invoice.invoice.push({
+                taxRate: 20,
+                addButtonVisible: true,
+                deleteButtonVisible: true
             });
         };
 
         $scope.deleteTask = function(){
-            $scope.tasklines.pop();
-            $scope.tasklines[$scope.tasklines.length - 1]['addButtonVisible'] = true;
-            $scope.tasklines[$scope.tasklines.length - 1]['deleteButtonVisible'] = ($scope.tasklines.length>1);
+            $scope.invoice.invoice.pop();
+            $scope.invoice.invoice[$scope.invoice.invoice.length - 1]['addButtonVisible'] = true;
+            $scope.invoice.invoice[$scope.invoice.invoice.length - 1]['deleteButtonVisible'] = ($scope.invoice.invoice.length>1);
         };
 
-        $scope.client = null;
+        $scope.submit = function() {
 
-        $scope.taxes = true;
-    })
+            $scope.invoice.withTaxes = ($scope.invoice.withTaxes !== "false");
+
+            $http.post("/api/invoice", JSON.stringify($scope.invoice))
+                .success(function (invoiceId) {
+                    window.location.href = "/invoice#/list?invoice=" + invoiceId;
+                })
+                .error(function () {
+                })
+
+        }
+
+    }])
     .controller("DelayedCtrl", ['$scope','$http','InvoicesService',function($scope, $http, invoicesService) {
 
         var reload = function(scope) {
