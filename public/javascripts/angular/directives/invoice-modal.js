@@ -5,7 +5,7 @@ angular.module("invoice-modal", [])
             restrict: 'EA',
             replace: true,
             scope: {
-                invoiceId: '@'
+                invoiceId: '='
             },
             link: function(scope, element, attrs){
 

@@ -6,6 +6,7 @@ import play.Logger
 import play.api.libs.json.{JsValue, Json, JsObject}
 import play.modules.reactivemongo.ReactiveMongoPlugin
 import play.modules.reactivemongo.json.collection.JSONCollection
+import reactivemongo.bson.BSONObjectID
 
 import scala.concurrent.Future
 import play.api.Play.current
@@ -74,10 +75,14 @@ class InvoiceRepository extends Repository with InvoiceSerializer {
   }
 
   def retrievePDF(invoiceId: String): Future[Option[String]] = {
-    invoicesCollection
-      .find(invoiceRequestBuilder.idCriteria(invoiceId), Json.obj("pdfDocument.data.data" -> 1))
-      .one[JsObject]
-      .map(_.map(jsValue => (jsValue \ "pdfDocument" \ "data" \ "data").as[String]))
+    if (BSONObjectID.parse(invoiceId).isSuccess) {
+      invoicesCollection
+        .find(invoiceRequestBuilder.idCriteria(invoiceId), Json.obj("pdfDocument.data.data" -> 1))
+        .one[JsObject]
+        .map(_.map(jsValue => (jsValue \ "pdfDocument" \ "data" \ "data").as[String]))
+    } else {
+      Future(None)
+    }
   }
 
   def cancelInvoice(invoiceId: String, invoicePDF: Array[Byte], email: String): Future[Boolean] = {

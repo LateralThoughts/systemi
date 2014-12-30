@@ -66,7 +66,7 @@
             </ul>
         </td>
         <td>
-            <p><lt-invoice-modal invoice-id="{{item._id.$oid}}"></lt-invoice-modal></p>
+            <p><lt-invoice-modal invoice-id="item._id.$oid"></lt-invoice-modal></p>
             <p><button class="btn btn-primary" ng-click="openAffectationDialog(item)" ng-show="isCreated(item)">Affecter la facture</button></p>
             <p><button class="btn btn-primary" ng-click="openReallocationDialog(item)" ng-show="!isCreated(item) && !isCanceled(item)">Réaffecter la facture</button></p>
             <p><button class="btn btn-primary" ng-click="revert(item)" ng-show="isPaid(item)">Le paiement a échoué</button></p>
