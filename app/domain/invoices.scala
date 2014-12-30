@@ -91,40 +91,6 @@ trait InvoiceSerializer extends AttachmentSerializer with ClientSerializer {
   implicit val invoiceNumberFormat = Json.format[InvoiceNumber]
   implicit val invoiceFormat = Json.format[Invoice]
 
-  def invoiceFromForm(body : Map[String, Seq[String]]) = {
-    val descriptions = body.get("invoiceDescription").get
-    val days = body.get("invoiceDays").get
-    val dailyRates = body.get("invoiceDailyRate").get
-    val rates = body.get("invoiceTaxRate").get
-
-    val lines = (for {
-      (((description, day), dailyRate), rate) <- descriptions zip days zip dailyRates zip rates
-    } yield InvoiceLine(description, day.toDouble, dailyRate.toDouble, rate.toDouble)).toList
-
-    val withTaxes = body.get("paymentTaxesIncluded").map(_.head) match {
-      case Some(element) => element.equalsIgnoreCase("true")
-      case None => true
-    }
-
-    val invoiceRequest = InvoiceRequest(
-      body.get("title").get.headOption.get,
-      body.get("invoiceNumber").get.headOption.get,
-      body.get("paymentDelay").get.headOption.get.toInt,
-      withTaxes,
-      ClientRequest(
-        body.get("clientName").get.headOption.get,
-        body.get("clientAddress").get.headOption.get,
-        body.get("clientPostalCode").get.headOption.get,
-        body.get("clientCity").get.headOption.get,
-        body.get("clientCountry").get.headOption.get,
-        body.getOrElse("clientExtraInfo", Seq("")).headOption.get match {
-          case ""|null => None
-          case x => Some(x)
-        }),
-      lines)
-    invoiceRequest
-  }
-
   def invoiceRequestToPdfBytes(invoiceRequest : InvoiceRequest) :Array[Byte] = {
     val client = invoiceRequest.client
     val title = invoiceRequest.title

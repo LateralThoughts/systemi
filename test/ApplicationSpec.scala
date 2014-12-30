@@ -2,6 +2,7 @@ import com.typesafe.config.ConfigFactory
 import org.junit.runner._
 import org.specs2.runner._
 import play.api.test._
+import play.api.libs.json._
 import reactivemongo.bson.BSONObjectID
 
 /**
@@ -35,24 +36,32 @@ class ApplicationSpec extends PlaySpecification {
     "should generate pdf invoice" in new WithApplication(app) {
       val creds1 = cookies(route(FakeRequest(POST, "/auth/authenticate/test").withTextBody("user")).get)
 
-      val invoiceGenerationPage = route(FakeRequest(POST, "/api/invoice").withCookies(creds1.get("invoice@lt").get).withFormUrlEncodedBody(
-        ("title", "faux titre"),
-        ("invoiceNumber", "VT500"),
-        ("paymentDelay", "50"),
-        ("clientId", BSONObjectID.generate.stringify),
-        ("clientName", "TestClient"),
-        ("clientAddress", "35 rue inconnue"),
-        ("clientCity", "Issy les moulineaux"),
-        ("clientCountry", "Zimbabwe"),
-        ("clientPostalCode", "94550"),
-        ("invoiceDescription", "développement"),
-        ("invoiceDays", "125"),
-        ("invoiceDailyRate", "500"),
-        ("invoiceTaxRate", "20.0")
-      )).get
+      val invoice = """{
+			"title": "facture",
+			"invoiceNumber":"VT055",
+      "paymentDelay": 25,
+      "withTaxes": true,
+			"client" : {
+        "_id" : {
+          "$oid": "532afca061ce6a2db986839f"
+        },
+				"name" : "VIDAL",
+				"address" : "27 rue camille desmoulins",
+				"postalCode" : "94550",
+				"city": "chevilly",
+				"country": "France"
+			},
+			"invoice" : [{
+				"description" : "blabla",
+				"days" : 25.0,
+				"dailyRate" : 450,
+		        "taxRate": 19.6
+			}]}"""
+
+      val invoiceGenerationPage = route(FakeRequest(POST, "/api/invoice").withCookies(creds1.get("invoice@lt").get).withJsonBody(Json.parse(invoice))).get
 
       status(invoiceGenerationPage) must equalTo(OK)
-      contentType(invoiceGenerationPage) must beSome.which(_ == "application/pdf")
+      ConsoleLogger.info(contentAsString(invoiceGenerationPage))
     }
   }
 

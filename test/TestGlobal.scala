@@ -3,9 +3,11 @@ import play.api.Application
 import play.api.Play.current
 import play.modules.reactivemongo.ReactiveMongoPlugin
 import com.softwaremill.macwire.MacwireMacros._
+import play.modules.reactivemongo.json.collection.JSONCollection
+import repository.Repository
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object TestGlobal extends Global {
+object TestGlobal extends Global with Repository {
 
   val wired = wiredInModule(new TestModule)
 
@@ -20,7 +22,7 @@ object TestGlobal extends Global {
     val db = ReactiveMongoPlugin.db(app)
 
     // remove database to start on a clean database
-    // db.drop()
+    db.collection[JSONCollection](invoiceNumberCollectionName).drop()
   }
 
   override def getControllerInstance[A](controllerClass: Class[A]) = {

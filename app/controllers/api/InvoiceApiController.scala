@@ -34,21 +34,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
 
           Ok(invoiceId.stringify)
       }
-      case None => request.body.asFormUrlEncoded match {
-        case Some(body) =>
-          val invoiceRequest = invoiceFromForm(body)
-
-          val shouldUpload = body.get("shouldUpload").map(_.head).exists(_.equalsIgnoreCase("on"))
-
-          val generatedPdfDocument = invoiceRequestToPdfBytes(invoiceRequest)
-
-          if (shouldUpload) {
-            val invoiceId = insertInvoice(request, invoiceRequest, generatedPdfDocument)
-          }
-          Ok(generatedPdfDocument).as("application/pdf")
-
-        case None => Ok("no go")
-      }
+      case None => BadRequest("should send data as application/json")
     }
   }
 
