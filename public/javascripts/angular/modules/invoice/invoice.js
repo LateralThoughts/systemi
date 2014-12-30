@@ -1,4 +1,4 @@
-angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-values', 'client-select'])
+angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-values', 'client-select', 'invoice-modal'])
     .config(function($routeProvider) {
         $routeProvider
             .when('/list', {
@@ -202,11 +202,6 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
 
         $scope.revert = function(invoice) {
             $http.post("/api/invoices/" + invoice._id.$oid + "/status/unpaid").success(function(){ reload($scope)})
-        };
-
-        $scope.openInvoiceModal = function(invoice) {
-            $scope.invoicePdfUrl = "/api/invoices/document/" + invoice._id.$oid;
-            $('#invoiceModal').modal('show');
         };
 
         $scope.openAffectationDialog = function(invoice) {

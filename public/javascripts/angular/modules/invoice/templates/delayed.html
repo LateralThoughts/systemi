@@ -26,7 +26,7 @@
             <strong>{{item.delayInDays}} Jours</strong>
         </td>
         <td>
-            <p><a ng-click="openInvoiceModal(item)">Afficher la facture (PDF)</a></p>
+            <p><lt-invoice-modal invoice-id="{{item._id.$oid}}"></lt-invoice-modal></p>
             <p><button class="btn btn-primary" ng-click="pay(item)">La facture a été payée</button></p>
             <p><button class="btn btn-primary" ng-click="cancel(item)" ng-confirm-click="Êtes-vous sur de vouloir annuler votre facture ?">Annuler la facture</button></p>
         </td>
