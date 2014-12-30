@@ -43,12 +43,18 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
             link: function (scope, element, attrs, ngModelCtrl) {
                 element.on('change', function () {
                     scope.$apply(function () {
-                        ngModelCtrl.$setViewValue(element[0].type.toLowerCase() == 'radio' ? element[0].value : element[0].checked);                    });
+                        ngModelCtrl.$setViewValue(element[0].type.toLowerCase() == 'radio' ? element[0].value : element[0].checked);
+                    });
                 });
             }
         };
     }])
-    .controller('ListCtrl', ['$scope','$http','InvoicesService', 'default_contractor',function($scope, $http, invoicesService, default_contractor) {
+    .controller('ListCtrl', ['$scope','$http','$location','$modal','InvoicesService', 'InvoiceModalService', 'default_contractor',function($scope, $http, $location, $modal, invoicesService, invoiceModalService, default_contractor) {
+
+        var selectedInvoiceId = $location.search().invoice;
+        if (selectedInvoiceId) {
+            invoiceModalService.openInvoiceModal($modal, selectedInvoiceId);
+        }
 
         $scope.isCreated =  function(invoice) {
           return invoice.status === "created";
