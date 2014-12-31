@@ -123,3 +123,7 @@ button.add-task-btn, button.delete-task-btn {
     white-space: nowrap;
     cursor: pointer;
 }
+
+.click {
+    cursor: pointer;
+}

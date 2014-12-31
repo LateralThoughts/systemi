@@ -1,7 +1,7 @@
 angular.module("invoice-modal", [])
     .directive('ltInvoiceModal', ['$modal', 'InvoiceModalService', function ($modal, InvoiceModalService) {
         return {
-            template:'<a ng-click="openInvoiceModal(invoiceId)">Afficher la facture (PDF)</a>',
+            template:'<a class="click" ng-click="openInvoiceModal(invoiceId)">Afficher la facture (PDF)</a>',
             restrict: 'EA',
             replace: true,
             scope: {
