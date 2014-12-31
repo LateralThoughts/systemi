@@ -65,15 +65,19 @@ angular.module('activity', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sel
         };
 
         $scope.open = function(activity) {
-            $scope.taxes = 'true';
-            $scope.activity = activity;
-            $scope.invoiceRequest.title = activity.activity.contractor.toUpperCase() + ' - ' + activity.activity.title;
-            $scope.invoiceRequest.invoice = [{
-                description: 'Prestations de Services Informatiques',
-                days: activity.activity.numberOfDays,
-                taxRate: 20
-            }];
-            $('#invoiceGenerationModal').modal('show');
+            $http.get("/api/invoice/numbers/last").success(function (data) {
+                var invoiceNumber = data.prefix + data.value;
+                $scope.taxes = 'true';
+                $scope.activity = activity;
+                $scope.invoiceRequest.invoiceNumber = invoiceNumber;
+                $scope.invoiceRequest.title = activity.activity.contractor.toUpperCase() + ' - ' + activity.activity.title;
+                $scope.invoiceRequest.invoice = [{
+                    description: 'Prestations de Services Informatiques',
+                    days: activity.activity.numberOfDays,
+                    taxRate: 20
+                }];
+                $('#invoiceGenerationModal').modal('show');
+            })
         };
 
         $scope.createInvoice = function () {
