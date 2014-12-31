@@ -15,8 +15,8 @@
         <td>{{ item.activity.contractor }}</td>
         <td>{{ item.activity.client.name }}</td>
         <td>
-            <p><a href="/api/activity/document/{{ item._id.$oid }}">Voir le CRA (Fichier PDF)</a></p>
-            <p ng-show="item.invoiceId"><lt-invoice-modal invoice-id="{{ item.invoiceId.$oid }}"></lt-invoice-modal></p>
+            <p><lt-activity-modal activity-id="item._id.$oid"></lt-activity-modal></p>
+            <p ng-show="item.invoiceId"><lt-invoice-modal invoice-id="item.invoiceId.$oid"></lt-invoice-modal></p>
             <p><button class="btn btn-primary" ng-click="deleteActivity(item._id.$oid)">Supprimer l'activité</button></p>
             <p ng-hide="item.invoiceId"><button class="btn btn-primary" ng-click="open(item)">Générer la facture associée</button></p>
         </td>

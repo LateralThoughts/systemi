@@ -3,6 +3,7 @@ package controllers.api
 import auth.WithDomain
 import engine.InvoiceEngine
 import play.Logger
+import repository.Repositories
 import securesocial.core.RuntimeEnvironment
 import play.api.mvc.Controller
 import play.modules.reactivemongo.MongoController
@@ -20,6 +21,7 @@ import play.libs.Akka
 class ActivityApiController(override implicit val env: RuntimeEnvironment[BasicProfile])
   extends Controller
   with MongoController
+  with Repositories
   with ActivitySerializer
   with GoogleDriveInteraction
   with InvoiceEngine {
@@ -42,24 +44,16 @@ class ActivityApiController(override implicit val env: RuntimeEnvironment[BasicP
 
         activityActor ! Activity(activityId, result.get, Attachment("application/pdf", stub = false, generatedPdfDocument), None)
 
-        Future(Ok(routes.ActivityApiController.getPdfByCRA(activityId.stringify).absoluteURL()))
+        Future(Ok(activityId.stringify))
     }
   }
 
-
   def getPdfByCRA(oid: String) = SecuredAction(WithDomain()).async {
-    db
-      .collection[JSONCollection]("activities")
-      .find(Json.obj("_id" -> Json.obj("$oid" -> oid)), Json.obj("pdfDocument" -> 1))
-      .one[JsObject]
+    activityRepository.retrievePDF(oid)
       .map {
-      case Some(pdfObj) =>
-        val doc = (pdfObj \ "pdfDocument" \ "data" \ "data").as[String]
-        Ok(Base64.decode(doc)).as("application/pdf")
-
       case None => BadRequest
+      case Some(doc) => Ok(Base64.decode(doc)).as("application/pdf")
     }
-
   }
 
   def updateActivityWithInvoiceId(activityId: String, invoiceId: BSONObjectID) = {

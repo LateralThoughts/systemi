@@ -1,11 +1,12 @@
 package repository
 
 import domain.ActivitySerializer
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import play.modules.reactivemongo.ReactiveMongoPlugin
 import play.modules.reactivemongo.json.collection.JSONCollection
 
 import play.api.Play.current
+import reactivemongo.bson.BSONObjectID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -25,6 +26,17 @@ class ActivityRepository extends Repository {
     activitiesCollection
       .update(activityRequestBuilder.invoiceCriteria(invoiceId), activityRequestBuilder.removeInvoiceUpdateField)
       .map(errors => errors.inError)
+  }
+
+  def retrievePDF(invoiceId: String): Future[Option[String]] = {
+    if (BSONObjectID.parse(invoiceId).isSuccess) {
+      activitiesCollection
+        .find(activityRequestBuilder.idCriteria(invoiceId), Json.obj("pdfDocument.data.data" -> 1))
+        .one[JsObject]
+        .map(_.map(jsValue => (jsValue \ "pdfDocument" \ "data" \ "data").as[String]))
+    } else {
+      Future(None)
+    }
   }
 
 }

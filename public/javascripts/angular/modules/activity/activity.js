@@ -1,4 +1,4 @@
-angular.module('activity', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-select','default-values', 'day-block', 'invoice-modal'])
+angular.module('activity', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-select','default-values', 'day-block', 'invoice-modal', 'activity-modal'])
     .config(function($routeProvider) {
         $routeProvider
             .when('/list', {
@@ -44,7 +44,12 @@ angular.module('activity', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sel
             }
         };
     }])
-    .controller('ListCtrl', ['$scope','$http',function($scope, $http) {
+    .controller('ListCtrl', ['$scope','$http', '$location','$modal', 'ActivityModalService',function($scope, $http, $location, $modal, activityModalService) {
+        var selectedActivityId = $location.search().activity;
+        if (selectedActivityId) {
+            activityModalService.openActivityModal($modal, selectedActivityId);
+        }
+
         $scope.invoiceRequest = {
             paymentDelay :30
         };
@@ -158,8 +163,8 @@ angular.module('activity', ['ui.bootstrap', 'ngResource', 'ngRoute', 'client-sel
 
             $scope.cra.numberOfDays = _.reduce($scope.cra.days, accumulator, 0);
             $http.post("/api/activity", JSON.stringify($scope.cra))
-                .success(function (url) {
-                    window.location.href = url
+                .success(function (activityId) {
+                    window.location.href = "/activity#/list?activity=" + activityId;
                 })
                 .error(function () {
                 })
