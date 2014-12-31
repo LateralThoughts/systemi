@@ -1,0 +1,18 @@
+<h2>Numérotation des factures</h2>
+
+<div>
+    <div class="form-group row">
+        <div class="col-md-5"><p><label> Numéro actuel de la facture : </label></p></div>
+        <div class="col-md-2"><p>{{ currentInvoiceNumber.prefix }}{{ currentInvoiceNumber.value }}</p></div>
+        <div class="col-md-5"><button class="btn btn-primary" ng-click="increment()">Incrémenter le numéro</button></div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-md-5"><label>Nouveau numéro</label></div>
+        <div class="col-md-2"><input type="number" name="resetValue" class="form-control" data-ng-model="resetValue" placeholder="Numéro de facture"></div>
+        <div class="col-md-5"><button ng-click="reset()" class="btn btn-primary">Réinitialiser</button></div>
+    </div>
+
+
+</div>
+

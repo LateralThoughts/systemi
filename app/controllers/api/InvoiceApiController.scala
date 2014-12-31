@@ -42,6 +42,13 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     invoiceNumberRepository.getLastInvoiceNumber.map(invoiceNumber => Ok(Json.toJson(invoiceNumber)))
   }
 
+  def incrementInvoiceNumber = SecuredAction(WithDomain()).async {
+    invoiceNumberRepository.increment.map {
+      case false => Ok
+      case true => InternalServerError
+    }
+  }
+
   def reset(value: Int) = SecuredAction(WithDomain()).async {
     Logger.info(s"reset value of invoiceNumber to $value")
     invoiceNumberRepository.reset("VT", value).map {

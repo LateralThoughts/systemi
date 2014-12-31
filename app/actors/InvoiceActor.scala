@@ -23,10 +23,12 @@ with GoogleDriveInteraction {
         case false => Logger.info(s"Saved invoice $invoice")
         case true => Logger.error(s"Unable to save invoice $invoice")
       }
+      invoiceNumberRepository.increment.map(hasErrors => if (hasErrors) Logger.error("Unable to increment invoice number"))
 
       val shouldPush = Play.maybeApplication.flatMap {
         _.configuration.getBoolean("application.drive.shouldPush")
       }.getOrElse(false)
+
       if (shouldPush)
         uploadInvoiceToDrive(accessToken, invoice.invoice, invoice.pdfDocument.data)
     }

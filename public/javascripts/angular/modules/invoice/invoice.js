@@ -13,6 +13,10 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
                 controller:'DelayedCtrl',
                 templateUrl:'/assets/javascripts/angular/modules/invoice/templates/delayed.html'
             })
+            .when('/numbering', {
+                controller:'NumberingCtrl',
+                templateUrl:'/assets/javascripts/angular/modules/invoice/templates/numbering.html'
+            })
             .otherwise({
                 redirectTo:'/list'
             });
@@ -278,19 +282,24 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
     }])
     .controller('CreateCtrl', ['$scope', '$http', function($scope, $http) {
 
-        $scope.invoice = {
-            invoiceNumber: "VTXXX", // TODO retrieve invoice number in database
-            paymentDelay: 30,
-            withTaxes: true,
-            client: null,
-            invoice: [
-                {
-                    taxRate: 20,
-                    addButtonVisible: true,
-                    deleteButtonVisible: false
-                }
-            ]
-        };
+        $http.get("/api/invoice/numbers/last").success(function (data) {
+            var invoiceNumber = data.prefix + data.value;
+            $scope.invoice = {
+                invoiceNumber: invoiceNumber,
+                paymentDelay: 30,
+                withTaxes: true,
+                client: null,
+                invoice: [
+                    {
+                        taxRate: 20,
+                        addButtonVisible: true,
+                        deleteButtonVisible: false
+                    }
+                ]
+            };
+        });
+
+
 
         $scope.addTask = function(){
             $scope.invoice.invoice[$scope.invoice.invoice.length - 1]['addButtonVisible'] = false;
@@ -378,6 +387,30 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
         };
 
     }])
+    .controller("NumberingCtrl", ['$scope','$http', '$timeout',function($scope, $http, $timeout) {
+
+        var reload = function(scope) {
+            $http.get("/api/invoice/numbers/last").success(function (data) {
+                scope.currentInvoiceNumber = data;
+                scope.resetValue = data.value;
+            });
+        };
+
+        reload($scope);
+
+        $scope.increment = function() {
+            $http.post("/api/invoice/numbers/increment").success(function() {
+                reload($scope);
+            })
+        };
+
+        $scope.reset = function() {
+            $http.post("/api/invoice/numbers/reset?value=" + $scope.resetValue).success(function() {
+                reload($scope);
+            });
+        }
+
+    }])
     .controller("HeaderCtrl", function($scope, $location) {
 
         $scope.isActive = function (viewLocation) {
@@ -385,7 +418,6 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
         };
     })
     .factory("InvoicesService", function() {
-
         return {
             cancelInvoice: function($scope, $http, invoice, callback) {
                 $http.post("/api/invoices/" + invoice._id.$oid + "/cancel", "{}").success(function(){ callback($scope)})

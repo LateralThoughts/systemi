@@ -43,6 +43,7 @@ POST          /api/accounts                            @controllers.api.AccountA
 # invoice number resources
 GET           /api/invoice/numbers/last                @controllers.api.InvoiceApiController.getLastInvoiceNumber
 POST          /api/invoice/numbers/reset               @controllers.api.InvoiceApiController.reset(value: Int)
+POST          /api/invoice/numbers/increment           @controllers.api.InvoiceApiController.incrementInvoiceNumber
 
 # activity/cra resources
 DELETE        /api/activity/:oid                       @controllers.api.ActivityApiController.delete(oid: String)

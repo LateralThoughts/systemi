@@ -5,17 +5,17 @@
         <div class="facture_info_form col-md-6">
             <div class="form-group">
                 <label>Numéro de Facture</label>
-                <input type="text" class="form-control" ng-model="invoice.invoiceNumber" name="invoiceNumber" id="number" placeholder="Numéro de facture">
+                <input type="text" readonly="true" class="form-control" data-ng-model="invoice.invoiceNumber" name="invoiceNumber" id="number" placeholder="Numéro de facture">
             </div>
 
             <div class="form-group">
                 <label>Titre de la Facture</label>
-                <input type="text" class="form-control" ng-model="invoice.title" name="title" id="title" placeholder="Titre de la facture">
+                <input type="text" class="form-control" data-ng-model="invoice.title" name="title" id="title" placeholder="Titre de la facture">
             </div>
 
             <div class="form-group delais_jour row">
                 <div class="col-md-9"><label for="paymentDelay">Délai de paiement (en jours) :</label></div>
-                <div class="col-md-3"><input class="form-control" ng-model="invoice.paymentDelay" type="number" class="form-control" name="paymentDelay" id="paymentDelay" placeholder="Délai de paiement" value="30"></div>
+                <div class="col-md-3"><input class="form-control" data-ng-model="invoice.paymentDelay" type="number" class="form-control" name="paymentDelay" id="paymentDelay" placeholder="Délai de paiement"></div>
             </div>
 
             <div class="form-group row">
@@ -41,7 +41,7 @@
             <div class="col-md-7"><input type="text" name="invoiceDescription" placeholder="Description" data-ng-model="line.description"></div>
             <div class="col-md-1"><input type="number" name="invoiceDays" placeholder="Jours" data-ng-model="line.days"></div>
             <div class="col-md-1"><input type="number" name="invoiceDailyRate" placeholder="TJM" data-ng-model="line.dailyRate"></div>
-            <div class="col-md-1"><input type="number" ng-readonly="$eval(taxes) == false" name="invoiceTaxRate" placeholder="TVA" data-ng-model="line.taxRate"></div>
+            <div class="col-md-1"><input type="number" ng-readonly="$eval(invoice.withTaxes) === false" name="invoiceTaxRate" placeholder="TVA" data-ng-model="line.taxRate"></div>
             <div class="col-md-1" ng-show="line.addButtonVisible">
                 <button type="button" class="add-task-btn btn btn-primary btn-sm" ng-click="addTask()">
                     <span class="glyphicon glyphicon-plus"></span>
