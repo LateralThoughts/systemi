@@ -20,17 +20,36 @@ class InvoiceNumberRepository extends Repository with InvoiceSerializer {
   private val invoiceNumberCollection: JSONCollection = ReactiveMongoPlugin.db
     .collection[JSONCollection](invoiceNumberCollectionName)
 
-  def getLastInvoiceNumber = {
+  def getLastInvoiceNumber: Future[InvoiceNumber] = {
     invoiceNumberCollection
       .find(Json.obj())
       .one[InvoiceNumber]
+      .map {
+      case None =>
+        save("VT", 1)
+        InvoiceNumber("VT", 1)
+      case Some(invoiceNumber) => invoiceNumber
+    }
   }
 
-  def reset(value: Int) = {
+  def reset(prefix: String, value: Int) = {
     invoiceNumberCollection
-      .update(Json.obj(), Json.toJson(InvoiceNumber(value)))
+      .update(Json.obj(), Json.toJson(InvoiceNumber(prefix, value)))
       .map(errors => errors.inError)
   }
+
+  def save(prefix: String, value: Int) = {
+    invoiceNumberCollection
+      .save(Json.toJson(InvoiceNumber(prefix, value)))
+      .map(errors => errors.inError)
+  }
+
+  def increment = {
+    invoiceNumberCollection
+    .update(Json.obj(), Json.obj("$inc" -> Json.obj("value" -> 1)))
+    .map(errors => errors.inError)
+  }
+
 
 }
 

@@ -8,9 +8,7 @@ import org.joda.time.{Days, DateTime}
 import play.api.libs.json._
 import reactivemongo.bson.BSONObjectID
 
-case class InvoiceNumber(value: Int) {
-  def increment = this.copy(value + 1)
-}
+case class InvoiceNumber(prefix: String, value: Int)
 
 case class InvoiceLine(description: String, days: Double, dailyRate: Double, taxRate: Double = 20)
 
