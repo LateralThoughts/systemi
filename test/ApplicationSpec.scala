@@ -61,7 +61,7 @@ class ApplicationSpec extends PlaySpecification {
       val invoiceGenerationPage = route(FakeRequest(POST, "/api/invoice").withCookies(creds1.get("invoice@lt").get).withJsonBody(Json.parse(invoice))).get
 
       status(invoiceGenerationPage) must equalTo(OK)
-      ConsoleLogger.info(contentAsString(invoiceGenerationPage))
+      BSONObjectID.parse(contentAsString(invoiceGenerationPage)).isSuccess shouldEqual true
     }
   }
 
