@@ -1,4 +1,3 @@
-import com.typesafe.config.ConfigFactory
 import org.junit.runner._
 import org.specs2.runner._
 import play.api.test._
