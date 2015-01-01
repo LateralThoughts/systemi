@@ -16,6 +16,7 @@ case class Invoice(_id: BSONObjectID,
                    pdfDocument: Attachment,
                    statuses: List[Status],
                    lastStatus: Status,
+                   driveFileId: Option[String] = None,
                    status: String = "created") extends AccountOperation(Plus) {
 
   def totalHT = InvoiceLinesAnalyzer.computeTotalHT(invoice.invoice)

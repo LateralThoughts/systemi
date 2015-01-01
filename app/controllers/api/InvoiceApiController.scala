@@ -70,13 +70,39 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
   }
 
   def addStatusToInvoice(oid: String, status: String) = SecuredAction(WithDomain()).async { implicit request =>
+    moveInvoiceInDrive(oid, status, request)
+
     invoiceRepository.updateInvoiceStatus(oid, status, request.user.email.get).map {
       case false => Ok
       case true => InternalServerError
     }
   }
 
-  def cancelInvoice(invoiceId: String) = SecuredAction(WithDomain()).async(parse.json) { implicit request =>
+  def moveInvoiceInDrive(oid: String, status: String, request: SecuredRequest[AnyContent]) {
+    status match {
+      case "paid" =>
+        moveInvoice(oid, request, moveInvoiceToPaidFolder)
+      case "unpaid" =>
+        moveInvoice(oid, request, moveInvoiceToInProgressFolder)
+      case "canceled" =>
+        moveInvoice(oid, request, moveInvoiceToCanceledFolder)
+      case _ =>
+        Logger.debug(s"No need to move invoice for status $status")
+    }
+  }
+
+  def moveInvoice(oid: String, request: SecuredRequest[AnyContent], movingFunction: (SecuredRequest[AnyContent], Invoice) => Unit) {
+    invoiceRepository.find(oid).flatMap {
+      case Some(invoice) =>
+        movingFunction(request, invoice)
+        Future(true)
+      case None =>
+        Logger.error(s"Unable to find invoice $oid, can't update status")
+        Future(false)
+    }
+  }
+
+  def cancelInvoice(invoiceId: String) = SecuredAction(WithDomain()).async { implicit request =>
     invoiceRepository
       .find(invoiceId)
       .flatMap {
@@ -85,30 +111,35 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
           Logger.info(s"Loaded invoice $invoiceId, canceling...")
           val generatedPdfDocument = addCanceledWatermark(invoice.pdfDocument.data)
 
-          invoiceRepository.cancelInvoice(invoiceId, generatedPdfDocument, request.user.email.get).map( hasErrors =>
+          invoiceRepository.cancelInvoice(invoiceId, generatedPdfDocument, request.user.email.get).map(hasErrors =>
             if (hasErrors) Logger.error(s"unable to cancel invoice $invoiceId")
           )
 
           // delete allocations from this invoice, see issue #36
           Logger.info(s"Remove allocations associated to invoice $invoiceId")
-          allocationRepository.removeByInvoice(invoiceId).map( hasErrors =>
+          allocationRepository.removeByInvoice(invoiceId).map(hasErrors =>
             if (hasErrors) Logger.error(s"unable to delete allocations of invoice $invoiceId")
           )
+
+          // move invoice to canceled folder on drive
+          moveInvoiceToCanceledFolder(request, invoice)
 
           // remove invoice id from activity if needed
           Logger.info(s"Unset invoice $invoiceId from associated activity if needed")
           activityRepository.unsetInvoiceFromActivity(invoiceId)
-          .map {
+            .map {
             case true =>
               Logger.error(s"unable to unset invoice $invoiceId from associated activity")
               InternalServerError
             case false => Ok
           }
+
         }
         case None => Future(InternalServerError)
       }
       case _ => Future(BadRequest)
     }
+
   }
 
 

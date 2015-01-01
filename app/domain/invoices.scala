@@ -17,7 +17,10 @@ case class InvoiceRequest(title: String,
                           paymentDelay: Int,
                           withTaxes: Boolean,
                           client: ClientRequest,
-                          invoice: List[InvoiceLine])
+                          invoice: List[InvoiceLine]) {
+
+  val driveName = s"${invoiceNumber}_LateralThoughts_${client.name}.pdf"
+}
 
 case class InvoiceData(_id: BSONObjectID,
                        invoice: InvoiceRequest,

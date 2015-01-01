@@ -46,8 +46,8 @@ class InvoiceNumberRepository extends Repository with InvoiceSerializer {
 
   def increment = {
     invoiceNumberCollection
-    .update(Json.obj(), Json.obj("$inc" -> Json.obj("value" -> 1)))
-    .map(errors => errors.inError)
+      .update(Json.obj(), Json.obj("$inc" -> Json.obj("value" -> 1)))
+      .map(errors => errors.inError)
   }
 
 
@@ -67,9 +67,15 @@ class InvoiceRepository extends Repository with InvoiceSerializer {
   private val invoicesCollection: JSONCollection = ReactiveMongoPlugin.db
     .collection[JSONCollection](invoicesCollectionName)
 
-  def save(invoice: Invoice):Future[Boolean] = {
+  def save(invoice: Invoice): Future[Boolean] = {
     invoicesCollection
       .save(Json.toJson(invoice))
+      .map(errors => errors.inError)
+  }
+
+  def saveDriveFileId(invoiceId: String, driveFileId: String): Future[Boolean] = {
+    invoicesCollection
+      .update(invoiceRequestBuilder.idCriteria(invoiceId), Json.obj("$set" -> Json.obj("driveFileId" -> driveFileId)))
       .map(errors => errors.inError)
   }
 

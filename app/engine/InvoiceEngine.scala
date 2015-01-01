@@ -17,12 +17,36 @@ trait InvoiceEngine extends securesocial.core.SecureSocial[BasicProfile] {
   protected def insertInvoice(request: SecuredRequest[AnyContent], invoiceRequest: InvoiceRequest, generatedPdfDocument: Array[Byte]): BSONObjectID = {
     val status = domain.Status("created", DateTime.now(), request.user.email.get)
     val invoiceId = BSONObjectID.generate
-    val accessToken: String = request.user.oAuth2Info.map(_.accessToken).get
     invoiceActor !(
+      "created",
       Invoice(invoiceId, invoiceRequest, Attachment("application/pdf", stub = false, generatedPdfDocument), List(status), status),
-      accessToken
+      retrieveAccessToken(request)
       )
     invoiceId
+  }
+
+  protected def moveInvoiceToCanceledFolder(request: SecuredRequest[AnyContent], invoice: Invoice) = {
+    sendMessageToInvoiceActor(request, invoice, "canceled")
+  }
+
+  protected def moveInvoiceToPaidFolder(request: SecuredRequest[AnyContent], invoice: Invoice) = {
+    sendMessageToInvoiceActor(request, invoice, "paid")
+  }
+
+  protected def moveInvoiceToInProgressFolder(request: SecuredRequest[AnyContent], invoice: Invoice) = {
+    sendMessageToInvoiceActor(request, invoice, "inProgress")
+  }
+
+  def sendMessageToInvoiceActor(request: SecuredRequest[AnyContent], invoice: Invoice, status: String) {
+    invoiceActor !(
+      status,
+      invoice,
+      retrieveAccessToken(request)
+      )
+  }
+
+  def retrieveAccessToken(request: SecuredRequest[AnyContent]): String = {
+    request.user.oAuth2Info.map(_.accessToken).get
   }
 
 }
