@@ -3,17 +3,18 @@
     <thead>
     <tr>
         <th>Titre</th>
-        <th>Prestataire</th>
-        <th>Client</th>
         <th>Actions</th>
     </tr>
     </thead>
     <tbody>
     <tr data-ng-repeat="item in activities">
 
-        <td>{{ item.activity.title }}</td>
-        <td>{{ item.activity.contractor }}</td>
-        <td>{{ item.activity.client.name }}</td>
+        <td><h4>{{ item.activity.title }}</h4>
+            <ul>
+                <li><strong>Prestataire : </strong>{{ item.activity.contractor }}</li>
+                <li><strong>Client : </strong>{{ item.activity.client.name }} </li>
+                <li><strong>Nombre de jours : </strong>{{ item.activity.numberOfDays }}</li>
+            </ul></td>
         <td>
             <p><lt-activity-modal activity-id="item._id.$oid"></lt-activity-modal></p>
             <p ng-show="item.invoiceId"><lt-invoice-modal invoice-id="item.invoiceId.$oid"></lt-invoice-modal></p>
