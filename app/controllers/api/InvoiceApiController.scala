@@ -6,7 +6,7 @@ import engine.InvoiceEngine
 import org.bouncycastle.util.encoders.Base64
 import play.Logger
 import play.api.libs.json._
-import play.api.mvc.{AnyContent, Action, Controller}
+import play.api.mvc.{AnyContent, Controller}
 import repository.Repositories
 import securesocial.core.{BasicProfile, RuntimeEnvironment}
 
