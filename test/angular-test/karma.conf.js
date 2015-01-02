@@ -12,14 +12,16 @@ module.exports = function (config) {
         files: [
             '../../public/javascripts/jquery-1.9.0.min.js',
             '../../target/web/public/test/public/lib/angularjs/angular.min.js',
+            '../../target/web/public/test/public/lib/angularjs/angular-*.min.js',
             '../../target/web/public/test/public/lib/angularjs/angular-mocks.js',
             '../../public/javascripts/moment-with-langs.min.js',
             '../../public/javascripts/moment-range.js',
             '../../public/javascripts/*.js',
             '../../public/javascripts/angular/*.js',
             '../../public/javascripts/angular/**/*.js',
-            '../../public/javascripts/angular/templates/*.html',
-            'unit-test/**/*.js'
+            '../../public/javascripts/angular/**/*.html',
+            'unit-test/**/*.js',
+            'base/*.js' // Load script set in scala templates
         ],
 
         preprocessors: {

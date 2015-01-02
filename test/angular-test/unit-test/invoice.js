@@ -1,41 +1,48 @@
 'use strict';
 
 describe("Fac stemi - invoice", function () {
-    beforeEach(module('fac-stemi'));
+    beforeEach(module('invoice'));
 
-    var rootScope, scope, controller;
+    var $httpBackend, rootScope, scope, controller, createInvoiceCreateCtrl;
 
     // Install requests mock hooker
-    beforeEach(function () {
+    beforeEach(function ( ) {
         inject(function ($injector) {
             rootScope = $injector.get('$rootScope');
             controller = $injector.get('$controller');
+            $httpBackend = $injector.get('$httpBackend');
             scope = rootScope.$new();
 
-            var invoiceCtrl = controller('InvoiceController', {
-                $scope: scope
-            });
-            /*if(!rootScope.$$phase) {
-                rootScope.$apply();
-            }*/
+
+            createInvoiceCreateCtrl = function() {
+                return controller('CreateCtrl', {
+                    $scope: scope
+                });
+            };
+
+
+
 
         })
     });
 
 	it('should initialize one task line in scope', function () {
-        expect(scope.tasklines.length).toBe(1);
-        expect('invoiceDescription' in scope.tasklines[0]).toBe(true);
-        expect('invoiceDays' in scope.tasklines[0]).toBe(true);
-        expect('invoiceDailyRate' in scope.tasklines[0]).toBe(true);
-        expect('invoiceTaxRate' in scope.tasklines[0]).toBe(true);
-        expect('addButtonVisible' in scope.tasklines[0]).toBe(true);
-        expect(scope.tasklines[0].addButtonVisible).toEqual(true);
-        expect('deleteButtonVisible' in scope.tasklines[0]).toBe(true);
-        expect(scope.tasklines[0].deleteButtonVisible).toEqual(false);
-        expect(scope.tasklines[0].invoiceTaxRate).toEqual("20.0");
+
+        $httpBackend.whenGET("/api/invoice/numbers/last").respond([{
+            prefix: "VT",
+            value: 150
+        }]);
+
+
+        createInvoiceCreateCtrl();
+        $httpBackend.flush();
+
+        expect(scope.invoice.invoice.length).toBe(1);
+        expect('addButtonVisible' in scope.invoice.invoice[0]).toBe(true);
+        expect(scope.invoice.invoice[0].addButtonVisible).toEqual(true);
+        expect('deleteButtonVisible' in scope.invoice.invoice[0]).toBe(true);
+        expect(scope.invoice.invoice[0].deleteButtonVisible).toEqual(false);
+        expect(scope.invoice.invoice[0].taxRate).toEqual(20);
 	});
 
-	it('should upload invoice to google drive by default', function () {
-        expect(scope.shouldUpload).toBe(true);
-    });
 });

@@ -51,7 +51,7 @@ describe("Fac stemi - C.R.A.", function () {
         expect(scope.cra.days).toBeDefined();
         expect(scope.weeks).toBeDefined();
 
-        $httpBackend.expect('POST', '/api/cra').respond({});
+        $httpBackend.expect('POST', '/api/activity').respond({});
 
         scope.submit();
 
@@ -68,7 +68,7 @@ describe("Fac stemi - C.R.A.", function () {
         expect(scope.cra.days).toBeDefined();
         expect(scope.weeks).toBeDefined();
 
-        $httpBackend.expect('POST', '/api/cra').respond({});
+        $httpBackend.expect('POST', '/api/activity').respond({});
 
         scope.submit();
 
