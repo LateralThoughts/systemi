@@ -67,7 +67,7 @@
         </td>
         <td>
             <p><lt-invoice-modal invoice-id="item._id.$oid"></lt-invoice-modal></p>
-            <p><button class="btn btn-primary" ng-click="openAffectationDialog(item)" ng-show="isCreated(item)">Affecter la facture</button></p>
+            <p><button class="btn btn-primary" ng-click="openAllocationDialog(item)" ng-show="isCreated(item)">Affecter la facture</button></p>
             <p><button class="btn btn-primary" ng-click="openReallocationDialog(item)" ng-show="!isCreated(item) && !isCanceled(item)">Réaffecter la facture</button></p>
             <p><button class="btn btn-primary" ng-click="revert(item)" ng-show="isPaid(item)">Le paiement a échoué</button></p>
             <p><button class="btn btn-primary" ng-click="pay(item)" ng-show="isAllocated(item)">La facture a été payée</button></p>
@@ -78,12 +78,12 @@
 </table>
 
 <!-- Modal -->
-<div class="modal fade" id="affectationModal" tabindex="-1" role="dialog" aria-labelledby="affectationModalLabel" aria-hidden="true">
+<div class="modal fade" id="allocationModal" tabindex="-1" role="dialog" aria-labelledby="allocationModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Fermer</span></button>
-                <h4 class="modal-title" id="affectationModalLabel">Propositions d'affectations à un budget</h4>
+                <h4 class="modal-title" id="allocationModalLabel">Propositions d'affectations à un budget</h4>
             </div>
             <div class="modal-body">
                 <table class="table">
@@ -96,7 +96,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr data-ng-repeat="item in affectations">
+                    <tr data-ng-repeat="item in allocations">
                         <td>
                             <select ng-model="item.account" ng-options="account.fullName for account in accounts">
                                 <option value="">---- Non affecté -----</option>
@@ -109,12 +109,12 @@
                         <td><input type="number" ng-model="item.value"/></td>
                         <td>
                             <div class="col-md-1" ng-show="item.addButtonVisible">
-                                <button type="button" class="add-task-btn btn btn-primary btn-sm" ng-click="addAffectationLine()">
+                                <button type="button" class="add-task-btn btn btn-primary btn-sm" ng-click="addAllocationLine()">
                                     <span class="glyphicon glyphicon-plus"></span>
                                 </button>
                             </div>
                             <div class="col-md-1" ng-show="item.deleteButtonVisible">
-                                <button type="button" class="delete-task-btn btn btn-danger btn-sm" ng-click="deleteAffectationLine()">
+                                <button type="button" class="delete-task-btn btn btn-danger btn-sm" ng-click="deleteAllocationLine()">
                                     <span class="glyphicon glyphicon-minus"></span>
                                 </button>
                             </div>
@@ -125,7 +125,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
-                <button type="button" class="btn btn-primary" ng-click="affect(affectations, invoice)">Sauvegarder les changements</button>
+                <button type="button" class="btn btn-primary" ng-click="affect(allocations, invoice)">Sauvegarder les changements</button>
             </div>
         </div>
     </div>

@@ -143,7 +143,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
   }
 
 
-  def affectToAccount(oid: String) = SecuredAction(WithDomain()).async(parse.json) { implicit request =>
+  def allocateToAccount(oid: String) = SecuredAction(WithDomain()).async(parse.json) { implicit request =>
     invoiceRepository
       .find(oid)
       .flatMap {

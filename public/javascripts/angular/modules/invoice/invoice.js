@@ -214,14 +214,14 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
             $http.post("/api/invoices/" + invoice._id.$oid + "/status/unpaid").success(function(){ reload($scope)})
         };
 
-        $scope.openAffectationDialog = function(invoice) {
-            $scope.affectations = [{
+        $scope.openAllocationDialog = function(invoice) {
+            $scope.allocations = [{
                 addButtonVisible: true,
                 deleteButtonVisible: true,
                 value: invoice.totalHT()
             }];
             $scope.invoice = invoice;
-            $('#affectationModal').modal('show');
+            $('#allocationModal').modal('show');
         };
 
         $scope.openReallocationDialog = function(invoice) {
@@ -237,47 +237,47 @@ angular.module('invoice', ['ui.bootstrap', 'ngResource', 'ngRoute', 'default-val
                           }
                       }
                   });
-                  $scope.affectations = data;
-                  $scope.affectations[$scope.affectations.length -1].addButtonVisible = true;
+                  $scope.allocations = data;
+                  $scope.allocations[$scope.allocations.length -1].addButtonVisible = true;
 
                   $scope.invoice = invoice;
-                  $('#affectationModal').modal('show');
+                  $('#allocationModal').modal('show');
                 }
               )
         };
 
-        $scope.affect = function(affectations, invoice) {
-            var totalForAffectations = _.reduce(affectations, function(sum, item) { return sum + item.value }, 0);
-            if (totalForAffectations > invoice.totalHT()) {
+        $scope.affect = function(allocations, invoice) {
+            var totalForAllocations = _.reduce(allocations, function(sum, item) { return sum + item.value }, 0);
+            if (totalForAllocations > invoice.totalHT()) {
                 alert("Petit Chenapan, On ne peut affecter plus que le total d'une facture !");
             } else {
-                _.map(affectations, function (item) {
+                _.map(allocations, function (item) {
                     delete item.$$hashKey;
                     delete item.addButtonVisible;
                     delete item.deleteButtonVisible;
                     delete item.account.fullname;
                 });
-                $http.post("/api/invoices/" + invoice._id.$oid + "/affectation", JSON.stringify(affectations))
+                $http.post("/api/invoices/" + invoice._id.$oid + "/allocation", JSON.stringify(allocations))
                     .success(function () {
                         reload($scope);
-                        $('#affectationModal').modal('hide');
+                        $('#allocationModal').modal('hide');
                     });
             }
         };
 
-        $scope.addAffectationLine = function() {
-            $scope.affectations[$scope.affectations.length - 1]['addButtonVisible'] = false;
-            $scope.affectations[$scope.affectations.length - 1]['deleteButtonVisible'] = false;
-            $scope.affectations.push({
+        $scope.addAllocationLine = function() {
+            $scope.allocations[$scope.allocations.length - 1]['addButtonVisible'] = false;
+            $scope.allocations[$scope.allocations.length - 1]['deleteButtonVisible'] = false;
+            $scope.allocations.push({
                 'addButtonVisible': true,
                 'deleteButtonVisible': true
             });
         };
 
-        $scope.deleteAffectationLine = function() {
-            $scope.affectations.pop();
-            $scope.affectations[$scope.affectations.length - 1]['addButtonVisible'] = true;
-            $scope.affectations[$scope.affectations.length - 1]['deleteButtonVisible'] = ($scope.affectations.length>1);
+        $scope.deleteAllocationLine = function() {
+            $scope.allocations.pop();
+            $scope.allocations[$scope.allocations.length - 1]['addButtonVisible'] = true;
+            $scope.allocations[$scope.allocations.length - 1]['deleteButtonVisible'] = ($scope.allocations.length>1);
         }
     }])
     .controller('CreateCtrl', ['$scope', '$http', function($scope, $http) {
