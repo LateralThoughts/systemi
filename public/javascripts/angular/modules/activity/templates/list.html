@@ -2,7 +2,8 @@
 <table class="table table-bordered">
     <thead>
     <tr>
-        <th>Titre</th>
+        <th>Activité</th>
+        <th>Période</th>
         <th>Actions</th>
     </tr>
     </thead>
@@ -15,6 +16,7 @@
                 <li><strong>Client : </strong>{{ item.activity.client.name }} </li>
                 <li><strong>Nombre de jours : </strong>{{ item.activity.numberOfDays }}</li>
             </ul></td>
+        <td>du <strong>{{item.firstDay}}</strong></br> au <strong>{{item.lastDay}}</strong></td>
         <td>
             <p><lt-activity-modal activity-id="item._id.$oid"></lt-activity-modal></p>
             <p ng-show="item.invoiceId"><lt-invoice-modal invoice-id="item.invoiceId.$oid"></lt-invoice-modal></p>
