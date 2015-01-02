@@ -1,39 +1,28 @@
 import org.junit.runner._
 import org.specs2.runner._
-import play.api.test._
 import play.api.libs.json._
+import play.api.test._
 import reactivemongo.bson.BSONObjectID
 
 /**
  * Full application spec to execute page rendering and check consistency
  */
 @RunWith(classOf[JUnitRunner])
-class ApplicationSpec extends PlaySpecification {
+class InvoiceEndpointSpecs extends SystemiSpecification {
 
-  def app = FakeApplication(
-    additionalConfiguration = Map("mongodb.db" -> "test-invoice@LT"),
-    withGlobal = Some(TestGlobal),
-    withoutPlugins = Seq("ehcacheplugin")
-  )
+  "Application on Invoice Endpoint" should {
 
-  "Application" should {
+    "should retrieve invoices" in new WithApplication(app) {
+      val creds1 = retrieveIdentificationCookie
 
-    "send 404 on a bad request" in new WithApplication(app) {
-      route(FakeRequest(GET, "/boum")) must beNone
-    }
+      val invoices = route(FakeRequest(GET, "/api/invoices").withCookies(creds1.get("invoice@lt").get)).get
 
-    "render the invoice form page" in new WithApplication(app) {
-      val creds1 = cookies(route(FakeRequest(POST, "/auth/authenticate/test").withTextBody("user")).get)
-
-      val home = route(FakeRequest(GET, "/").withCookies(creds1.get("invoice@lt").get)).get
-
-      status(home) must equalTo(OK)
-      contentType(home) must beSome.which(_ == "text/html")
-      contentAsString(home) must contain("System")
+      status(invoices) must equalTo(OK)
+      contentType(invoices) must beSome.which(_ == "application/json")
     }
 
     "should generate pdf invoice" in new WithApplication(app) {
-      val creds1 = cookies(route(FakeRequest(POST, "/auth/authenticate/test").withTextBody("user")).get)
+      val creds1 = retrieveIdentificationCookie
 
       val invoice = """{
 			"title": "facture",
