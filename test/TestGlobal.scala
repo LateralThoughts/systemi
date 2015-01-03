@@ -1,6 +1,5 @@
 import play.Logger
 import play.api.Application
-import play.api.Play.current
 import play.modules.reactivemongo.ReactiveMongoPlugin
 import com.softwaremill.macwire.MacwireMacros._
 import play.modules.reactivemongo.json.collection.JSONCollection
