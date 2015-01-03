@@ -25,7 +25,7 @@ GET           /api/invoices                            @controllers.api.InvoiceA
 GET           /api/invoices/delayed                    @controllers.api.InvoiceApiController.findDelayedInvoices
 POST          /api/invoices/:oid/status/:status        @controllers.api.InvoiceApiController.addStatusToInvoice(oid: String, status: String)
 POST          /api/invoices/:oid/cancel                @controllers.api.InvoiceApiController.cancelInvoice(oid: String)
-POST          /api/invoices/:oid/allocation           @controllers.api.InvoiceApiController.allocateToAccount(oid: String)
+POST          /api/invoices/:oid/allocation            @controllers.api.InvoiceApiController.allocateToAccount(oid: String)
 GET           /api/invoices/document/:oid              @controllers.api.InvoiceApiController.getPdfByInvoice(oid: String)
 
 # allocation resources
