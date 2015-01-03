@@ -19,7 +19,6 @@ with GoogleDriveInteraction {
 
   def receive = {
     case ("created", invoice: Invoice, accessToken: String) =>
-      saveInvoiceInDatabase(invoice)
       if (shouldPush) uploadInvoiceToDrive(invoice, accessToken)
     case ("paid", invoice: Invoice, accessToken: String) =>
       moveToPaid(accessToken, invoice)
@@ -28,15 +27,6 @@ with GoogleDriveInteraction {
     case ("canceled", invoice: Invoice, accessToken: String) =>
       moveToCanceled(accessToken, invoice)
     case _ => Logger.error("This message is not implemented")
-  }
-
-  def saveInvoiceInDatabase(invoice: Invoice) {
-    invoiceRepository.save(invoice).map {
-      case false =>
-        Logger.info(s"Saved invoice $invoice")
-        invoiceNumberRepository.increment.map(hasErrors => if (hasErrors) Logger.error("Unable to increment invoice number"))
-      case true => Logger.error(s"Unable to save invoice $invoice")
-    }
   }
 
   def uploadInvoiceToDrive(invoice: Invoice, accessToken: String) {

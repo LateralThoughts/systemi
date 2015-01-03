@@ -1,28 +1,46 @@
 package engine
 
-import domain.{Attachment, Invoice, InvoiceRequest}
+import domain.{Attachment, Invoice, InvoiceRequest, InvoiceSerializer}
 import org.joda.time.DateTime
+import play.api.Logger
+import play.api.libs.json.JsResult
 import play.api.mvc.AnyContent
 import play.libs.Akka
 import reactivemongo.bson.BSONObjectID
+import repository.Repositories
 import securesocial.core.BasicProfile
 
-trait InvoiceEngine extends securesocial.core.SecureSocial[BasicProfile] {
+import scala.concurrent.Future
+
+trait InvoiceEngine extends securesocial.core.SecureSocial[BasicProfile] with Repositories with InvoiceSerializer {
 
   implicit val context = scala.concurrent.ExecutionContext.Implicits.global
 
   private val akkaSystem = Akka.system
   private lazy val invoiceActor = akkaSystem.actorSelection(akkaSystem / "invoice")
 
-  protected def insertInvoice(request: SecuredRequest[AnyContent], invoiceRequest: InvoiceRequest, generatedPdfDocument: Array[Byte]): BSONObjectID = {
+  protected def saveInvoice(result: JsResult[InvoiceRequest], request: SecuredRequest[AnyContent]): Future[Option[String]] = {
+
+    val invoice: Invoice = createInvoice(result, request)
+
+    invoiceRepository.save(invoice).map {
+      case false =>
+        Logger.info(s"Saved invoice $invoice")
+        invoiceNumberRepository.increment.map(hasErrors => if (hasErrors) Logger.error("Unable to increment invoice number"))
+        sendMessageToInvoiceActor(request, invoice, "created")
+        Some(invoice._id.stringify)
+      case true =>
+        Logger.error(s"Unable to save invoice $invoice")
+        None
+    }
+  }
+
+  private def createInvoice(result: JsResult[InvoiceRequest], request: SecuredRequest[AnyContent]): Invoice = {
+    val generatedPdfDocument = invoiceRequestToPdfBytes(result.get)
     val status = domain.Status("created", DateTime.now(), request.user.email.get)
     val invoiceId = BSONObjectID.generate
-    invoiceActor !(
-      "created",
-      Invoice(invoiceId, invoiceRequest, Attachment("application/pdf", stub = false, generatedPdfDocument), List(status), status),
-      retrieveAccessToken(request)
-      )
-    invoiceId
+
+    Invoice(invoiceId, result.get, Attachment("application/pdf", stub = false, generatedPdfDocument), List(status), status)
   }
 
   protected def moveInvoiceToCanceledFolder(request: SecuredRequest[AnyContent], invoice: Invoice) = {

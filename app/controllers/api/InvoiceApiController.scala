@@ -20,21 +20,20 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
   with InvoiceEngine {
 
 
-  def createAndPushInvoice = SecuredAction(WithDomain()) { implicit request =>
+  def createAndPushInvoice = SecuredAction(WithDomain()).async { implicit request =>
     request.body.asJson match {
       case Some(json) => json.validate(invoiceReqFormat) match {
 
         case errors: JsError =>
-          BadRequest(errors.toString).as("application/json")
+          Future(BadRequest(errors.toString).as("application/json"))
 
         case result: JsResult[InvoiceRequest] =>
-          val generatedPdfDocument = invoiceRequestToPdfBytes(result.get)
-
-          val invoiceId = insertInvoice(request, result.get, generatedPdfDocument)
-
-          Ok(invoiceId.stringify)
+          saveInvoice(result, request).map {
+            case Some(invoiceId) => Ok(invoiceId)
+            case None => InternalServerError("Unable to save invoice")
+          }
       }
-      case None => BadRequest("should send data as application/json")
+      case None => Future(BadRequest("should send data as application/json"))
     }
   }
 

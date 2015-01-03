@@ -2,7 +2,7 @@ package controllers.api
 
 import auth.WithDomain
 import engine.InvoiceEngine
-import play.Logger
+import play.api.Logger
 import repository.Repositories
 import securesocial.core.RuntimeEnvironment
 import play.api.mvc.Controller
@@ -25,8 +25,6 @@ class ActivityApiController(override implicit val env: RuntimeEnvironment[BasicP
   with ActivitySerializer
   with GoogleDriveInteraction
   with InvoiceEngine {
-
-  import play.modules.reactivemongo.json.BSONFormats._
 
   private val akkaSystem = Akka.system
   private lazy val activityActor = akkaSystem.actorSelection(akkaSystem / "activity")
@@ -56,10 +54,10 @@ class ActivityApiController(override implicit val env: RuntimeEnvironment[BasicP
     }
   }
 
-  def updateActivityWithInvoiceId(activityId: String, invoiceId: BSONObjectID) = {
+  def updateActivityWithInvoiceId(activityId: String, invoiceId: String) = {
     val selector = Json.obj("_id" -> Json.obj("$oid" -> activityId))
 
-    val setterObj = Json.obj("invoiceId" -> Json.toJson(invoiceId))
+    val setterObj = Json.obj("invoiceId" -> Json.obj("$oid" -> invoiceId))
 
     val pushToStatesAndLastStatus = Json.obj(
       "$set" -> setterObj
@@ -68,25 +66,36 @@ class ActivityApiController(override implicit val env: RuntimeEnvironment[BasicP
     db
       .collection[JSONCollection]("activities")
       .update(selector, pushToStatesAndLastStatus)
+      .map(errors => errors.inError)
 
   }
 
-  def createAndPushInvoice(oid: String) = SecuredAction(WithDomain()) { implicit request =>
+  def createAndPushInvoice(oid: String) = SecuredAction(WithDomain()).async { implicit request =>
     request.body.asJson match {
       case Some(json) => json.validate(invoiceReqFormat) match {
 
         case errors: JsError =>
-          BadRequest(errors.toString).as("application/json")
+          Future(BadRequest(errors.toString).as("application/json"))
 
         case result: JsResult[InvoiceRequest] =>
-          val generatedPdfDocument = invoiceRequestToPdfBytes(result.get)
 
-          val invoiceId = insertInvoice(request, result.get, generatedPdfDocument)
+          saveInvoice(result, request).flatMap {
 
-          updateActivityWithInvoiceId(oid, invoiceId)
-          Ok(routes.InvoiceApiController.getPdfByInvoice(invoiceId.stringify).absoluteURL())
+            case Some(invoiceId) =>
+              updateActivityWithInvoiceId(oid, invoiceId).map {
+                case true =>
+                  val message = s"Unable to update activity $oid with invoice $invoiceId"
+                  Logger.error(message)
+                  InternalServerError(message)
+                case false =>
+                  Ok(routes.InvoiceApiController.getPdfByInvoice(invoiceId).absoluteURL())
+              }
+
+            case None =>
+              Future(InternalServerError("Unable to save invoice"))
+          }
       }
-      case None => BadRequest
+      case None => Future(BadRequest)
     }
 
   }
