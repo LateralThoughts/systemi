@@ -12,7 +12,7 @@ class InvoiceEndpointSpecs extends SystemiSpecification {
 
   "Application on Invoice Endpoint" should {
 
-    "should retrieve invoices" in new WithApplication(app) {
+    "retrieve invoices" in new WithApplication(app) {
       val creds1 = retrieveIdentificationCookie
 
       val invoices = route(FakeRequest(GET, "/api/invoices").withCookies(creds1.get("invoice@lt").get)).get
@@ -21,7 +21,7 @@ class InvoiceEndpointSpecs extends SystemiSpecification {
       contentType(invoices) must beSome.which(_ == "application/json")
     }
 
-    "should generate pdf invoice" in new WithApplication(app) {
+    "generate pdf invoice" in new WithApplication(app) {
       val creds1 = retrieveIdentificationCookie
 
       val invoice = """{
