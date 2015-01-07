@@ -1,33 +1,26 @@
 package controllers.api
 
 import auth.WithDomain
+import domain.{ActivityRequest, _}
 import engine.InvoiceEngine
+import org.bouncycastle.util.encoders.Base64
 import play.api.Logger
-import repository.Repositories
-import securesocial.core.RuntimeEnvironment
+import play.api.libs.json.{JsError, JsObject, JsResult, Json}
 import play.api.mvc.Controller
 import play.modules.reactivemongo.MongoController
-import domain._
-import util.pdf.GoogleDriveInteraction
-import play.api.libs.json.{JsObject, Json, JsResult, JsError}
-import securesocial.core.BasicProfile
-import domain.ActivityRequest
 import play.modules.reactivemongo.json.collection.JSONCollection
-import org.bouncycastle.util.encoders.Base64
-import scala.concurrent.Future
 import reactivemongo.bson.BSONObjectID
-import play.libs.Akka
+import repository.Repositories
+import securesocial.core.{BasicProfile, RuntimeEnvironment}
+
+import scala.concurrent.Future
 
 class ActivityApiController(override implicit val env: RuntimeEnvironment[BasicProfile])
   extends Controller
   with MongoController
   with Repositories
   with ActivitySerializer
-  with GoogleDriveInteraction
   with InvoiceEngine {
-
-  private val akkaSystem = Akka.system
-  private lazy val activityActor = akkaSystem.actorSelection(akkaSystem / "activity")
 
   def createAndPushCRA = SecuredAction(WithDomain()).async(parse.json) { implicit request =>
     request.body.validate(activityReqFormat) match {
@@ -39,10 +32,16 @@ class ActivityApiController(override implicit val env: RuntimeEnvironment[BasicP
       case result: JsResult[ActivityRequest] =>
         val generatedPdfDocument = activityToPdfBytes(result.get)
         val activityId = BSONObjectID.generate
+        val activity = Activity(activityId, result.get, Attachment("application/pdf", stub = false, generatedPdfDocument), None)
 
-        activityActor ! Activity(activityId, result.get, Attachment("application/pdf", stub = false, generatedPdfDocument), None)
-
-        Future(Ok(activityId.stringify))
+        activityRepository.save(activity).map {
+          case false =>
+            Logger.info(s"Saved activity $activity")
+            Ok(activityId.stringify)
+          case true =>
+            Logger.error(s"Unable to save activity $activity")
+            InternalServerError
+        }
     }
   }
 
@@ -103,7 +102,7 @@ class ActivityApiController(override implicit val env: RuntimeEnvironment[BasicP
   def findAll = SecuredAction(WithDomain()).async {
     db
       .collection[JSONCollection]("activities")
-      .find(Json.obj(), Json.obj("activity" -> 1, "id" -> 1, "invoiceId" -> 1))
+      .find(Json.obj(), Json.obj("activity" -> 1, "invoiceId" -> 1))
       .cursor[JsObject]
       .collect[List]()
       .map(users => Ok(Json.toJson(users)))

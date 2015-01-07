@@ -1,20 +1,20 @@
-import actors.{ActivityActor, InvoiceActor}
+import actors.InvoiceActor
 import akka.actor.Props
 import com.softwaremill.macwire.MacwireMacros._
 import com.softwaremill.macwire.Wired
-import controllers.api.{InvoiceApiController, ClientApiController}
+import controllers.api.ClientApiController
 import play.Logger
 import play.api.{Application, GlobalSettings}
 import play.libs.Akka
 import repository.InvoiceNumberRepository
 import search.SimpleSearchEngine
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 trait Global extends GlobalSettings {
 
   def initApp(wired: Wired) {
     Akka.system.actorOf(Props[InvoiceActor], name = "invoice")
-    Akka.system.actorOf(Props[ActivityActor], name = "activity")
     initSearchEngine(wired)
     initInvoiceNumber(wired)
   }

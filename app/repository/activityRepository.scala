@@ -1,6 +1,6 @@
 package repository
 
-import domain.ActivitySerializer
+import domain.{Activity, ActivitySerializer}
 import play.api.libs.json.{JsObject, Json}
 import play.modules.reactivemongo.ReactiveMongoPlugin
 import play.modules.reactivemongo.json.collection.JSONCollection
@@ -13,7 +13,7 @@ import scala.concurrent.Future
 /**
  * Manage all database interactions related to activities
  */
-class ActivityRepository extends Repository {
+class ActivityRepository extends Repository with ActivitySerializer {
 
   import com.softwaremill.macwire.MacwireMacros._
 
@@ -21,6 +21,12 @@ class ActivityRepository extends Repository {
 
   private val activitiesCollection: JSONCollection = ReactiveMongoPlugin.db
     .collection[JSONCollection](activitiesCollectionName)
+
+  def save(activity: Activity):Future[Boolean] = {
+    activitiesCollection
+      .save(Json.toJson(activity))
+      .map(errors => errors.inError)
+  }
 
   def unsetInvoiceFromActivity(invoiceId: String): Future[Boolean] = {
     activitiesCollection

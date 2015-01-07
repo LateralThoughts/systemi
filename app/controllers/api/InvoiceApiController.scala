@@ -77,7 +77,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     }
   }
 
-  def moveInvoiceInDrive(oid: String, status: String, request: SecuredRequest[AnyContent]) {
+  private def moveInvoiceInDrive(oid: String, status: String, request: SecuredRequest[AnyContent]) {
     status match {
       case "paid" =>
         moveInvoice(oid, request, moveInvoiceToPaidFolder)
@@ -90,7 +90,7 @@ class InvoiceApiController(override implicit val env: RuntimeEnvironment[BasicPr
     }
   }
 
-  def moveInvoice(oid: String, request: SecuredRequest[AnyContent], movingFunction: (SecuredRequest[AnyContent], Invoice) => Unit) {
+  private def moveInvoice(oid: String, request: SecuredRequest[AnyContent], movingFunction: (SecuredRequest[AnyContent], Invoice) => Unit) {
     invoiceRepository.find(oid).flatMap {
       case Some(invoice) =>
         movingFunction(request, invoice)
